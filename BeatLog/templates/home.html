@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}BeatLog - Home{% endblock %}
+{% block content %}
+    <h1>BeatLog</h1>	  
+	  {% if logs|length > 0 %}
+	      <form method="POST" action="{{ url_for('home.home') }}" style="float:right;position:relative;top:-50px;">
+		  <em class="fs-6 text-muted">check all logs</em>
+	      <button type="submit" class="btn btn-sm btn-secondary fw-bold border border-success border-3" name="log_check" value="update_all">&#10004;</button>
+		  </form>
+	  {% endif %}	  
+	  <div class="row ms-5 my-3">
+	    <p class="fs-5 ms-2 fw-bold">Home IP: 
+		  {% if homeIP %}
+	        {% if homeIP|string in ignoreIPs %}
+	          <span class="text-muted fw-normal ms-3">{{ homeIP }}</span>
+		    {% else %}
+		      <span class="text-danger ms-3">{{ homeIP }}</span>
+		    {% endif %}
+			<br>Duration: 
+			{% if duration %}
+			  <span class="text-muted fw-normal ms-3">{{ duration.days }}.{{ (duration.seconds/3600)|int }} days</span>
+			{% else %}
+			  <span class="text-info fw-normal ms-3">all of time</span>
+			{% endif %}
+		  {% else %}
+		    <span class="text-danger ms-3"><em>{{ duration }}</em></span>
+		  {% endif %}
+		</p>	
+	  </div>	  
+	  <div class="row mx-5">
+	    {% for name, mod, parsed in logs %}
+		  <div class="col-xl-4 col-lg-5 border border-dark  bg-light m-1">
+		    <h3 class="ms-5 fs-4 fw-bold text-center">{{ name|capitalize }}
+			  <span class="badge"><form method="POST" action="{{ url_for('home.home') }}">
+		        <button type="submit" name="vacuum" value="{{ name }}" class="btn btn-sm btn-info fw-bold fs-6">&#11156;</button>
+			  </form></span>
+			</h3>
+			  <form style="float:right;" method="POST" action="{{ url_for('home.home') }}" >
+			    <button type="submit" class="btn btn-sm btn-secondary" value="{{ name }}" name="log_check">&#10004;</button>
+			  </form>
+		    <div class="btn-group mb-3 d-flex justify-content-center" role="group">
+			  <a class="btn btn-sm btn-primary rounded me-3" href="{{ url_for('logs.edit_log_file', log_file=name) }}">Location</a>
+			  <a class="btn btn-sm btn-warning rounded me-3" href="{{ url_for('logs.edit_log_regex', log_file=name) }}">Regex</a>
+			  <a class="btn btn-sm btn-success rounded me-3" href="{{ url_for('logs.parse_log_file', log_file=name) }}">Parse</a>				  
+		    </div>		  
+		    <p class="text-dark fs-6 fw-bold">
+			  <span class="text-muted">Modified:</span> {{ mod.strftime('%x %X') }}
+			  <br><span class="text-muted">Parsed: </span>
+			  {% if parsed[0] == check %}
+			    <span class="text-danger">Never!</span>
+			  {% elif parsed[1] == mod %}
+			    {{ parsed[0].strftime('%x %X') }}
+			  {% else %}
+			    <span class="text-info">{{ parsed[0].strftime('%x %X') }}, <em class="fw-normal">{{ ((mod - parsed[0]).total_seconds()/3600)|round(2) }} hours</em></span>
+			  {% endif %}
+		    </p>
+			{% if name in log_info %}
+			  <p class="text-muted fs-6">
+			    {{ log_info[name]|safe }}		
+			  </p>
+			{% endif %}
+			{% if name in alert %}
+			  <div class="alert alert-{{ alert[name][1] }} alert-dismissible fade show" role="alert">
+			    {{ alert[name][0] }}
+			    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			  </div>
+			{% endif %}
+		  </div>
+	    {% endfor %}
+	  </div>		  
+	{% if 4 > logs|length %}
+	  <div class="row mx-5">
+	    <div class="col-xl-4 col-lg-5 border border-dark bg-secondary m-1">
+		  <a href="{{ url_for('logs.add_log_file') }}" class="text-decoration-none">      
+			<button class="btn btn-danger fw-bold mb-2 me-3 p-3 border-dark"></button>
+			<span class="fs-3 fw-bold text-dark" style="-webkit-text-stroke:1px paleturquoise;">Add Log</span>
+		  </a> 
+		</div>
+	  </div>
+    {% endif %}
+{% endblock %}

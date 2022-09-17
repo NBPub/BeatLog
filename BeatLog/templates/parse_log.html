@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ log_file|capitalize }} Parsing{% endblock %}
+{% block content %}
+    <h1>{{ log_file|capitalize }} Parsing</h1>
+	  <div class="row row-cols-auto">
+		<div class="col mx-5"><p class="text-end"><br />
+		  <b>Last Parsed Line:</b> 
+		    {% if data[0][0] == check %}
+			  <span class="text-danger">Never!</span>
+		    {% else %}
+		      {{ data[0][0].strftime('%x %X') }}
+		    {% endif %}
+		  <br />
+		  <b>when {{ log_file|capitalize }} Modified:</b>{% if data[0][1] %}{{ data[0][1].strftime('%x %X') }} {% else %} <em>unknown</em>{% endif %}<br />
+		  <b>{{ log_file|capitalize }} Last Modified:</b> {{ data[1].strftime('%x %X') }}<br /><br />
+		</p></div>
+		<div class="col"><p>
+		  <u class="ms-3 fw-bold">Regex Methods</u><br />
+		    <b>Primary:</b> {{ data[2] }}<br />
+		    <b>Secondary:</b>{% if log_file == 'fail2ban' %} <em>no secondary method for fail2ban</em>{% else %}{{ data[3] }}{% endif %}<br />
+		    <b>Time Skip:</b> {{ data[4] }}<br />
+		</p></div>
+	  </div>
+	    {% if alert %}
+	      <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		    {{ alert[0] }}
+		    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		  </div>
+	    {% endif %}		  	   
+	{% if record %}
+	  <h2 class="ms-3">Results</h2>
+	    <div class="row ms-5 my-3"><div class="col">
+		  {% if log_file == 'fail2ban' %}
+		    <p class="text-muted fs-4">{{ record[0:3]|sum }} lines processed in {{ record[3] }} seconds</p>
+			<p class="fs-4">
+			  <b>Time Skips/Ignored: </b> {{ record[0] }}<br />
+			  <b>New Lines: </b> {{ record[1] }}<br />
+			  {% if record[2] > 0 %}
+			    <span class="text-danger"><em>Failed Regex: {{ record[2] }}</em></span>
+			  {% endif %} 
+		  {% else %}
+		    <p class="text-muted fs-4">{{ record[0:4]|sum }} lines processed in {{ record[4] }} seconds</p>
+		    <p class="fs-4">
+		    {% if data[4] %}
+		      <b>Time Skips: </b> {{ record[0] }}<br />
+			{% endif %}
+		    <b>Primary: </b> {{ record[1] }}<br />
+			{% if data[3] %}
+			  <b>Secondary: </b> {{ record[2] }}<br />
+			{% endif %}
+			{% if record[3] > 0 %}
+			  <span class="text-danger"><em>Failed Regex: {{ record[3] }}</em></span>
+			{% endif %}  
+		  {% endif %}
+			</p>
+		</div></div>
+	{% endif %}
+{% endblock %}

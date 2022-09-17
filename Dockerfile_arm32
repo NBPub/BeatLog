@@ -1,0 +1,13 @@
+FROM python:alpine
+RUN apk --no-cache add curl tzdata libpq build-base
+WORKDIR /app
+
+COPY requirements_arm32.txt .
+RUN pip install --upgrade pip 
+RUN pip install -r requirements_arm32.txt
+
+COPY /BeatLog/ ./beatlog
+
+ENTRYPOINT flask run
+
+EXPOSE 5000

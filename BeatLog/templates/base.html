@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Other CSS -->
+	{% block customCSS %}{% endblock %}	
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <title>{% block title %}{% endblock %}</title>
+	<link rel="icon" type="image/png" href="/static/favicon.png"/>
+  </head>
+  <body>
+    <!-- Navbar, https://getbootstrap.com/docs/5.2/components/navbar/-->	
+	<nav class="navbar navbar-expand-md bg-light border fixed-top">
+	  <div class="container-fluid">
+		<a class="navbar-brand" href="{{ url_for('home.home') }}">
+		  <img src="/static/favicon.png" style="width:30px;"/>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBase">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarBase">
+		  <ul class="navbar-nav me-auto">
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end border-start" href="{{ url_for('logs.add_log_file') }}">Logs</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="{{ url_for('logs.add_regex_method') }}">Regex</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="{{ url_for('home.configure_jail') }}">fail2ban</a>
+			</li>	
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="{{ url_for('home.recent_report') }}">Report</a>
+			</li>			
+			<li class="nav-item dropdown">
+			  <a class="nav-link dropdown-toggle fw-bold border-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+				Geography
+			  </a>
+			  <ul class="dropdown-menu">
+				<li><a class="dropdown-item" href="{{ url_for('geography.geography') }}">(Un)named Locations</a></li>
+				<li><a class="dropdown-item" href="{{ url_for('geography.geography_assess') }}">Data Assessment</a></li>
+				<li><a class="dropdown-item" href="{{ url_for('geography.geography_map') }}">Visitor Map</a></li>
+			  </ul>
+			</li>			
+			<li class="nav-item dropdown">
+			  <a class="nav-link dropdown-toggle fw-bold border-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+				Options
+			  </a>
+			  <ul class="dropdown-menu">
+			    <li class="dropdown-item fw-bold text-center">Settings</li>
+				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Report') }}">Recent Report</a></li>
+				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Geography') }}">Geography</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li class="dropdown-item fw-bold text-center">Custom Dates</li>
+				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Custom') }}">Report &#9946; Map</a></li>				
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="{{ url_for('home.data_clean') }}">Database Clean</a></li>
+				<li><a class="dropdown-item" href="{{ url_for('home.failed_regex') }}">Failed Regex</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item text-primary" href="https://github.com/NBPub/BeatLog#documentation" target="_blank">BeatLog Docs</a></li>
+			  </ul>
+			</li>			
+			<li class="nav-item ms-2">
+			  <form method="POST" action="{{ url_for('home.home') }}">
+			    <input type="submit" value="Parse All" name="parse_all" class="text-success fw-bold btn"/>
+			  </form> 
+			</li>	
+			{% block navbarAdds %}
+			{% endblock %}			
+		  </ul>
+		  <form method="POST" class="d-flex needs-validation" action="{{ url_for('home.Beat') }}">
+			<input class="form-control me-2"  type="text" name="BeatLog" placeholder="Enter IP address" value="" id="validationBeatLog" required>
+			<button class="btn btn-outline-success" type="submit" formtarget="_blank">Beat</button>
+		  </form>
+		</div>
+	  </div>
+	</nav><br /><br /><br />
+<div class="container-fluid">  	
+	<!-- block for page content -->
+	{% block content %}
+	{% endblock %}
+</div>		
+	<!-- Bootstrap JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+	{% block script_additions %}
+    {% endblock %}
+  </body>
+</html>

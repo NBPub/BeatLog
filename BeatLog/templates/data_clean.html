@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Database Cleanup{% endblock %}
+{% block content %}
+  <h1>Database Cleanup</h1>
+	{% if noIPgeo %}
+	  <a href="{{ url_for('geo.geography_assess') }}" class="btn btn-sm btn-warning" style="float:right">Clean Geography Cache: {{ noIPgeo }}</a>
+	{% endif %}
+    {% if not logs %}
+	  <h3 class="text-danger m-3">No records in the database! This page is intended to delete parsed log data</h3>
+	{% else %}
+	  <h3 class="ms-5 mt-2">Parsed Log data
+	    <a style="float:right" href="{{ url_for('geography.geography_assess') }}" class="btn btn-sm btn-warning my-2 mx-5">Geography Data</a>
+	  </h3>
+		<table class="table table-sm table-hover table-bordered border-primary table-striped-columns table-dark m-2">
+		    {{ table|safe }}
+	    </table>
+		<form method="POST" action="{{ url_for('home.data_clean') }}">
+		  <button type="submit" name="vacuum" class="btn btn-sm btn-info mt-3 mx-5">Vacuum Tables</button>
+		</form>
+		<p class="ms-2 text-muted">perform PostgreSQL <a href="https://www.postgresql.org/docs/current/sql-vacuum.html">vacuum</a> to update table data</p>
+<br><hr>	
+	  <h3 class="ms-5 mt-2">Delete Database Entries</h3>
+	  <form method="POST" action="{{ url_for('home.data_clean') }}">
+		<div class="input-group my-4">
+			<label for="log_select" class="form-label mx-3 fw-bold fs-5">Log Name</label>
+			<select class="form-select" id="log_select" name="log_select" required>
+			  {% if disable %}
+			    <option value="{{ existing[0] }}" selected>{{ existing[0] }}</option>
+			  {% else %}
+			    {% for log in logs.keys() %}
+				  {% if existing and log == existing[0] %}
+				    <option value="{{ log }}" selected>{{ log }}</option>
+				  {% else %}
+			        <option value="{{ log }}">{{ log }}</option>
+				  {% endif %}
+			    {% endfor %}
+			  {% endif %}
+			</select>
+			<label for="start" class="form-label mx-3 fw-bold fs-5">Start</label>
+			<input type="datetime-local" class="form-control" id="start" name="start" value={% if existing %}"{{existing[1]}}"{% else %}""{% endif %} {% if disable %}readonly{% endif %} required>		
+			<label for="stop" class="form-label mx-3 fw-bold fs-5">Stop</label>
+			<input type="datetime-local" class="form-control" id="stop" name="stop" value={% if existing %}"{{existing[2]}}"{% else %}""{% endif %} {% if disable %}readonly{% endif %} required>		
+		</div>
+		<div class="ms-2 mb-3">
+		  {% if estimate %}
+		    <p class="ms-3 fw-bold fst-italic text-danger">{{ estimate }}</p>
+		    <a href="{{ url_for('home.data_clean') }}" class="btn btn-secondary mx-5">Cancel</a>
+		    <button type="submit" class="btn btn-danger mx-5 text-end" name="confirm_delete">Confirm Deletion</button>
+		  {% else %}
+		    <button type="submit" class="btn btn-success mx-5 text-start" name="Estimate">Estimate Deletion</button>
+		  {% endif %}
+		</div>
+      </form> 
+    {% endif %}
+      {% if alert %}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		  {{ alert[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	  {% endif %}	
+{% endblock %}

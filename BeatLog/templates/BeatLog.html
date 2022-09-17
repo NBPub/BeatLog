@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}BeatLog!{% endblock %}
+{% block content %}
+  <h1>BeatLog IP Assessment</h1>
+    {% if beatIP[0] %}
+	  <span class="fs-3 ms-3 text-info bg-dark fw-bold">{{ beatIP[1] }}</span>
+	  <em class="ms-5 fw-bold text-muted">Most recent activity, up to 10 rows, from Access • fail2ban • Error logs.</em>
+	  <br><hr>
+	  <div class="row mb-5">
+	  {% if beatIP[0][0] %}
+	    <div class="col mx-2">
+	    <span class="fs-5 ms-4 fw-bold">Access Log</span><br />
+		<div class="table-responsive">
+	    <table class="table table-sm table-hover table-bordered table-striped-columns table-dark">
+		    {{ beatIP[0][0]|safe }}
+	    </table></div>
+		</div>
+	  {% endif %}
+	  {% if beatIP[0][1] %}
+	    <div class="col mx-2">
+	    <span class="fs-5 ms-4 fw-bold">fail2ban Log</span><br />
+	    <table class="table table-sm table-hover table-bordered table-striped-columns table-success">
+		    {{ beatIP[0][1]|safe }}
+	    </table>
+		</div>
+	  {% endif %}
+	  </div>
+	  <div class="row">
+	  {% if beatIP[0][2] %}
+	    <span class="fs-5 ms-4 fw-bold">Error Log</span><br />
+	    <table class="table table-sm table-hover table-bordered table-striped-columns table-dark me-5 mb-5">
+		    {{ beatIP[0][2]|safe }}
+	    </table>
+	  {% endif %}
+	  </div>
+	{% else %}
+      <span class="fs-3 ms-3 text-danger bg-dark"> Invalid IP address - {{ beatIP[1] }}</span>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Geography - Name Fill{% endblock %}
+{% block content %}
+		<form method="POST" action="{{ url_for('geography.geography') }}" id="update" style="float:right;">
+		  <button type="submit" name="vacuum" class="btn btn-sm btn-info fs-3 fw-bold">&#11156;</button><br>
+		  <label for="update" class="form-label text-muted fst-italic">update</label>
+		</form>	   
+   <h1>Geography Overview</h1>
+	{% if places > 0 %}
+	  <h2 class="ms-3 mt-5">Cached Locations <a href="{{ url_for('geography.geography_assess') }}" class="btn btn-primary btn-sm fw-bold">Assess Geo</a></h2>
+		<p class="ms-5 mt-2 fs-5">Named Locations: <b>{{ places|int }}</b><br>
+		    {% if blanks > 0 %}
+		      <span class="text-danger">Coordinates Only: <b>{{ blanks|int }}</b></span>
+			{% else %}
+			  Coordinates Only: <b>{{ blanks|int }}</b>
+			{% endif %}
+			{% if no_city > 0 or no_country > 0 %}
+			  <br /><em class="fs-6 text-danger">{{ no_city }} missing City, {{ no_country }} missing Country</em> 
+			  <form method="POST" action="{{ url_for('geography.geography') }}" id="geolocate" class="ms-3">
+			    <input type="submit" class="btn btn-success fw-bold" name="lookup" value="Lookup Locations">
+			    <div id="HelpBlock" class="form-text">
+				  Invoke's <a href="https://nominatim.openstreetmap.org/ui/search.html">OpenStreetMap's</a> 
+				  Nominatim reverse geocoding <a href="https://nominatim.org/release-docs/develop/api/Reverse/">service.</a><br>
+				  Max of 1 query / second, ~ <b>{{ blanks|int }} seconds total</b>
+				</div>
+			  </form>
+			{% else %}
+			  <br /><b class="fs-4 text-success">All locations named!</b>
+		    {% endif %}
+		</p>
+	{% else %}
+	  <h2 class="ms-3 mt-5">No Locations!</h2>
+	    <b class="text-danger ms-5 fs-5">Verify geography settings to ensure outside IPs are located</b><br>
+	    <a class="btn btn-primary ms-3 mt-5" href="{{ url_for('home.settings', _anchor='Geography') }}">Geography Settings</a>
+    {% endif %}
+	<br /><hr />
+    {% if alert %}
+	  <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+	    {{ alert[0] }}
+	    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	  </div>
+    {% endif %}
+  {% if geo_table %}
+	<span class="fs-5 ms-4 fw-bold">Unnamed Locations</span><br />
+	<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5">
+	  <thead><tr><th scope="col">IPs</th><th scope="col">Lat</th><th scope="col">Lon</th><th scope="col">MapLink</th><th scope="col">City</th><th scope="col">Country</th><th scope="col"><em>modify</em></th></tr></thead>
+	  <tbody>
+	{% for id, lat, lon, link1, link2, city, country  in geo_table %}
+<form method="POST" action="{{ url_for('geography.geography') }}" id="geoupdate">
+  <tr>
+    <th scope="row">{{ IPs[id] }}</th><td>{{ lat }}</td><td>{{ lon }}</td>
+	<td><a href="{{ link1 }}">OpenStreetMap</a>, <a href="{{ link2 }}">Google</a></td>
+	<td><input class="form-control" type="text" name="city" value="{{ city }}"></td>
+	<td><input class="form-control" type="text" name="country" value="{{ country }}"></td>
+	<td><button type="submit" class="btn btn-success btn-sm mx-1" value="{{ id }}" name="Update">Update</button>
+	<button type="submit" class="btn btn-danger btn-sm mx-1" value="{{ id }}" name="Delete">Delete</td>
+  </tr>
+</form>
+	{% endfor %}
+	  </tbody>
+	</table>
+  {% endif %}
+	{% if result %}
+	  <div class="bg-dark">
+	    <ul>
+	      {% for r in result %}
+		    <li class="text-info"> {{ r }}</li>
+		  {% endfor %}
+		</ul>
+	  </div>
+    {% endif %}	
+{% endblock %}

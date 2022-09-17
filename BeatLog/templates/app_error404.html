@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}BeatLog - 404{% endblock %}
+
+{% block content %}
+<h1 class="mt-3 text-danger">&#127812; &#128018; Invalid URL</h1>
+  <div class="d-flex justify-content-center">
+	<img class="rounded" src="https://i.giphy.com/media/UHAYP0FxJOmFBuOiC2/giphy.webp" alt="404">		
+  </div>
+  <p class=" text-center"><a href="https://jijidraws.shop/" class="fst-italic text-muted">Artist Page</a></p>	  
+  <div class="bg-dark p-3 rounded my-3">
+	<p class="fs-5 ms-3 text-info">{{ e.description }}</p>
+  </div>
+{% endblock %}

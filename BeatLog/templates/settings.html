@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Report,Map - Settings/Custom{% endblock %}
+
+{% block content %}
+  <h1 id="Report">Settings</h1>
+  <div class="row mx-5">
+	<h2 class="text-center mt-3">Report Settings</h2>
+	  <div class="bg-light">
+		<form method="POST" action="{{ url_for('home.settings') }}" id="ReportSetting">	    
+		  <label for="ReportDaysId" class="form-label">Previous days to include in <b>Recent Report</b></label>
+		  <output name="ReportDaysOutput" id="ReportDaysOutputId" class="fs-5 fw-bold border border-dark border-3 ms-3 mt-2 px-2">{{ old[0] }}</output>		  
+		  <input name="ReportDays" type="range" class="form-range" min="1" max="7" step="1" value="{{ old[0] }}" id="ReportDaysId" oninput="ReportDaysOutputId.value = ReportDaysId.value">
+		  
+		  <label for="HomeIgnore" class="form-label mt-3">Specify
+			<a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
+		    for specifically identifying <b>fail2ban home ignores</b> <em class="ms-5 text-muted">(status BETWEEN 399 AND 501 OR http<20)</em></label>
+	      <textarea class="form-control" name="HomeIgnore" id="HomeIgnore">{% if old[1] %}{{ old[1]}}{% endif %}</textarea>
+		  
+		  <label for="KnownDevices" class="form-label mt-3">Specify 
+		    <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
+		    for excluding <b>Known Devices</b><em class="ms-5 text-muted">tech NOT IN ('DSub', 'something else')</em>
+		  </label>
+		  <textarea class="form-control mb-3" name="KnownDevices" id="KnownDevices">{% if old[2] %}{{ old[2]}}{% endif %}</textarea>		  		  		  
+		    <span class="ms-3 text-decoration-underline">Report options for <b>Known Devices:</b></span>
+			  <div class="form-check form-switch">
+				<input name="KD_1" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_1" {% if old[3] %}checked{% endif %}>
+				<label class="form-check-label my-1" for="KD_1">Exclude from Visitors in Daily Action Counts and Hit Distribution charts?</label><br>
+			  </div>
+			  <div class="form-check form-switch">
+				<input name="KD_2" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_2" {% if old[4] %}checked{% endif %}>
+				<label class="form-check-label my-1" for="KD_2">Separate from Outside Frequent Visitors?</label><br>
+			  </div>	
+			  <p class="ms-5 text-muted">Known devices are excluded from Filtrate tables by default</p>			  
+		    <span class="fw-semibold text-primary ms-4">Include separate Outside Top 10 tables?</span><br>
+			  <div class="form-check form-switch">
+				<input name="KD_3" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_3" {% if old[5] %}checked{% endif %}>
+				<label class="form-check-label my-1" for="KD_3">Data Transfers</label><br>	       
+			  </div>
+			  <div class="form-check form-switch">		    
+				<input name="KD_4" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_4" {% if old[6] %}checked{% endif %}>
+				<label class="form-check-label my-1" for="KD_4">RefURL / User-Agent</label><br>
+			  </div>
+			  <div class="form-check form-switch mb-2">		    
+				<input name="KD_5" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_5" {% if old[7] %}checked{% endif %}>
+				<label class="form-check-label my-1" for="KD_5">Locations</label><br>
+			  </div>		  
+		  
+		  <span class="fw-bold">Location Table count by:</span>
+		  <div class="form-check form-check-inline">
+			<input class="form-check-input ms-3" type="radio" id="LocTabTotal" name="LocTab" value="Total" {% if not old[8] %}checked{% endif %}>
+			<label class="form-check-label mx-2" for="LocTabTotal">Total Hits</label>
+		  </div>
+		  <div class="form-check form-check-inline">
+			<input class="form-check-input ms-3" type="radio" id="LocTabIP" name="LocTab" value="IP" {% if old[8] %}checked{% endif %}>
+			<label class="form-check-label mx-2" for="LocTabIP">Visitors (Unique IPs)</label>
+		  </div>
+		  
+		  <div class="text-center">
+		    <button type="submit" class="btn btn-dark my-3 mx-5" name="ReportSet">Save Report Settings</button>
+		    <a class="btn btn-info my-3 mx-5" href="{{ url_for('home.recent_report') }}" target="_blank">Open Recent Report</a>
+		  </div>
+		</form>
+	   </div>
+<br /><br /><hr />
+{% if alert %}
+  <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+	{{ alert[0] }}
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endif %}
+	<h2 class="text-center mt-5" id="Geography">Geography Settings</h2>
+	  <div class="bg-light">
+		<form method="POST" action="{{ url_for('home.settings', _anchor='Geography') }}" id="GeoSetting">
+	      <label for="formFileLocation" class="form-label fw-bold mt-3">MaxMindDB Location
+		  {% if not old[9] %}
+		    <br><em class="text-danger fw-normal fw-6 ms-3">required to associate locations with outside IPs</em>
+		  {% endif %}
+		  </label>
+	      <input class="form-control" type="text" id="formFileLocation" name="mmdb_loc" value="{% if old[9] %}{{ old[9]}}{% endif %}">
+		  <div id="HelpBlock" class="form-text fw-normal">	
+		      {% if mm_check %}
+			    <span class="ms-3 text-success">Last modified:</span> {{ mm_check }}
+			  {% else %}
+			    {% if mm_check == False %}<em class="text-danger">mmdb file not found or invalid</em><br>{% endif %}
+		        If the <a href="https://github.com/linuxserver/docker-mods/tree/swag-maxmind">maxmind mod</a> is installed, 
+			    <b>GeoLite2-City.mmdb</b> file is located in <a href="https://www.maxmind.com/en/geoip2-city">geoip2db</a> 
+			    directory within SWAG's config.
+			  {% endif %}
+			  <br>
+		  </div>		  
+	      <label for="GeoDaysId" class="form-label mt-5">Previous days to include in <b>Visitor Map</b></label>
+		  <output name="GeoDaysOutput" id="GeoDaysOutputId" class="fs-5 fw-bold border border-dark border-3 ms-3 mt-2 px-2">{{ old[10] }}</output>
+		  <input name="GeoDays" type="range" class="form-range mb-3" min="1" max="7" step="1" value="{{ old[10] }}" id="GeoDaysId" oninput="GeoDaysOutputId.value = GeoDaysId.value">    
+		  
+		  <span class="fw-bold">Scale map by:</span>
+		  <div class="form-check form-check-inline">
+			<input class="form-check-input ms-3" type="radio" id="MapCountTotal" name="MapCount" value="Total" {% if not old[11] %}checked{% endif %}>
+			<label class="form-check-label mx-2" for="MapCountTotal">Total Hits</label>
+		  </div>
+		  <div class="form-check form-check-inline">
+			<input class="form-check-input ms-3" type="radio" id="MapCountIP" name="MapCount" value="IP" {% if old[11] %}checked{% endif %}>
+			<label class="form-check-label mx-2" for="MapCountIP">Visitors (Unique IPs)</label>
+		  </div><br>
+		  
+		  <label for="NominatimAgent" class="form-label mt-5">Enter <b>User-Agent</b> to use for <a href="https://nominatim.openstreetmap.org/ui/search.html">OpenStreetMap's</a> 
+				  Nominatim reverse geocoding <a href="https://nominatim.org/release-docs/develop/api/Reverse/">service.</a>			  
+				  {% if not old[12] %}
+				    <br><em class="text-danger fw-normal fw-6 ms-3">required to fill un-named MaxMindDB coordinates</em>
+				  {% endif %}
+		  </label>
+		  <textarea class="form-control" name="NominatimAgent" id="NominatimAgent">{% if old[12] %}{{ old[12]}}{% endif %}</textarea>
+		  <p>For more on specifying User-Agent/HTTP Referer, see their <a href="https://operations.osmfoundation.org/policies/nominatim/">usage policy.</a></p>
+		  <div class="text-center">
+		  
+	        <button type="submit" class="btn btn-dark my-3 mx-5" name="GeoSet">Save Geography Settings</button>
+		    <button type="submit" class="btn btn-info my-3 mx-5" name="geomap" value="recent" formtarget="_blank" formaction="{{ url_for('geography.geography_map') }}">Open Visitor Map</button>
+		  </div>
+	    </form>
+	  </div>
+<br /><br /><hr /></div> 
+<br /><br /><hr />
+  <h1 class="mt-5">Custom Report or Visitor Map</h1>
+	<div class="row mx-5 mb-5 bg-light border-bottom border-black-50">	
+	  <form method="POST" action="">
+		<div class="input-group my-5">
+			<label for="start" class="form-label mx-3 fw-bold fs-5">Start</label>
+			<input type="datetime-local" class="form-control" id="start" name="start" value="" required>		
+			<label for="end" class="form-label mx-3 fw-bold fs-5">End</label>
+			<input type="datetime-local" class="form-control" id="end" name="end" value="" required>		
+		</div>
+		<div id="Custom" class="text-center mb-3">
+		  <button type="submit" class="btn btn-primary mx-5" name="CustomMap" formaction="{{ url_for('geography.geography_map') }}" formtarget="_blank">Generate Map</button>
+		  <button type="submit" class="btn btn-primary mx-5" name="CustomReport" formaction="{{ url_for('home.recent_report') }}" formtarget="_blank">Generate Report</button>
+		</div>
+      </form>
+	</div>
+{% endblock %}

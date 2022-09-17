@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Add Log File{% endblock %}
+
+{% block content %}
+  {% if existing.keys()|length < 4 %}
+    <h1>Create Log File</h1>
+	  <form method="POST" action="{{ url_for('logs.add_log_file') }}" id="add_log_file" class="ms-3 mt-3">	
+	    <label for="formFileLocation" class="form-label fs-5 fw-bold">Specify log file's location</label>
+	    <input class="form-control" type="text" id="formFileLocation" name="log_location">
+		<div id="HelpBlock" class="form-text">
+		  If input location is real and accessible, log type will be set according to its name.
+		</div>		
+		<input type="submit" class="btn btn-dark mt-2 fw-bold" value="Add Log">
+	  </form>
+  {% else %}
+    <h1 class="text-success">All Logs Created</h1>
+  {% endif %}
+	  <br /><br /><hr />
+	  {% if available %}
+	    <p class="fs-3 ms-3">Available logs:
+	      <p class="fs-5 mt-3">
+	        {% for name in available %}
+		      <span class="bg-success p-2 ms-3 rounded">{{ name }}</span>
+	        {% endfor %}
+		  </p>
+	    </p>
+	  {% endif %}
+	  {% if alert %}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		  {{ alert[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div><br />
+	  {% endif %}
+	  {% if existing %}
+	    <p class="fs-3 ms-3">Created logs:<br>
+	      <span class="fs-5 ms-5"><em>Click name to see log location</em></span></p>
+	        {% for name, location in existing.items() %}
+		      <button class="bg-secondary p-2 ms-3 rounded mt-3 fw-bold text-light fs-4" style="width:30%;" type="button" data-bs-toggle="collapse" data-bs-target="#{{ name }}">{{ name }}</button>
+			    <a class="btn btn-warning mb-2 ms-3" href="{{ url_for('logs.edit_log_regex', log_file=name) }}">Regex</a>
+				<div class="collapse my-1" id="{{ name }}">
+			      <div class="card card-body">
+				    {{ location }}
+				  </div>
+				  <a class="btn btn-info btn-sm" style="float:right; position:relative; bottom:45px; right:10px;" href="{{ url_for('logs.edit_log_file', log_file=name) }}">Edit</a>
+			    </div>			    
+			  <br />
+	        {% endfor %}
+	  {% endif %}
+{% endblock %}

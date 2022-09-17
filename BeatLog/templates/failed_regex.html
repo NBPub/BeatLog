@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Parsing Failures{% endblock %}
+{% block content %}
+  <h1>Failed Regex / Parsed Lines</h1>
+	{% if lines > 0 %}
+	  <p class="fs-3 text-danger ms-5">{{ lines }} lines failed to parse, page features in development</p>
+    {% else %}
+	  <p class="fs-3 text-success ms-5">No parsing failures found!</p>
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}fail2ban Jail{% endblock %}
+{% block content %}
+    <h1>fail2ban - Jail.Local</h1>
+	  {% if message %}
+	    <div class="alert alert-{{ message[1] }} alert-dismissible fade show" role="alert">
+		  {{ message[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	  {% endif %}
+	  {% if not jail %}
+	    <form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3 mt-3">	
+	      <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
+	      <input class="form-control" type="text" id="jailLocation" name="Location">
+		  <div id="HelpBlock" class="form-text">
+		    File will be read to determine fail2ban settings.
+		  </div>		
+		  <input type="submit" class="btn btn-dark mt-2 fw-bold" name="set_jail" value="Set Jail">
+	    </form>
+	    <br /><br /><hr />
+	  {% else %}
+	    <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#hiddenForm" style="float:right;">
+		  Modify Location
+	    </button>
+		  <div class="collapse" id="hiddenForm">
+			<form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3">	
+			  <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
+			  <input class="form-control" type="text" id="jailLocation" name="Location" value="{{ jail[0] }}">
+			  <div id="HelpBlock" class="form-text">
+				File will be read to determine fail2ban settings.
+			  </div>		
+			  <input type="submit" class="btn btn-dark mt-2 fw-bold"  name="set_jail" value="Set Jail">
+			  <input type="submit" class="btn btn-danger mt-2 fw-bold" style="float:right" name="delete_jail" value="Delete Jail">
+			</form>
+			<br /><br /><hr />
+		  </div>		
+	    <p class="fs-3 ms-3 fw-bold">Status</p>
+		<p class="ms-5">
+		  <b>Modified:</b> {{ jail[1].strftime('%x %X') }}<br>
+		  <b>Checked:&nbsp;</b> {{ jail[2].strftime('%x %X') }}<br>
+		  <b>Ignored IPs:</b>
+		  {% for IP in ignoreIPs %}
+		    {% if IP == homeIP|string %}
+		      <span class="text-success fw-bold fs-6">{{ IP }}</span> •
+			{% else %}
+			  <span class="fs-6 text-danger"><em>{{ IP }}</em></span> •
+			{% endif %}
+		  {% endfor %}		
+		</p>
+		<p class="ms-4 fs-3 fw-bold">Enabled Filters:<br>
+		<span class="ms-4 fs-6 fw-normal">&#9989; <em>check filter activity over the past day</em></span></p>
+		  <form method="POST" action="{{ url_for('home.configure_jail') }}" id="filter_check_all" style="float:right;position:relative;top:-50px;">
+		  <button type="submit" class="btn btn-lg border" name="all_activity">&#10035; <b>check all</b></button></form>
+		</p>
+		<div class="row row-cols-auto">	  
+	    {% for log in watch_logs %}
+		  <div class="col"><p class="fw-bold text-center fs-4">{{ log|capitalize }} Log</p>
+			{% for filter in jail[3]['enabled'] %}
+		      {% if filter['log'] == log %}
+		        <div class="card my-2 border border-primary border-3" style="width: 18rem;"><div class="card-body">
+		          <h5 class="card-title text-center">{{ filter['name'] }}
+				    <form method="POST" action="{{ url_for('home.configure_jail') }}" id="filter_check" style="float:right;position:relative;top:-20px;right:-20px;">
+				    <button type="submit" class="btn btn-lg" name="activity" value="{{ filter['name'] }}">&#9989;</button></form>
+				  </h5>
+				  Retries: {{ filter['retry'] }}
+				  {% if 'stats' in filter %}
+				    <span class="text-{{ filter['stats'][0] }}"><br><b>Past day:</b>
+					{% for stat in filter['stats'][1] %}
+					  <br>{{ stat }}
+					{% endfor %}
+					</span>
+				  {% endif %}				  
+		        </div></div>
+			  {% endif %}
+		    {% endfor %} 
+		  </div>
+		{% endfor %}  
+		</div>		
+	  {% endif %}
+{% endblock %}

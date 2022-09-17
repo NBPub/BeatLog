@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ log_file|capitalize }}{% endblock %}
+{% block content %}
+    <h1>Edit Log File</h1>
+	  <form method="POST" action="{{ url_for('logs.edit_log_file', log_file=log_file) }}" class="ms-3 mt-3">	
+	    <label for="formFileLocation" class="form-label fs-5 fw-bold">Specify new location for {{ log_file|capitalize }}</label>
+	    <input class="form-control" type="text" id="formFileLocation" name="log_location" value="{{ location}}" required>
+		<div id="HelpBlock" class="form-text">
+		  New location must be real, accessible, and for <em class="me-3">{{ log_file }}.log</em> Data and regex methods for <b>{{ log_file|capitalize }}</b> will be retained.
+		</div>		
+		<input type="submit" class="btn btn-dark mt-4 ms-5 fw-bold" value="Update Location" name="update">
+		<button type="button" class="btn btn-danger mt-4 me-5 fw-bold" data-bs-toggle="modal" data-bs-target="#confirmDelete" style="float:right;">Delete Log</button>
+	  </form>
+	  <br /><hr />
+	  {% if alert %}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		  {{ alert[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div><br />
+	  {% endif %}
+		<div class="modal fade" id="confirmDelete" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+		    <div class="modal-header">
+			  <h5 class="modal-title" id="exampleModalLabel">Delete {{ log_file|capitalize }}?</h5>
+			  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+			  Regex associations will be removed, but parsed data will persist in the database. 
+			  Visit <a href="{{ url_for('home.data_clean') }}" target="_blank">clean database</a> to delete.
+			</div>
+			<div class="modal-footer">
+			  <form method="POST" action="{{ url_for('logs.edit_log_file', log_file=log_file) }}">
+			  <button type="submit" class="btn text-danger border-danger fw-bold" name="confirm_delete">Confirm</button>
+			</div>
+		</div></div></div>  
+{% endblock %}

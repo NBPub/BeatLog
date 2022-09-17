@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ log_file|capitalize }} Regex{% endblock %}
+{% block content %}
+    <h1>{{ log_file|capitalize }} Regex
+	  <a href="{{ url_for('logs.add_regex_method') }}" class="btn btn-info fw-bold mx-5" >Regex Methods</a>
+	</h1>
+	  <div class="row me-3">	  
+	  <form method="POST" action="{{ url_for('logs.edit_log_regex', log_file=log_file) }}" id="add_log_file" class="ms-3 my-3">
+	    {% for db, friendly  in alias.items() %}
+		  <label class="form-label ms-5 text-muted fw-semibold" for="{{ friendly }}">
+		    {% if friendly == 'Primary' %}
+			  First choice, if exists, to populate {{ log_file|capitalize }} database
+			{% elif friendly == 'Secondary' %}
+			  If primary method fails or doesn't exist, the <b>Secondary</b> method will be used to populate {{ log_file|capitalize }} database
+			{% elif friendly == 'Time Skip' %}
+			  Used to skip already parsed lines. Speeds up log parsing. 
+			  {% if time_warning %}<em class="text-danger">Only the first group is used to skip lines</em>{% endif %}
+			{% endif %}
+		  </label>
+	      <div class="input-group mb-3" id="{{ friendly }}">		    
+		    <span class="input-group-text fw-bold" style="width:10vw;">{{ friendly }}</span>
+		    <select class="form-select" name="{{ db }}">
+			  {% if not log_methods or log_methods[db] == None %}
+		        <option selected value="">Select method</option>
+			    {% for method_name in regex_methods.keys() %}
+		          <option value="{{ method_name }}">{{ method_name }}</option>		  
+			    {% endfor %}
+			  {% else %}
+			    {% for method_name in regex_methods.keys() %}
+				  {% if method_name == log_methods[db] %}
+		            <option selected value="{{ method_name }}">{{ method_name }}</option>	
+				  {% else %}
+				    <option value="{{ method_name }}">{{ method_name }}</option>
+				  {% endif %}		  
+			    {% endfor %}	
+				<option value="" class="text-danger fw-bold">Remove Method</option>				
+			  {% endif %}		  
+		    </select>
+	      </div>
+		{% endfor %}
+		<input type="submit" class="btn btn-dark mt-2 fw-bold mx-5" name="save_log_regex" value="Save Regex">
+	  </form></div>
+
+	  {% if alert %}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		  {{ alert[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div><br />
+	  {% endif %}
+	  
+	  <br /><hr />
+	  {% if method_info %}
+	    <div class="row ms-2">
+	    <h2>Saved Methods
+		  <form style="display:inline-block" method="POST" action="{{ url_for('logs.edit_log_regex', log_file=log_file) }}" >
+			<button type="submit" class="btn btn-sm btn-primary rounded fw-bold ms-2 mb-2" value="10000" name="test_regex">Test Regex</button>
+		  </form>			
+		</h2><br />
+	    {% for key, value in method_info.items() %}
+		  <div class="col">
+		    <ul class="fw-bold"><span class="fs-4 text-primary">{{ key[0] }} : {{ key[1] }}</span>
+			  {% if key[0] != 'Time Skip' %}
+				  {% for group in value %}
+					{% if group.lower() in scheme %}
+					  <span class="text-success">
+					{% else %}
+					  <span class="text-danger fst-italic">
+					{% endif %}
+					<li>{{ group }}</li></span>
+				  {% endfor %}
+			  {% else %}
+				  {% for group in value %}
+					{% if group == value|first %}
+					  <span class="text-info">
+					{% else %}
+					  <span class="text-muted">
+					{% endif %}
+					<li>{{ group }}</li></span>
+				  {% endfor %}
+			  {% endif %}
+		    </ul>
+			{% if test_results %}
+			  <p class="fs-6 text-info fw-bold">{{ test_results[key[0]]|safe }}</p>
+			{% endif %}
+		  </div>
+		{% endfor %}
+		</div>
+		<p class="text-center fw-bold mx-2 mt-2">Regex group:<br>
+		  <em class="text-success">• matches Log's database</em>
+		  <em class="text-danger ms-4">• not in Log's database</em>
+		  {% if time_warning %}<em class="text-info ms-4">• only the first group is used in a Time Skip method</em>
+		  {% else %}<em class="text-info ms-4">• matches date for Time Skip</em>
+		  {% endif %}
+		</p>
+		<div class="d-flex justify-content-center">
+		<div class="col-sm-9 col-md-6 col-xl-3 bg-dark text-warning d-flex justify-content-center rounded">
+		<ul class="fw-bold ms-5"><span style="text-decoration:underline;">{{ log_file|capitalize }} database columns</span>
+		  {% for col in scheme %}
+		    {% if col in ['geo','home'] %}
+			  <li class="text-white-50 fst-italic">{{ col }} - does not use Regex</li>
+			{% else %}
+		      <li class="">{{ col }}</li>
+			{% endif %}
+		  {% endfor %}
+		</ul></div></div>
+	  {% endif %}	 
+{% endblock %}

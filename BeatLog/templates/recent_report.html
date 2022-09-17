@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+<!-- Report Navigation button--> 
+{% block navbarAdds %}
+<li class="nav-item dropdown bg-dark">
+  <a class="nav-link dropdown-toggle text-warning fw-bold bg-dark" href="#" role="button" data-bs-toggle="dropdown">Contents</a>
+  <ul class="dropdown-menu" id="reportNav">
+    <li><a class="dropdown-item fw-bold" href="#scrollspyTop">Overall</a></li>
+	<li><a class="dropdown-item fw-bold" href="#scrollspyHome">Home</a></li>
+	{% if homef2b %}<li><a class="dropdown-item text-center" href="#scrollspyHomeIgs">Ignores</a></li>{% endif %}
+	<li><a class="dropdown-item fw-bold" href="#scrollspyOutside">Outside</a></li>
+	<li><a class="dropdown-item text-center" href="#scrollspyFrequents">Frequenters</a></li>	
+	<li><a class="dropdown-item fw-bold" href="#scrollspyfail2ban">fail2ban</a></li>
+	<li><a class="dropdown-item text-center" href="#scrollspyFiltrate">Filtrate</a></li>	
+  </ul>	
+</li>  
+{% endblock %}
+{% block content %}
+  <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
+    <!-- Title --> 
+    <h1 id="scrollspyTop">BeatLog Report - {{ duration }} days</h1>
+	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on {{ start }}, ending on {{ end }}</p>  
+	<!-- Summary Table up top --> 
+	  <table class="table table-hover table-striped-columns me-5">
+	    <thead>
+	      <tr>
+		    <th scope="col" class="text-muted fs-6 text-end"> Total Hits (Unique IP)</th>
+		    <th scope="col" class="table-primary">Access Log</th>
+		    <th scope="col" class="table-danger">Error Log</th>
+		    <th scope="col" class="table-warning">Unauthorized</th>
+		  </tr>
+	    </thead>
+		<tbody>
+		  <tr class="text-center fw-bold">
+		    <th scope="row" class="text-center">Home</th>
+		    <td class="table-primary">{{ home_summary[0] }}  ({{ home_summary [3] }})</td>
+		    <td class="table-danger">{{ home_summary[1] }}  ({{ home_summary [4] }})</td>
+		    <td class="table-warning">{{ home_summary[2] }}  ({{ home_summary [5] }})</td>
+		  </tr>
+		  <tr class="text-center fw-bold">
+		    <th scope="row" class="text-center">Outside</th>
+		    <td class="table-primary">{{ out_summary[0] }}   ({{ out_summary [3] }})</td>
+		    <td class="table-danger">{{ out_summary[1] }}   ({{ out_summary [4] }})</td>
+		    <td class="table-warning">{{ out_summary[2] }}   ({{ out_summary [5] }})</td>
+		  </tr>
+		</tbody>
+	  </table>
+	  <!-- Action Count bar chart -->
+	  <div style="background-color:rgb(42,42,42);"><div style="width:50%;margin:auto;">
+	    <p class="text-center fw-bold text-light mt-5">
+	    fail2ban <span style="color:LightSkyBlue;">Finds</span>, <span style="color:PaleGreen;">Bans</span> vs outside <span style="color:PaleVioletRed;">Visitors</span> (unique IP)<br />
+	    fail2ban home <span style="color:LightSalmon;">Ignores</span> vs total home <span style="color:MediumOrchid;">Ignorable</span> hits</p>	  
+	    </div><div id="{{ actionCounts[0] }}" style="width:70%;height:420px;margin:auto;z-index:0;"></div></div>	  
+<br /><hr />
+<!-- Home Summary  --> 
+	<h2 class="ms-2 mt-3" id="scrollspyHome">Home Summary</h2>
+	    <p class="fs-5 ms-4 fw-bold">Home IP(s): 
+		  {% for IP in homeIP %}
+	        <span class="text-success fw-bold fs-6">{{ IP[0] }}</span> •
+		  {% endfor %}
+		</p>	
+	<!-- daily table --> 	
+	  <table class="table table-sm table-responsive table-hover table-striped-columns me-5">
+	    <thead>
+	      <tr>
+		    <th scope="col"> </th>
+		    <th scope="col" class="table-dark text-center">Duration</th>
+			{% for day in report_days %}
+		      <th scope="col" class="text-center">{{ day.strftime('%x') }}</th>
+		    {% endfor %}
+		  </tr>
+	    </thead>
+		<tbody>
+		  <tr>
+		    <th scope="row" class="text-center">Total Hits</th>
+		    <td class="table-dark text-center">{{ home_summary[0] }}</td>
+			{% for day in report_days %}
+		      <td class="text-center">{{ home_table['access'][day] }}</td>
+		    {% endfor %}
+		  </tr>
+		  <tr>
+		    <th scope="row" class="text-center">Error &nbsp;&#10568;&nbsp; Unauthorized</th>
+		    <td class="table-dark text-center">{{ home_summary[1] }} &nbsp;&#10571;&nbsp; {{ home_summary[2] }}</td>
+			{% for day in report_days %}
+		      <td class="text-center">{{ home_table['error'][day] }} &nbsp;&#10571;&nbsp; {{ home_table['unauthorized'][day] }}</td>
+		    {% endfor %}
+		  </tr>
+		  <tr>
+		    <th scope="row" class="text-center">HTTP/1.x &nbsp;&#10568;&nbsp; 4xx client error</th>
+		    <td class="table-dark text-center">{{ home_table['HTTP/1.x'].values()|sum }} &nbsp;&#10571;&nbsp;  {{ home_table['4xx'].values()|sum }}</td>
+			{% for day in report_days %}
+		      <td class="text-center">{{ home_table['HTTP/1.x'][day] }} &nbsp;&#10571;&nbsp; {{ home_table['4xx'][day] }}</td>
+		    {% endfor %}
+		  </tr>	  
+		</tbody>
+	  </table>
+	  <br />	  
+	  <!-- HTTP codes / methods bar charts --> 
+	  <p class="text-center fw-bold text-muted" style="position:relative;top:15px;">
+	    Counts of HTTP <a href="https://www.httpstatuses.org/">status codes</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">request methods</a> from Home connections
+	  </p>
+	  <div id="{{ homeStatus[0] }}" style="width:40%;height:300px;display:inline-block;z-index:0;" class="ms-5" ></div>
+	  <div id="{{ homeMethod[0] }}" style="width:40%;height:300px;display:inline-block;z-index:0;" class="ms-5" ></div>	  
+	  <!-- Unique Devices --> 	
+	    <p class="fs-5 ms-4 mt-5 fw-bold">
+		  Home Devices: {{ homeDevices[1] }}
+		</p>
+	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		    <caption>Devices AKA tech AKA <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent</a></caption>
+		    {{ homeDevices[0]|safe }}
+	      </table>		  
+	  <!-- Ignores Table --> 
+	  {% if homef2b %}
+	    <p class="fs-5 ms-4 fw-bold" id="scrollspyHomeIgs">Home Ignores: {{ homef2b[1] }}</p>
+	      <button class="btn btn-dark ms-4" type="button" data-bs-toggle="collapse" data-bs-target="#homeIgnores">Show Table</button>	
+	    <div class="collapse" id="homeIgnores">
+	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+		    <caption>Table shows max of one ignore / second, so daily count may be less than the actual shown in the Action Count graph.</caption>
+		    {{ homef2b[0]|safe }}
+	      </table>
+		</div>
+	  {% endif %}		  
+<br /><hr />
+<!-- Outside Summary, daily line graph + barcharts  --> 
+	<h2 class="ms-2 my-3" id="scrollspyOutside">Outside Summary</h2>
+	  <p class="fw-bold text-muted">
+	    <span style="float:left">Outside connections per log, with unique IPs shown from the access log.</span>
+		<span style="float:right;position:relative;right:80px;">Visitors by amount of hits.</span>
+	  </p>
+	  <div id="{{ outDaily[0] }}" style="width:65%;height:420px;display:inline-block;z-index:0;"></div>
+	  <div id="{{ outHitsIP[0] }}" style="width:30%;height:420px;display:inline-block;z-index:0;" class="ms-4" ></div>  
+	  <p class="text-center fw-bold text-muted mt-3" style="position:relative;top:15px;">
+	    Counts of HTTP <a href="https://www.httpstatuses.org/">status codes</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">request methods</a> from outside connections
+	  </p>
+	  <div id="{{ outStatus[0] }}" style="width:45%;height:300px;display:inline-block;z-index:0;" class="mx-3" ></div>
+	  <div id="{{ outMethod[0] }}" style="width:45%;height:300px;display:inline-block;z-index:0;" class="mx-3" ></div>
+	  <br />
+	  <!-- Frequent Visitors --> 
+	  <h3 class="ms-2 my-3" id="scrollspyFrequents" >Frequent Visitors</h3>
+		<form method="POST" action="{{ url_for('geography.geography_map') }}" target="_blank" class="text-end">
+		  <input type="hidden" name="existing_begin" value="{{ start[:-3] }}">
+		  <input type="hidden" name="existing_stop" value="{{ end[:-3] }}">
+		  <input type="hidden" name="existing_select" value="{{ time_select }}"> 
+		  <button type="submit" class="btn btn-primary mx-3 fw-bold" name="map_from_report">Visitors Map</button>
+		</form>
+	  {% if freqIPs_access %}
+		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - {{ freqIPs_access[1] }}</span><br />  
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5 caption-top">
+	      <caption>IPs with > 4 hits</caption>
+		    {{ freqIPs_access[0]|safe }}
+	    </table>
+	  {% endif %}
+	  {% if freqIPs_known %}
+	    <span class="fs-5 ms-4 fw-bold">Known Devices - {{ freqIPs_known[1] }}</span><br />
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5 caption-top">
+	      <caption>Known Devices with > 4 hits</caption>
+		    {{ freqIPs_known[0]|safe }}
+	    </table>
+	  {% endif %}		
+	  {% if freqIPs_error %}
+	    <span class="fs-5 ms-4 fw-bold">Error Log - {{ freqIPs_error[1] }}</span><br />
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5 caption-top">
+	      <caption>IPs with > 4 hits</caption>
+		    {{ freqIPs_error[0]|safe }}
+	    </table>
+	  {% endif %}
+	  <!-- Top 10 Tables --> 
+	  <h4 class="mt-5">Top 10 Tables</h4> 
+	    <nav><div class="nav nav-tabs" id="nav-tab" role="tablist">
+		  <button class="nav-link text-muted fw-bold" id="out10data-tab" data-bs-toggle="tab" data-bs-target="#out10data" type="button" role="tab">Data Transfers</button>
+		  {% if top10s[1] %}
+		    <button class="nav-link text-primary fw-bold" id="out10dataKD-tab" data-bs-toggle="tab" data-bs-target="#out10dataKD" type="button" role="tab">Known Data</button>
+		  {% endif %}
+		  <button class="nav-link text-muted fw-bold" id="out10refurl-tab" data-bs-toggle="tab" data-bs-target="#out10refurl" type="button" role="tab">RefURL, User-Agents</button>
+		  {% if top10s[3] %}
+		    <button class="nav-link text-primary fw-bold" id="out10refurlKD-tab" data-bs-toggle="tab" data-bs-target="#out10refurlKD" type="button" role="tab">Known Devices</button>
+		  {% endif %}		  
+		  <button class="nav-link active text-muted fw-bold" id="out10location-tab" data-bs-toggle="tab" data-bs-target="#out10location" type="button" role="tab">Locations</button>
+		  {% if top10s[7] %}
+		    <button class="nav-link text-primary fw-bold" id="out10location-tabKD" data-bs-toggle="tab" data-bs-target="#out10locationKD" type="button" role="tab">Known Locations</button>
+		  {% endif %}			  
+		</div></nav>
+	    <div class="tab-content" id="out10content">
+		    <div class="tab-pane fade" id="out10data" role="tabpanel" tabindex="0">
+			  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			    <caption>Top 10 connections by data transferred</caption>
+			    {{ top10s[0]|safe }}
+			  </table>
+		    </div>
+		  {% if top10s[1] %}
+		    <div class="tab-pane fade" id="out10dataKD" role="tabpanel" tabindex="0">
+			  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			    <caption>Top data transfers from Known Devices</caption>
+			    {{ top10s[1]|safe }}
+			  </table>
+		    </div>
+		  {% endif %}
+		  <div class="tab-pane fade" id="out10refurl" role="tabpanel" tabindex="0"> 
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top 10 referrer+URL combinations</caption>
+			  {{ top10s[2]|safe }}
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top 10 devices AKA tech AKA <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent</a></caption>
+			  {{ top10s[4]|safe }}
+			</table></div></div>
+		  </div>
+		  {% if top10s[3] %}
+		    <div class="tab-pane fade" id="out10refurlKD" role="tabpanel" tabindex="0"> 
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top referrer+URL combinations from Known Devices</caption>
+			  {{ top10s[3]|safe }}
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agents</a> from Known Devices</caption>
+			  {{ top10s[5]|safe }}
+			</table></div></div></div>
+		  {% endif %}		  
+		  <div class="tab-pane fade show active" id="out10location" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top countries</caption>
+			  {{ top10s[6]|safe }}
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top cities</caption>
+			  {{ top10s[8]|safe }}
+			</table></div></div>
+		  </div>
+		  {% if top10s[7] %}
+		    <div class="tab-pane fade" id="out10locationKD" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top countries from Known Devices</caption>
+			  {{ top10s[7]|safe }}
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top cities from Known Devices</caption>
+			  {{ top10s[9]|safe }}
+			</table></div></div></div>
+		  {% endif %}			  
+	    </div>
+<br /><hr />
+<!-- Fail2Ban: filter bar chart, unused filters, recent actions, filtrate tables  --> 
+	<h2 class="ms-2 my-3" id="scrollspyfail2ban">fail2ban Summary</h2>
+	  <h4 class="ms-5">Filters Utilized</h4>
+	    <p class="text-center fw-bold text-muted">Total / Unique IP finds and bans for each filter from past {{ duration }} days</p>
+	    <div id="{{ f2bFilters[0] }}" style="width:70%;height:420px;margin:auto;z-index:0;"></div>
+	  {% if f2b_unused %}
+	    <h4 class="ms-5 mt-5">Unused Filters</h4>
+			<p class="ms-2 fw-bold text-muted">The following filters are enabled in fail2ban's jail.local, consider disabling them if they haven't been seen.</p>
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+			  {{ f2b_unused|safe }}
+			</table> 
+	  {% endif %}
+	  <h4 class="ms-5 mt-5">Last 20 actions</h4>
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		  {{ f2brecent|safe }}
+		</table>
+	  <h3 class="mt-5" id="scrollspyFiltrate">Outside Filtrate Tables</h3>	
+{% if AccessFiltrate %}
+		<h4 class="ms-5">Access Log - {{AccessFiltrate[1] }}
+		  <button class="btn btn-dark btn-sm ms-3 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#accessfiltrate">Show Table</button>	
+		</h4>
+		  <div class="collapse" id="accessfiltrate">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Access Log outside connections not captured by fail2ban</caption>
+			  {{ AccessFiltrate[0]|safe }}
+			</table>
+		  </div>
+{% endif %}	 
+{% if ErrorFiltrate %} 
+		<h4 class="ms-5">Error Log - {{ErrorFiltrate[1] }}
+		  <button class="btn btn-dark btn-sm ms-3 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#errorfiltrate">Show Table</button>
+		</h4>	
+		  <div class="collapse" id="errorfiltrate">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Error Log outside connections not captured by fail2ban</caption>
+			  {{ ErrorFiltrate[0]|safe }}
+			</table>	
+		  </div>
+{% endif %}	  
+  </div><br /><br /><br />
+{% endblock %}
+
+{% block script_additions %}
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+  {{ homeStatus[1]|safe }}
+  {{ homeMethod[1]|safe }}
+  {{ actionCounts[1]|safe }}
+  {{ outStatus[1]|safe }}
+  {{ outMethod[1]|safe }}
+  {{ outHitsIP[1]|safe }}
+  {{ outDaily[1]|safe }}
+  {{ f2bFilters[1]|safe }}
+</script>
+{% endblock %}
+

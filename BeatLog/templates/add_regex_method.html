@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Regex Methods{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <h1>Create Regex Method
+	  <form style="display:inline-block" method="POST" action="{{ url_for('logs.add_regex_method') }}">
+	  <button type="submit" class="btn btn-success fw-bold mx-5" name="populate_methods">Load Default Methods</button>
+	  </form>
+	</h1><br />
+	  <form method="POST" action="{{ url_for('logs.add_regex_method') }}" id="add_log_file" class="ms-3 mt-3">	
+	    <label class="form-label fs-5 fw-bold">Enter pattern</label>
+	    <input class="form-control" type="text" name="pattern" {% if existing %}value="{{ existing[1] }}"{% endif %} required>
+		<div id="HelpBlock" class="form-text">
+		  Ignore case is default. <em>See <a href="https://docs.python.org/3/library/re.html">Python <span class="fw-bold">re</span></a></em>
+		</div>
+	    <label class="form-label fs-5 fw-bold">Enter name for pattern</label>
+	    <input class="form-control" type="text" name="name" {% if existing %}value="{{ existing[0] }}"{% endif %} required>
+		<div id="HelpBlock" class="form-text">
+		  Name will be used to select regex method for log parsing.
+		</div>			
+		<input type="submit" class="btn btn-dark my-2 fw-bold" name="Add_Regex_Method" value="Add Regex Method">
+	  </form>
+	  <br /><br />	  
+	  {% if alert %}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		  {{ alert[0] }}
+		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div><br />
+	  {% endif %}
+	  </div>	  
+	  {% if regex_groups %}
+	    <hr /><h2 class="ms-3">Existing Methods:</h2>
+		  <p class="ms-5">Click method to view its information. 
+		  &#10060; <em class="text-danger">deletes method</em></p>
+		{% for name, pattern in regex_patterns.items() %}
+		  <div class="collapse" id="{{ name }}">
+		    <label class="form-label fs-5 fw-bold">Regex Pattern for {{ name }}</label>
+		    <input class="form-control" type="text" value="{{ pattern }}" disabled>
+	      </div>
+		{% endfor %}
+		  <div class="row row-cols-auto">
+	      {% for name, groups in regex_groups.items() %}
+		    <div class="col">
+		      <button class="bg-warning p-2 ms-3 rounded my-2" type="button" data-bs-toggle="collapse" data-bs-target="#{{ name }}">{{ name }}</button>
+			  <form style="display:inline-block" method="POST" action="{{ url_for('logs.add_regex_method') }}">
+			    <button type="submit" class="btn btn-sm btn-danger rounded fw-bold ms-2 mb-1" value="{{ name }}" name="delete_method">X</button>
+			  </form>
+			  <div class="collapse" id="{{ name }}">
+			    <div class="card card-body">
+				  <ul><span class="fst-normal fw-bold">Groups:</span>
+				    {% for group in groups %}
+					  <li>{{ group }}</li>
+					{% endfor %}
+				  </ul>
+				{% if name in regex_logs %}
+				  <span class="fw-bold fst-normal">Associated Log, Role</span>
+				  {% for log, role in regex_logs[name].items() %}
+				    <a href="{{ url_for('logs.edit_log_regex', log_file=log) }}" class="btn btn-sm btn-primary my-2 fst-normal fw-bold">
+					{{ log }}, {{ role }}</a>
+				  {% endfor %}
+				{% endif %}
+				</div>
+			  </div></div>
+	      {% endfor %}
+	    </div>
+	  {% endif %}
+{% endblock %}
