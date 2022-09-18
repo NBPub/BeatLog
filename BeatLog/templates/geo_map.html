@@ -18,8 +18,10 @@
 	  <input type="hidden" name="existing_stop" value="{{ stop }}">
 	  <input type="hidden" name="existing_select" value="{{ time_select }}">
 	  <input type="hidden" name="existing_byIP" value="{{ byIP }}">
-	  If map is not visible, <a href="{{ url_for('home.settings', _anchor='Geography') }}">reduce map duration</a> or remove  
-	  <button type="submit" class="btn btn-danger btn-sm my-2 fw-bold" value="nixtip" name="nixtip">Tooltips</button>
+	  If map is not visible, try <a href="{{ url_for('home.settings', _anchor='Geography') }}">reducing map duration</a> 
+	  {% if not nixtip %} 
+	    or removing <button type="submit" class="btn btn-danger btn-sm my-2 fw-bold" value="nixtip" name="nixtip">Tooltips</button>
+	  {% endif %}
 	</form>	
     <div id="map" style="height:50vh;width:80%;margin:auto;"></div>
 	<form method="POST" class="text-muted text-center" action="{{ url_for('geography.geography_map') }}">

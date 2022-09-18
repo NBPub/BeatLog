@@ -6,15 +6,8 @@ from .db import db_connect
 from .scheduler_tasks import init_tasks
 
 def create_app(test_config=None):
-    # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping( # https://flask.palletsprojects.com/en/2.2.x/config/
-        SECRET_KEY=getenv('FLASK_SECRET_KEY',default='dev'),
-        FLASK_APP=getenv('FLASK_APP',default='beatlog'),
-        FLASK_RUN_HOST=getenv('FLASK_RUN_HOST',default='0.0.0.0'),
-        FLASK_RUN_PORT=getenv('FLASK_RUN_PORT',default='5000'),
-    )  
-    
+    app = Flask(__name__) # FLASK_APP configured via environmental variables
+
     app.logger.setLevel(logging.INFO) # change to EV setting
     # register DB, provide error page on failed connection
     with app.app_context():

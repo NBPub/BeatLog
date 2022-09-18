@@ -65,7 +65,7 @@ def geography_map():
                 begin = (datetime.now() - timedelta(days=duration)).strftime('%x %X')[:-3]
         
             geomap = geo_map(conn,cur,time_select, byIP, nixtip)
-    return render_template('geo_map.html', geomap=geomap, begin=begin, stop=stop, byIP=byIP, time_select=time_select)
+    return render_template('geo_map.html', geomap=geomap, begin=begin, stop=stop, byIP=byIP, time_select=time_select, nixtip=nixtip)
 
 @bp.route("/assess/", methods = ['GET','POST'])
 def geography_assess():
