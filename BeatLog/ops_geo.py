@@ -7,9 +7,9 @@ import json
 from time import sleep, time
 
 def null_assessment(conn, cur):   
-    blanks = cur.execute('SELECT COUNT(id) FROM geoinfo WHERE country IS NULL AND city IS NULL').fetchone()[0]  
-    no_country = cur.execute('SELECT COUNT(id) FROM geoinfo WHERE country IS NULL').fetchone()[0]  
-    no_city = cur.execute('SELECT COUNT(id) FROM geoinfo WHERE city IS NULL').fetchone()[0]
+    blanks = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL AND city IS NULL").fetchone()[0]  
+    no_country = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL").fetchone()[0]  
+    no_city = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE city IS NULL").fetchone()[0]
     return blanks, no_country, no_city
 
 def modify_geo(conn, cur, method, geoID, data):
@@ -20,7 +20,9 @@ def modify_geo(conn, cur, method, geoID, data):
         if method == 'mod':
             cur.execute('SELECT city, country FROM geoinfo WHERE id=%s', (geoID,))
             old = cur.fetchall()[0]
-            if old != data:
+            for i,val in enumerate(data):
+                data[i] = old[i] if val == 'None' else data[i]            
+            if old != tuple(data):
                 cur.execute('UPDATE geoinfo SET city=%s, country=%s WHERE id=%s', (data[0], data[1], geoID))
                 alert = ('Updated entry', 'success')
             else:
@@ -69,7 +71,7 @@ def geo_map_table(data, col):
         tds = [f'<td>{td}</td>' for td in val[1:]]
         rows.append(f'''
 <tr>
-  <th class="flyclick text-info" scope="row" data-lat="{val[2]}"" data-lon="{val[3]}">
+  <th class="text-info" scope="row" data-lat="{val[2]}"" data-lon="{val[3]}">
   {val[0]}
   </th>{"".join(tds)}
 </tr>''')

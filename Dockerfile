@@ -3,11 +3,8 @@ RUN apk --no-cache add curl tzdata libpq
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --upgrade pip 
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt && pip install gunicorn
 
 COPY /BeatLog/ ./beatlog
 
-ENTRYPOINT flask run
-
-EXPOSE 5000
+ENTRYPOINT gunicorn -w 2 -b 0.0.0.0:8000 --access-logfile=- --preload 'beatlog:create_app()'

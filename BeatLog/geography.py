@@ -22,7 +22,7 @@ def geography():
                     alert = vacuum_tables(['geoinfo'])                
                 else:
                     if 'Update' in request.form:
-                        new = (request.form['city'] if request.form['city'] != 'None' else None, request.form['country'] if request.form['country'] != 'None' else None)
+                        new = [request.form['city'], request.form['country']]
                         alert = modify_geo(conn, cur, 'mod', request.form['Update'], new)
                     if 'Delete' in request.form:
                         alert = modify_geo(conn, cur, 'del', request.form['Delete'], None)
@@ -32,7 +32,7 @@ def geography():
             places = places[0] if places else 0
             if places > 0:
                 blanks, no_country, no_city = null_assessment(conn, cur)
-                geo_table, IPs = geo_table_build(conn, cur, 'country IS NULL OR city IS NULL', True)
+                geo_table, IPs = geo_table_build(conn, cur, "country IS NULL OR city IS NULL", True)
             else:
                 return render_template('geo.html', places=places)         
     return render_template('geo.html', places=places, blanks=blanks, geo_table=geo_table,
@@ -103,7 +103,7 @@ SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp") ORDER by country, 
                         chart = top10_bar_chart(conn, cur, True, True) 
                 # modifications
                 elif 'Update' in request.form:
-                    new = (request.form['city'] if request.form['city'] != 'None' else None, request.form['country'] if request.form['country'] != 'None' else None)
+                    new = [request.form['city'], request.form['country']]
                     alert = modify_geo(conn, cur, 'mod', request.form['Update'], new)
                 elif 'Delete' in request.form:
                     alert = modify_geo(conn, cur, 'del', request.form['Delete'], None)

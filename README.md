@@ -11,9 +11,12 @@
 - [Documentation](#documentation)
 	- [Data Sources](#data-sources)
 	- [Processed Data](#processed-data)
-- [Feedback](#development)
-	- [Upcoming](#planned-improvements)
-
+- [Development](#development)
+	- [Feedback](#development)
+	- [Upcoming](#planned-improvements)	
+	- [Local Installation](#local---installation-python-venv)
+	- [Pre-Release Notes](#pre-release-changelog)
+	
 ## Background
 
 **BeatLog** parses [NGINX](https://www.nginx.com/) reverse proxy and [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page) logs into readable tables and reports. 
@@ -78,24 +81,23 @@ services:
   beatlog:
     image: nbpub/beatlog:latest
     container_name: beatlog
+    user: 1000:1000 # optional	
     ports:
-      - 5000:5000
+      - 5000:8000
     environment:
-      - TZ=America/Los_Angeles
+      - TZ=Pacific/Galapagos
       - db_host=<IP>
       - db_password=changeme	  
       - FLASK_SECRET_KEY=<secretkey>
-      - FLASK_APP=beatlog
-      - FLASK_RUN_HOST=0.0.0.0  
       - check_IP=12
       - check_Log=3	  
     volumes:
-      - /path_to/swag_config/log/nginx/access.log:/import/access.log:ro  
-      - /path_to/swag_config/log/nginx/error.log:/import/error.log:ro
-      - /path_to/swag_config/log/nginx/unauthorized.log:/import/unauthorized.log:ro
-      - /path_to/swag_config/log/fail2ban/fail2ban.log:/import/fail2ban.log:ro
-      - /path_to/swag_config/fail2ban/jail.local:/import/jail.local:ro 
-      - /path_to/swag_config/geoip2db/GeoLite2-City.mmdb:/import/GeoLite2-City.mmdb:ro
+      - /path_to/swag_config/log/nginx/access.log:/import/access.log
+      - /path_to/swag_config/log/nginx/error.log:/import/error.log
+      - /path_to/swag_config/log/nginx/unauthorized.log:/import/unauthorized.log
+      - /path_to/swag_config/log/fail2ban/fail2ban.log:/import/fail2ban.log
+      - /path_to/swag_config/fail2ban/jail.local:/import/jail.local
+      - /path_to/swag_config/geoip2db/GeoLite2-City.mmdb:/import/GeoLite2-City.mmdb
     depends_on:
       - db
   db:
@@ -105,6 +107,9 @@ services:
     environment:
       - POSTGRES_USER=beatlog
       - POSTGRES_PASSWORD=changeme
+      - TZ=Pacific/Galapagos	  
+    volumes:
+      - /path_to/beatlog_conifg/db:/var/lib/postgresql/data # optional
     restart: unless-stopped   	
 ```
 
@@ -115,36 +120,42 @@ For example, setting ports to `5001:5000` would expose port `5000` from inside t
 
 | Parameter | Function |
 | :----: | --- |
+| **user** | ---- |
+| `1000:1000` | Optional [setting](https://docs.docker.com/compose/compose-file/#user) to change the **user** used for the docker container. [See also](https://docs.linuxserver.io/general/understanding-puid-and-pgid) |
 | **ports** | ---- |
-| `5000:5000` | Default Flask port. Internal port should not be changed. |
+| `5000:8000` | Example of changing external access port. Internal port, `8000`, should not be changed. |
 | **environment**  | ----  |
-| `TZ=America/Los_Angeles` | Timezone should match that of reverse proxy. Defaults to `UTC`. [time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) |
-| `db_host=<IP>` | IP address or host name of PostgreSQL database, defaults to `localhost` which may fail |
+| `TZ=Pacific/Galapagos` | Timezone should match that of reverse proxy. Defaults to `UTC`. [time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) |
+| `db_host=<IP>` | IP address or host name of PostgreSQL database, defaults to `localhost` which should fail |
 | `db_password=changeme` | PostgreSQL database password, should match `POSTGRES_PASSWORD` |
-| `db_port=` | Only needed if **database port** is changed |
+| `db_port=` | Only needed if **database port** is changed, defaults to `5432` |
 | `db_user=` | Only needed if `POSTGRES_USER` is changed, defaults to `beatlog` |
 | `db_database=` | Only needed if `POSTGRES_USER` is changed, defaults to `beatlog` |
-| `FLASK_SECRET_KEY=<secretkey>` | Generate a secret key for deployment. Default, `dev`, is not suitable |
-| `FLASK_APP=beatlog` | Needed for container startup |
-| `FLASK_RUN_HOST=0.0.0.0` | Allows access to BeatLog across the local network |
-| `FLASK_RUN_PORT=5000` | Only needed if internal port is changed, see above |
-| `check_IP=12` | Interval (hours) for checking / updating the home IP address. Specify as integer, or 0 to disable |
-| `check_Log=3` | Interval (hours) for checking / parsing the Log Files. Specify as integer, or 0 to disable  |
+| `FLASK_SECRET_KEY=<secretkey>` | Generate a [secret key](https://flask.palletsprojects.com/en/2.2.x/tutorial/deploy/#configure-the-secret-key) for deployment. Default, `dev`, is not suitable |
+| `check_IP=12` | Interval (hours) for checking / updating the home IP address, `12` hr default. Specify as integer, or `0` to disable |
+| `check_Log=3` | Interval (hours) for checking / parsing the Log Files, `3` hr default. Specify as integer, or `0` to disable  |
 | **volumes**  | ---- |
-| `/path/to/file=/path/in/container:ro` | Add log files, fail2ban jail, and MaxMindDB to container as read-only volumes. |
+| `/path/to/file:/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container. To be read by **BeatLog** |
+| `/file2/:/import/file2` | *. . .* |
+| *. . .* | *. . .* |
 | | |
 | **postgres db ports**  | ---- |
 | `5432:5432` | Default database port. If the external port is changed, then `db_port` must be specifed for the beatlog container |
 | **postgres db environment**  | ---- |
 | `POSTGRES_USER=beatlog` | If changed from `beatlog`, `db_user` and `db_database` must be specified for the beatlog container |
 | `POSTGRES_PASSWORD=changeme` | PostgreSQL database password, should match `db_password` |
-  
+| `TZ=Pacific/Galapagos` | See above |
+| **postgres db volumes**  | ---- |
+| `/path_to/beatlog_conifg/db:/var/lib/postgresql/data` | *[Optional](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Save database files in a location of your choosing. |
+
 
 ### Extra Options
 
 - Add a [healthcheck](https://docs.docker.com/engine/reference/builder/#healthcheck) to your docker-compose to indicate container status.
 
 <details><summary>Healthcheck</summary>
+
+*The port number,* `8000` *should match the container's internal port.*
 
 ```yaml
 version: "2.1"
@@ -156,7 +167,7 @@ services:
     .
     .
     healthcheck:
-      test: curl -I --fail http://localhost:5000 || exit 1
+      test: curl -I --fail http://localhost:8000 || exit 1
       interval: 300s
       timeout: 10s
       start_period: 20s
@@ -170,25 +181,33 @@ services:
 
 <details><summary>Adminer</summary>
 
+*Visit* `<server>:8080` *and login to the postgresql database to view tables and data.*
+
 ```yaml
-    .
-    .
-    .
-  db:
     .
     .
     .
   adminer:
     image: adminer
     restart: unless-stopped
+    depends_on:
+      - db
     ports:
       - 8080:8080
+  db:
+    .
+    .
+    .
+
 ```
 </details>
 
 ### Application Setup
 
-Create the container and then navigate to the WebUI at `http://<your-ip>:5000`. If a database connection error is presented, check the parameters provided in your compose file. 
+Create the container and then navigate to the WebUI at `http://<your-ip>:5000`. 
+
+If a database connection error is presented, check the parameters provided in your compose file and see the container's logs for more information.
+If the database connection succeeds after an initial startup failure, the error page will indicate a successful connection and ask you to restart the container. 
 **[Setup Guide](/docs#setup)**
 
 Get the most information from BeatLog following these steps:
@@ -284,13 +303,17 @@ Wikipedia has a nice [example](https://en.wikipedia.org/wiki/Common_Log_Format#E
 
 ## Development
 
-[Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
+### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
+
+- *If modified location city/country is set to* `None`, *should save as* `NULL` *in database*.
+- *Scheduled* `parse_all` *may cause duplicate prepared statements error*
 
 ### Planned Improvements
 
 - expand documentation 
   - *in progress*
-- add production WSGI server
+- ~~add production WSGI server~~ **[Gunicorn](https://gunicorn.org/)**, using 2 workers for now
+  - *ensure compatability with scheduled tasks*
 - Github workflow for publishing Docker images
 - pan to location feature for maps (table links)
 - add tests for code
@@ -306,6 +329,15 @@ Wikipedia has a nice [example](https://en.wikipedia.org/wiki/Common_Log_Format#E
 - Create and activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html)
 - Install requirements `pip install -r requirements.txt`
 - Create and populate a **.env** file, model after docker-compose [example](#docker-compose)
+  - *Note:* `FLASK_APP=beatlog` is required, `FLASK_RUN_HOST` and `FLASK_RUN_PORT` can be used to change access options. 
+  - See links below for details
 - Run flask app `flask run` or in debug mode `flask --debug run`
 
 See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installation/) and [Quickstart](https://flask.palletsprojects.com/en/2.2.x/quickstart/) docs for details on these steps.
+
+### Pre-Release Changelog
+
+| Version (Docker Hub) | Notes |
+| :----: | --- |
+| alpha-0.1.0 | Initial release, testing docker deployment |
+| alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**. Updated compose example. *Investigating geography null assessment* |

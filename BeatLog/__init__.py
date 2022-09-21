@@ -7,8 +7,14 @@ from .scheduler_tasks import init_tasks
 
 def create_app(test_config=None):
     app = Flask(__name__) # FLASK_APP configured via environmental variables
+    
+    if not app.debug: # Gunicorn logging for deployment
+        gunicorn_logger = logging.getLogger('gunicorn.error')
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
+    else:
+        app.logger.setLevel(logging.INFO) # INFO level for debug
 
-    app.logger.setLevel(logging.INFO) # change to EV setting
     # register DB, provide error page on failed connection
     with app.app_context():
         check = db_connect(getenv('db_host', 'localhost'),
