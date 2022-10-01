@@ -99,7 +99,7 @@ SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp") ORDER by country, 
                 elif request.form['barchart'] == 'city_hits':
                     chart = top10_bar_chart(cur, True, False) 
                 else:
-                    chart = top10_bar_chart(conn, cur, True, True) 
+                    chart = top10_bar_chart(cur, True, True) 
             # modifications
             elif 'Update' in request.form:
                 new = [request.form['city'], request.form['country']]
