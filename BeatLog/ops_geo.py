@@ -6,7 +6,7 @@ import requests
 import json
 from time import sleep, time
 
-def null_assessment(conn, cur):   
+def null_assessment(cur):   
     blanks = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL AND city IS NULL").fetchone()[0]  
     no_country = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL").fetchone()[0]  
     no_city = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE city IS NULL").fetchone()[0]
@@ -20,8 +20,7 @@ def modify_geo(conn, cur, method, geoID, data):
         if method == 'mod':
             cur.execute('SELECT city, country FROM geoinfo WHERE id=%s', (geoID,))
             old = cur.fetchall()[0]
-            for i,val in enumerate(data):
-                data[i] = old[i] if val == 'None' else data[i]            
+            data = [None if val in ['','None'] else val for i,val in enumerate(data)] 
             if old != tuple(data):
                 cur.execute('UPDATE geoinfo SET city=%s, country=%s WHERE id=%s', (data[0], data[1], geoID))
                 alert = ('Updated entry', 'success')
@@ -29,7 +28,7 @@ def modify_geo(conn, cur, method, geoID, data):
                 alert = ('No changes detected', 'warning')
     return alert
 
-def geo_table_build(conn, cur, where, IPcount):   
+def geo_table_build(cur, where, IPcount):   
     SQL = f'''SELECT id, coords[1]/1E4::float4 "lat", coords[2]/1E4::float4 "lon", 
 CONCAT('https://www.openstreetmap.org/#map=14/',coords[1]/1E4::float4,'/',coords[2]/1E4::float4) "OSM",
 CONCAT('https://www.google.com/maps/@',coords[1]/1E4::float4,',',coords[2]/1E4::float4,',13z') "Google",
@@ -78,7 +77,7 @@ def geo_map_table(data, col):
     table = f'<thead><tr>{"".join(head)}</tr></thead>\n<tbody>{"".join(rows)}</tbody>'
     return table
 
-def geo_map(conn, cur, timerange, byIP, nixtip):
+def geo_map(cur, timerange, byIP, nixtip):
     if not byIP:
         SQL = f'''SELECT CONCAT(city,', ', country) "location", COUNT(*), 
     coords[1]/1E4::float4 "lat", coords[2]/1E4::float4 "lon" FROM "access"
@@ -123,19 +122,30 @@ L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
 L.control.scale().addTo(map);{"".join(pts)}'''
     return (len(data), chart, table)      
 
-def location_bar_chart(conn,cur):
-    data = cur.execute('SELECT country, COUNT(*) FROM geoinfo GROUP BY country ORDER BY count').fetchall()
+def location_bar_chart(cur, city):  
+    y_axis = {'title':'"Locations (unique coordinates)"', 'labelFontSize':12, 'gridThickness':1}
+    if city:         
+        data = cur.execute('''SELECT CONCAT(city,', ', country) "location", COUNT(*) 
+ FROM geoinfo GROUP BY location ORDER BY count desc LIMIT 10''').fetchall()  
+        x_axis = {'title':'"Top 10 Cities"', 'gridThickness':0, 'labelFontSize':14, 'interval':1,
+              'labelAngle':15, 'labelFontWeight':'"bold"'}  
+        y_axis['interval'] = 1
+    else:
+        data = cur.execute('SELECT country, COUNT(*) FROM geoinfo GROUP BY country ORDER BY count').fetchall()
+        x_axis = {'title':'"Country"', 'gridThickness':0, 'labelFontSize':12, 'interval':1}
     if data == []:
         return None
     data = {f'"{val[0]}"':val[1] for val in data}
-    y_axis = {'title':'"Locations (unique coordinates)"', 'labelFontSize':12, 'gridThickness':1}
-    x_axis = {'title':'"Country"', 'gridThickness':0, 'labelFontSize':12, 'interval':1}     
-    chart = chart_build('LocationBarChart', '',[{'type': '"bar"','axisYType': '"secondary"'}], 
-                        [data], y_axis, x_axis, 'label')       
-    chart = (chart[0], chart[1].replace('axisY:{\n', 'axisY2:{\n')) # move axis label to top
+    if city:
+        chart = chart_build('LocationBarChart', '',[{'type': '"column"'}], 
+                            [data], y_axis, x_axis, 'label')         
+    else:
+        chart = chart_build('LocationBarChart', '',[{'type': '"bar"','axisYType': '"secondary"'}], 
+                            [data], y_axis, x_axis, 'label')       
+        chart = (chart[0], chart[1].replace('axisY:{\n', 'axisY2:{\n')) # move axis label to top
     return chart
 
-def top10_bar_chart(conn,cur,city,byIP):
+def top10_bar_chart(cur,city,byIP):
     if city:
         location = '''SELECT CONCAT(city,', ', country) "location"'''
     else:
@@ -164,7 +174,7 @@ GROUP BY location ORDER BY count DESC LIMIT 10'''
                         [data], y_axis, x_axis, 'label')   
     return chart        
 
-def location_fill(conn, cur):
+def location_fill(conn,cur):
     agent = cur.execute('SELECT nominatimagent FROM settings').fetchone()
     if not agent:
         return ('No user agent specified, see Geography Settings','danger')
@@ -176,7 +186,7 @@ def location_fill(conn, cur):
     base = 'https://nominatim.openstreetmap.org/reverse?'
     headers = {'User-Agent': agent, 'Accept-Language': 'en-US'}
     cities = ['municipality', 'city', 'county', 'state']    
-    to_fill = cur.execute('SELECT id,coords, city, country FROM geoinfo WHERE city IS NULL OR country IS NULL').fetchall()
+    to_fill = cur.execute('SELECT id,coords, city, country FROM geoinfo WHERE city IS NULL OR country IS NULL LIMIT 20').fetchall()
     if to_fill == []:
         return ('No blank locations to lookup', 'warning'), result   
     filled = 0
@@ -202,7 +212,7 @@ def location_fill(conn, cur):
     color = 'success' if filled > 0 else 'danger'
     return (f'{filled} locations named out of {len(to_fill)} in {round(time()-start)} seconds', color), result
 
-def geolocate(conn, cur, log, duration):
+def geolocate(conn,cur,log,duration):
     maxmindDB = cur.execute('SELECT maxminddb FROM settings').fetchone()[0]
     if not maxmindDB:
         return
@@ -238,7 +248,7 @@ def geolocate(conn, cur, log, duration):
                     SQL = f'UPDATE {log} SET geo=%s WHERE ip=%s AND date BETWEEN %s AND %s AND geo IS NULL'
                     cur.execute(SQL, (record, IP, duration[0], duration[1]))
                 except:
-                    pass # could do logging here
+                    pass # could log
 
 
 

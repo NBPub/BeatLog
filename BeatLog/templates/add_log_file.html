@@ -2,7 +2,7 @@
 {% block title %}Add Log File{% endblock %}
 
 {% block content %}
-  {% if existing.keys()|length < 4 %}
+  {% if 4 > existing.keys()|length %}
     <h1>Create Log File</h1>
 	  <form method="POST" action="{{ url_for('logs.add_log_file') }}" id="add_log_file" class="ms-3 mt-3">	
 	    <label for="formFileLocation" class="form-label fs-5 fw-bold">Specify log file's location</label>

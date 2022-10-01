@@ -56,7 +56,7 @@ chart.render();
     chart = (name, chart_string)
     return chart
 
-def frequent_table(conn, cur, data, time_select, geocheck):
+def frequent_table(cur, data, time_select, geocheck):
     if data == []:
         return None
     times = f'''SELECT MIN(date),MAX(date), MAX(date) - MIN(date) "duration" 
@@ -71,24 +71,24 @@ WHERE ip='<IP>' AND action='Ban' AND home=False{time_select}LIMIT 1'''
         bantime = cur.execute(SQL).fetchone()
         bantime = bantime[0] if bantime else bantime
         if geocheck == 0:
-            table.append((str(val[0]), val[1], dur, start, stop, bantime))  
+            table.append((str(val[0]), val[1], val[2], dur, start, stop, bantime))  #IP, Hits, Data
         else:
-            table.append((str(val[0]), val[1], val[2], dur, start, stop, bantime))       
-    cols = ['IP', 'Hits', 'Location', 'Duration', 'Start', 'Stop', 'Ban Time']
+            table.append((str(val[0]), val[1], val[2], val[3], dur, start, stop, bantime)) # IP, Hits, Location, Data
+    cols = ['IP', 'Hits', 'Location', 'Data', 'Duration', 'Start', 'Stop', 'Ban Time']
     cols.remove('Location') if geocheck == 0 else cols
     table = table_build(table, cols, False)   
     return table
 
-def top10_table(conn, cur, KD_spec, KD_options, time_select, geocheck):
+def top10_table(cur, KD_spec, KD_options, time_select, geocheck):
     # Data
-    columns = ['KB', 'Date','IP','HTTP/x','Method','Status','Location','URL','Tech']
+    columns = ['Data', 'Date','IP','HTTP/x','Method','Status','Location','URL','Tech']
     if geocheck == 0:
-        SQL = f'''SELECT bytes/1000::float4 "kb", date, ip, http/10::float4 "http", method, 
+        SQL = f'''SELECT pg_size_pretty(bytes::bigint), date, ip, http/10::float4 "http", method, 
 status, CONCAT(referrer, URL) "URL", tech FROM "access" WHERE home=False{time_select} 
 ORDER BY bytes DESC LIMIT 10'''        
         columns.remove('Location')
     else:
-        SQL = f'''SELECT bytes/1000::float4 "kb", date, ip, http/10::float4 "http", method, 
+        SQL = f'''SELECT pg_size_pretty(bytes::bigint), date, ip, http/10::float4 "http", method, 
     status, CONCAT(city,', ', country) "location", CONCAT(referrer, URL) "URL", tech
     FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False{time_select} 
     ORDER BY bytes DESC LIMIT 10'''  
@@ -186,7 +186,7 @@ GROUP BY tech ORDER BY count DESC LIMIT 10'''
     return [tenDataX, tenDataX_kd, tenRefURL, tenRefURL_kd, tenTech, tenTech_kd,
            tenCountry, tenCountry_kd, tenCity, tenCity_kd]
 
-def report_build(conn, cur, time_select, report_days):
+def report_build(cur, time_select, report_days):
     # Read Settings other than duration
     cur.execute('SELECT homeignores,knowndevices,locationtable FROM settings')
     ignorable_spec, KD_spec, LocTabCount = cur.fetchone()    
@@ -216,9 +216,9 @@ def report_build(conn, cur, time_select, report_days):
     # home IP
     homeIP = cur.execute(f'SELECT ip FROM "homeip"{time_select.replace("AND","WHERE",1)}').fetchall()
     # home Devices
-    SQL = f'''SELECT COUNT(*),tech FROM "access"
+    SQL = f'''SELECT COUNT(*),tech, pg_size_pretty(SUM(bytes)/COUNT(*)), pg_size_pretty(SUM(bytes)) FROM "access"
 WHERE home=True{time_select} GROUP BY tech ORDER BY count desc'''
-    homeDevices = table_build(cur.execute(SQL).fetchall(), ['Count','User-Agent'],False)   
+    homeDevices = table_build(cur.execute(SQL).fetchall(), ['Count','User-Agent', 'Avg Data', 'Total Data'],False)   
     
     # home Table, days, total hits, error ~ unuathorized, HTTP/1.x ~ 4xx
     home_table = {}
@@ -388,10 +388,10 @@ GROUP BY ip ORDER BY hits) "tmp" GROUP BY hits ORDER BY hits'''
     # frequent visitors, IPs with more than 4 hits + location
     geocheck = cur.execute(f"SELECT COUNT(geo) FROM access WHERE geo IS NOT NULL AND home=False{time_select}").fetchone()[0]
     if geocheck == 0:
-        SQL = f'''SELECT ip,  COUNT(ip) FROM "access" WHERE home=False{time_select} 
-GROUP BY ip HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''          
+        SQL = f'''SELECT ip, COUNT(ip), pg_size_pretty(SUM(bytes)) FROM "access"
+ WHERE home=False{time_select} GROUP BY ip HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''          
     else:
-        SQL = f'''SELECT ip,  COUNT(ip), CONCAT(city,', ', country) "location"
+        SQL = f'''SELECT ip,  COUNT(ip), CONCAT(city,', ', country) "location", pg_size_pretty(SUM(bytes))
 FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False{time_select} 
 GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''       
     if KD_options[1]: 
@@ -400,18 +400,18 @@ GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''
     else:
         freqIPs_access = cur.execute(SQL).fetchall()
         freqIPs_known = []
-    freqIPs_error = cur.execute(SQL.replace('access','error')).fetchall()
+    freqIPs_error = cur.execute(SQL.replace(', pg_size_pretty(SUM(bytes))', '').replace('access','error')).fetchall()
  
-    freqIPs_access = frequent_table(conn, cur, freqIPs_access, time_select, geocheck)
-    freqIPs_error = frequent_table(conn, cur, freqIPs_error, time_select, geocheck)
-    freqIPs_known = frequent_table(conn, cur, freqIPs_known, time_select, geocheck)
+    freqIPs_access = frequent_table(cur, freqIPs_access, time_select, geocheck)
+    freqIPs_error = frequent_table(cur, freqIPs_error, time_select, geocheck)
+    freqIPs_known = frequent_table(cur, freqIPs_known, time_select, geocheck)
 
     # top 10 data transfers, RefURLs, city/country, entry methods
-    top10s = top10_table(conn, cur, KD_spec, KD_options, time_select, geocheck)
+    top10s = top10_table(cur, KD_spec, KD_options, time_select, geocheck)
     
     # filtrate for access, error
     if geocheck == 0:
-        SQL = f'''SELECT date,ip,method,http,status,bytes, CONCAT(referrer,URL) "URL", tech 
+        SQL = f'''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(referrer,URL) "URL", tech 
     FROM "access" WHERE home=False{time_select} AND ip NOT IN 
     (SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban'{time_select}) ORDER BY date'''
         cur.execute(SQL.replace('WHERE',f'WHERE {KD_spec}')) 
@@ -419,7 +419,7 @@ GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''
                                                              'Status', 'bytes',\
                                                              'URL', 'Tech'], True)         
     else:
-        SQL = f'''SELECT date,ip,method,http,status,bytes, CONCAT(city, ', ', country) "location",
+        SQL = f'''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(city, ', ', country) "location",
     CONCAT(referrer,URL) "URL", tech  FROM "access" INNER JOIN "geoinfo" ON access.geo=geoinfo.id 
     WHERE home=False{time_select} AND ip NOT IN 
     (SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban'{time_select}) ORDER BY date'''
@@ -499,16 +499,14 @@ home=False{time_select} GROUP BY filter, action, ip ORDER BY action desc, filter
     # Recent Actions 20
     geocheck = cur.execute(f"SELECT COUNT(geo) FROM fail2ban WHERE geo IS NOT NULL AND home=False{time_select}").fetchone()[0]
     if geocheck == 0:
-        SQL = f'''SELECT * FROM (SELECT date_trunc('milliseconds',date) "date", ip, action, filter
-FROM "fail2ban" WHERE action IN ('Found','Ban', 'Ignore'){time_select}
-ORDER BY date desc LIMIT 20) "tmp" ORDER BY date'''    
+        SQL = f'''SELECT date_trunc('milliseconds',date) "date", ip, action, filter 
+ FROM "fail2ban" WHERE action IN ('Found','Ban', 'Ignore'){time_select}
+ ORDER BY date desc LIMIT 20'''    
         f2brecent = table_build(cur.execute(SQL).fetchall(), ['Date', 'IP', 'Action', 'Filter'], True) 
     else:
-        SQL = f'''SELECT * FROM (SELECT 
-    date_trunc('milliseconds',date) "date", ip, action, filter, CONCAT(city, ', ',country)
-    FROM "fail2ban" INNER JOIN "geoinfo" on geoinfo.id=fail2ban.geo
-    WHERE action IN ('Found','Ban', 'Ignore'){time_select}
-    ORDER BY date desc LIMIT 20) "tmp" ORDER BY date'''    
+        SQL = f'''SELECT date_trunc('milliseconds',date) "date", ip, action, filter, CONCAT(city, ', ',country) 
+ FROM "fail2ban" INNER JOIN "geoinfo" on geoinfo.id=fail2ban.geo WHERE action IN ('Found','Ban', 'Ignore'){time_select}
+ ORDER BY date desc LIMIT 20'''    
         f2brecent = table_build(cur.execute(SQL).fetchall(), ['Date', 'IP', 'Action', 'Filter', 'Location'], True)  
     f2brecent = f2brecent[0] if f2brecent else f2brecent
     
@@ -517,39 +515,43 @@ ORDER BY date desc LIMIT 20) "tmp" ORDER BY date'''
            freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
            ErrorFiltrate, outHitsIP, outDaily, f2bFilters, f2b_unused, f2brecent
 
-def beat_analyze(conn,cur,IP):   
+def beat_analyze(cur,IP):   
     try:
         cur.execute("SELECT pg_typeof(%s::inet);", (IP,))
     except:
         return (None, IP)
-    
     geocheck = cur.execute("SELECT geo from access WHERE ip=%s AND geo IS NOT NULL ORDER BY date desc LIMIT 10",
                               (IP,)).fetchone()
     # access log
     if geocheck:
         SQL = '''
-SELECT date, CONCAT(city, ', ', country) "location", method, http::float4/10 "http", status, bytes/1000 "kb", CONCAT(referrer, URL) "URL", tech
+SELECT date, CONCAT(city, ', ', country) "location", method, http::float4/10 "http", status, pg_size_pretty(bytes::bigint), CONCAT(referrer, URL) "URL", tech
 FROM "access" JOIN "geoinfo" ON access.geo = geoinfo.id WHERE ip=%s ORDER BY date desc LIMIT 10'''
-        columns = ['Date','Location', 'Method','HTTP','Status','KB','URL','user-agent']
+        columns = ['Date','Location', 'Method','HTTP','Status','size','URL','user-agent']
     else:
-        SQL = '''SELECT date, method, http::float4/10 "http", status, bytes/1000 "kb", CONCAT(referrer, URL) "URL",
+        SQL = '''SELECT date, method, http::float4/10 "http", status, pg_size_pretty(bytes::bigint), CONCAT(referrer, URL) "URL",
         tech FROM access WHERE ip=%s ORDER BY date desc LIMIT 10''' 
-        columns = ['Date','Method','HTTP','Status','KB','URL','user-agent']
+        columns = ['Date','Method','HTTP','Status','size','URL','user-agent']
     access = cur.execute(SQL, (IP,)).fetchall()
     access = table_build(access, columns, True)    
-    access = access[0] if access else None   
-        
+    access = access[0] if access else None          
     # fail2ban
     SQL = "SELECT date_trunc('second', date), filter, action FROM fail2ban WHERE ip=%s ORDER BY date desc LIMIT 10"
     fail2ban = cur.execute(SQL, (IP,)).fetchall()
     fail2ban = table_build(fail2ban, ['Date','Filter', 'Action'], True)
     fail2ban = fail2ban[0] if fail2ban else None
 
-    
+    geocheck = cur.execute("SELECT geo from error WHERE ip=%s AND geo IS NOT NULL ORDER BY date desc LIMIT 10",
+                              (IP,)).fetchone()    
     # error
-    SQL = "SELECT date, level, message FROM error WHERE ip=%s ORDER BY date desc LIMIT 10"
+    if geocheck:
+        SQL = '''SELECT date,CONCAT(city, ', ', country) "location", level, message
+FROM error JOIN "geoinfo" ON error.geo = geoinfo.id WHERE ip=%s ORDER BY date desc LIMIT 10'''
+        columns = ['Date','Location','Level','Message']
+    else:
+        SQL = "SELECT date, level, message FROM error WHERE ip=%s ORDER BY date desc LIMIT 10"
+        columns = ['Date','Level', 'Message']
     error = cur.execute(SQL, (IP,)).fetchall()
-    error = table_build(error, ['Date','Level', 'Message'], True)
-    error = error[0] if error else None
-    
+    error = table_build(error, columns, True)
+    error = error[0] if error else None   
     return ([access, fail2ban, error], IP)

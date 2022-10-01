@@ -94,8 +94,7 @@ def regex_test(cur, log_file, alias): # log file's location, log_name
         if failed > 0 and log_file != 'fail2ban':
             result[role] += f'<span class="ms-3 px-2 bg-danger text-light">{failed} failed</span>'
         elif failed > 0:
-            result[role] += f'<span class="ms-3 px-2 bg-warning text-dark">{failed} irrelevant</span>'
-    
+            result[role] += f'<span class="ms-3 px-2 bg-warning text-dark">{failed} irrelevant</span>'   
     return result
 
 # fail2ban  parse
@@ -141,9 +140,12 @@ def parsef2b(conn, cur, log):
                 except:
                     failed_lines.append(line)
                     record[2]+=1
-           
-        if record[1] > 0: # update lastParsed, assess homeIPs, add geodata 
-            lastParsed_2 = [cur.execute(f'SELECT date FROM {log} ORDER BY date DESC LIMIT 1').fetchone()[0], mod]
+
+        if record[1] > 0: # update lastParsed, assess homeIPs, add geodata.            
+            try: # lastParsed: try saving last read line, if not last saved line
+                lastParsed_2 = [datetime.strptime(re.search(time_skipper.pattern, line).group(time_skipper.groups[0]), time_format), mod]
+            except:
+                lastParsed_2 = [cur.execute(f'SELECT date FROM {log} ORDER BY date DESC LIMIT 1').fetchone()[0], mod]
             with conn.transaction():
                 cur.execute('UPDATE logfiles SET lastparsed = %s WHERE name = %s', (lastParsed_2, log))              
             log_homeIP(conn, cur, log) # assess homeIPs for new records                

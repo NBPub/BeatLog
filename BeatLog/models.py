@@ -25,12 +25,10 @@ class Jail:
     def update_status(self):
         # read file at location
         config = ConfigParser()
-        config.read(self.location)
-        
+        config.read(self.location)       
         # ignoreIP(s)
         self.ignoreIP = config.get('DEFAULT','ignoreip').split(',')
         self.ignoreIP = [val.replace(' ','') for val in self.ignoreIP]
-
         # store enabled filters as dictionary[], json will be dumped into db
         filters = []     
         for jail in config.sections():

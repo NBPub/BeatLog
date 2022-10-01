@@ -1,7 +1,6 @@
 venv
 .env
 tests
-instance
 dev
 BeatLog/__pycache__ 
 BeatLog/db_test.py

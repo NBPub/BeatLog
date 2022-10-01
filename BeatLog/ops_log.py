@@ -1,12 +1,13 @@
 from pathlib import Path
-from datetime import datetime, timedelta#, timezone
+from datetime import datetime, timedelta
 from time import time
 from urllib.request import Request
 from urllib.request import urlopen
 from json import dumps
 from .models import LogFile, RegexMethod, Jail
 
-# fail2ban / homeIP    
+## fail2ban / homeIP    
+#
 def update_Jail(conn, cur, mod, location, lastcheck):
     # check for no modifications or recent check (last half-hour)
     if datetime.fromtimestamp(time()) - lastcheck < timedelta(minutes=30):
@@ -26,8 +27,7 @@ def update_Jail(conn, cur, mod, location, lastcheck):
                         dumps(new_jail.enabled_filters), new_jail.ignoreIP, location))
             return True, ('Jail updated', 'info')
         except Exception as e:
-            return False, (f'Failed to update jail:\n{str(e)}', 'danger')
-        
+            return False, (f'Failed to update jail:\n{str(e)}', 'danger')        
 def make_Jail(conn, cur, location, old_jail):
     if not location:
         return False, None
@@ -51,8 +51,7 @@ def make_Jail(conn, cur, location, old_jail):
                         dumps(new_jail.enabled_filters), new_jail.ignoreIP, location))
             return True, ('Jail established', 'success')
         except Exception as e:
-            return False, (f'Failed to create jail:\n{str(e)}', 'danger')
-        
+            return False, (f'Failed to create jail:\n{str(e)}', 'danger')        
 def delete_Jail(conn,cur, location): 
     try:
         with conn.transaction():
@@ -60,8 +59,7 @@ def delete_Jail(conn,cur, location):
             return True, ('Jail deleted!', 'success')
     except Exception as e:
         return False, (str(e), 'danger')            
-
-def filter_info(conn, cur, name):
+def filter_info(cur, name):
     try:
     # Home Ignores
         SQL = '''SELECT COUNT(date) FROM "fail2ban" WHERE filter=%s AND action='Ignore' AND home=True
@@ -79,42 +77,42 @@ def filter_info(conn, cur, name):
         finds = f'{finds} finds'
         return ('success', (finds, bans, home_ignores))  
     except Exception as e:
-        return ('danger', ('Error!',str(e)))
-    
+        return ('danger', ('Error!',str(e)))  
 def home_ip(conn, cur):
-    with conn.transaction():
-        try:
-            # select last 2
-            record = cur.execute("SELECT * FROM homeip ORDER BY date DESC LIMIT 2").fetchall()
-            now = datetime.fromtimestamp(time())
-            # first time
-            if record == []:
-                ip = urlopen(Request('https://ident.me')).read().decode('utf8')
-                SQL = "INSERT INTO homeip (IP, date) VALUES (%s, %s)"
-                cur.execute(SQL, (ip, now))
-                duration = None
-            else:
-                row, last_IP, last_date, duration = record[0]
-                check = now - last_date # skip check if less than 30 minutes
-                if check > timedelta(minutes=30):       
-                    # update date and duration
-                    duration = now - record[1][2] if duration else duration# if it's not first entry (null duration), update duration
-                    ip = urlopen(Request('https://ident.me')).read().decode('utf8')
-                    SQL = "UPDATE homeip SET date=%s, duration=%s WHERE row = %s"
-                    cur.execute(SQL, (now, duration, row))                   
-                    if ip != str(last_IP): # if IP has changed, make a new row
-                        new_now = datetime.fromtimestamp(time())
-                        duration = new_now-now
-                        SQL = """INSERT INTO homeip (IP, date, duration)
-                                VALUES (%s, %s, %s)"""
-                        cur.execute(SQL, (ip, new_now, duration))
-                else:
-                    ip = last_IP
-            return (ip, duration)
-        except Exception as e:
-            return (None, str(e))           
+    try:
+        # select last 2
+        record = cur.execute("SELECT * FROM homeip ORDER BY date DESC LIMIT 2").fetchall()
+        now = datetime.fromtimestamp(time())
+        # first time
+        if record == []:
+            ip = urlopen(Request('https://ident.me')).read().decode('utf8')
+            SQL = "INSERT INTO homeip (IP, date) VALUES (%s, %s)"
 
-# Regex Methods
+            cur.execute(SQL, (ip, now))
+            duration = None
+        else:
+            row, last_IP, last_date, duration = record[0]
+            check = now - last_date # skip check if less than 30 minutes
+            if check > timedelta(minutes=30):       
+                # update date and duration
+                duration = now - record[1][2] if duration else duration # if it's not first entry (null duration), update duration
+                ip = urlopen(Request('https://ident.me')).read().decode('utf8')
+                SQL = "UPDATE homeip SET date=%s, duration=%s WHERE row = %s"
+                cur.execute(SQL, (now, duration, row))   
+                
+                if ip != str(last_IP): # if IP has changed, make a new row
+                    new_now = datetime.fromtimestamp(time())
+                    duration = new_now-now
+                    SQL = "INSERT INTO homeip (IP, date, duration) VALUES (%s, %s, %s)"   
+                    cur.execute(SQL, (ip, new_now, duration))
+            else:
+                ip = last_IP
+        return (ip, duration)
+    except Exception as e:
+        return (None, str(e))           
+
+## Regex Methods
+# create method, validates with RegexMethod class
 def make_RegexMethod(conn,cur, input_name, input_pattern):
     Regex = RegexMethod(input_name, input_pattern)
     if Regex.groups == []:
@@ -126,8 +124,8 @@ def make_RegexMethod(conn,cur, input_name, input_pattern):
             return (f'{Regex.name} created!', 'success'), (Regex.name, Regex.groups, input_pattern)
         except Exception as e:
             return (str(e), 'danger'), None
-
-def gather_RegexMethods(conn,cur): # populate stuff for main regex page
+# populate stuff for main regex page
+def gather_RegexMethods(cur):
     regex_groups = cur.execute('SELECT name, groups FROM regex_methods').fetchall()
     regex_groups = {entry[0]: entry[1] for entry in regex_groups if regex_groups}
     regex_patterns = cur.execute('SELECT name, pattern FROM regex_methods').fetchall()
@@ -145,8 +143,7 @@ regex_methods.name = {val[1]}').fetchall()
                     regex_logs[regex]= {log:val[0]} 
     return regex_groups, regex_patterns, regex_logs
 
-
-# Log Files
+## Log Files
 # validate log path, check same name as old log for updates
 def validate_LogFile(path, old_log):
     if not path.exists():
@@ -166,7 +163,6 @@ def make_LogFile(conn,cur,Log):
     # check for existing parsed lines
     parsed = cur.execute(f'SELECT date FROM {Log.name} ORDER BY date desc LIMIT 1').fetchone()
     parsed = parsed[0] if parsed else parsed
-
     if parsed:
         Log.lastParsed = [parsed, None]
     with conn.transaction(): 
@@ -192,8 +188,6 @@ def delete_LogFile(conn,cur, log):
             return None
         except Exception as e:
             return (str(e), 'danger')
-
-
 # check log's date modified and update if changed    
 def update_LogFile(conn, cur, log):
     loc, mod = cur.execute('SELECT location,modified FROM logfiles WHERE name=%s', (log,)).fetchone()
@@ -223,9 +217,4 @@ def regex_LogFile(conn, cur, regex, log):
             cur.execute(SQL, (regex['regex_1'], regex['regex_2'], regex['regex_time'], log))
             return True, ('Methods saved', 'success')
         except Exception as e:
-            return False, (str(e), 'danger')            
-                
-
-    
-
-                    
+            return False, (str(e), 'danger')

@@ -5,9 +5,9 @@
 		  <button type="submit" name="vacuum" class="btn btn-sm btn-info fs-3 fw-bold">&#11156;</button><br>
 		  <label for="update" class="form-label text-muted fst-italic">update</label>
 		</form>	   
-   <h1>Geography Overview</h1>
+   <h1>Geography Fill</h1>
 	{% if places > 0 %}
-	  <h2 class="ms-3 mt-5">Cached Locations <a href="{{ url_for('geography.geography_assess') }}" class="btn btn-primary btn-sm fw-bold">Assess Geo</a></h2>
+	  <h2 class="ms-3 mt-5">Cached Locations <a href="{{ url_for('geography.geography_assess') }}" class="btn btn-primary btn-sm fw-bold">Assess Data</a></h2>
 		<p class="ms-5 mt-2 fs-5">Named Locations: <b>{{ places|int }}</b><br>
 		    {% if blanks > 0 %}
 		      <span class="text-danger">Coordinates Only: <b>{{ blanks|int }}</b></span>
@@ -21,7 +21,7 @@
 			    <div id="HelpBlock" class="form-text">
 				  Invoke's <a href="https://nominatim.openstreetmap.org/ui/search.html">OpenStreetMap's</a> 
 				  Nominatim reverse geocoding <a href="https://nominatim.org/release-docs/develop/api/Reverse/">service.</a><br>
-				  Max of 1 query / second, ~ <b>{{ blanks|int }} seconds total</b>
+				  Max of 1 query / second and 20 queries, ~ <b>{{ [geo_table|length,20]|min }} seconds total</b>
 				</div>
 			  </form>
 			{% else %}

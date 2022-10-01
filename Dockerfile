@@ -7,4 +7,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt && pip install 
 
 COPY /BeatLog/ ./beatlog
 
-ENTRYPOINT gunicorn -w 2 -b 0.0.0.0:8000 --access-logfile=- --preload 'beatlog:create_app()'
+ENTRYPOINT gunicorn -w 3 -b 0.0.0.0:8000 --preload 'beatlog:create_app()'

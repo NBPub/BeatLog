@@ -50,7 +50,15 @@
 	    <p class="text-center fw-bold text-light mt-5">
 	    fail2ban <span style="color:LightSkyBlue;">Finds</span>, <span style="color:PaleGreen;">Bans</span> vs outside <span style="color:PaleVioletRed;">Visitors</span> (unique IP)<br />
 	    fail2ban home <span style="color:LightSalmon;">Ignores</span> vs total home <span style="color:MediumOrchid;">Ignorable</span> hits</p>	  
-	    </div><div id="{{ actionCounts[0] }}" style="width:70%;height:420px;margin:auto;z-index:0;"></div></div>	  
+	    </div><div id="{{ actionCounts[0] }}" style="width:70%;height:420px;margin:auto;z-index:0;"></div></div>
+	  <div class="text-center mt-2">
+	  {% if ErrorFiltrate or AccessFiltrate %}
+	    <a class="fw-bold" href="#scrollspyFiltrate">Filtrate Table(s)</a>
+	  {% else %}
+	    <span class="text-center text-success fw-bold">No Filtrate!</span>
+	  {% endif %}
+	  </div>
+		
 <br /><hr />
 <!-- Home Summary  --> 
 	<h2 class="ms-2 mt-3" id="scrollspyHome">Home Summary</h2>
@@ -115,7 +123,7 @@
 	      <button class="btn btn-dark ms-4" type="button" data-bs-toggle="collapse" data-bs-target="#homeIgnores">Show Table</button>	
 	    <div class="collapse" id="homeIgnores">
 	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
-		    <caption>Table shows max of one ignore / second, so daily count may be less than the actual shown in the Action Count graph.</caption>
+		    <caption>More than one access log entry may match a fail2ban ignore. Specify <a href="{{ url_for('home.settings') }}">fail2ban home ignores</a> to improve matching.</caption>
 		    {{ homef2b[0]|safe }}
 	      </table>
 		</div>

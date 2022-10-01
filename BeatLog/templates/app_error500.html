@@ -2,11 +2,14 @@
 {% block title %}BeatLog - 500{% endblock %}
 
 {% block content %}
-<h1 class="mt-3 text-danger">&#127812; &#128018; sad panda</h1>
+<h1 class="mt-3 text-danger">&#127812; &#128018;</h1>
   <div class="d-flex justify-content-center">
-	<img class="rounded" src="https://i.giphy.com/media/14aUO0Mf7dWDXW/giphy.webp" alt="404">		
+	<img class="rounded" src="https://i.giphy.com/media/14aUO0Mf7dWDXW/giphy.webp" alt="500">		
   </div> 
   <div class="bg-dark p-3 rounded my-3">
-	<p class="fs-5 ms-3 text-info">{{ e.description }}</p>
+	<p class="fs-5 ms-3 text-{{ message[1] }}">{{ message[0] }}</p>
   </div>
+  <p class="ms-5 mb-5 text-muted">{{ e.description }}</p>
+  <br><hr>
+  <p class="ms-5 text-muted fw-bold"><a href="https://github.com/NBPub/BeatLog/issues/new">Submit</a> logs to improve BeatLog.</a>
 {% endblock %}

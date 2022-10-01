@@ -3,21 +3,25 @@
 {% block content %}
   <h1>Cached Geography Data</h1>
 {% if bigs or littles %}
-  <div class="row my-5">
-	 <form method="POST" action="{{ url_for('geography.geography_assess') }}">
-		<button type="submit" class="btn btn-light border-primary text-primary fw-bold ms-3 my-2" name="barchart" value="country_locs">Country Locations</button>
-		<span class="fs-5 fw-bold mx-3">Top 10 bar charts:</span>
-		<button type="submit" class="btn btn-primary fw-bold me-3 my-2" name="barchart" value="country_hits">Country Hits</button>
-		<button type="submit" class="btn btn-primary fw-bold mx-3 my-2" name="barchart" value="country_IP">Country Visitors</button>	
-		<button type="submit" class="btn btn-primary fw-bold mx-3 my-2" name="barchart" value="city_hits">City Hits</button>
-		<button type="submit" class="btn btn-primary fw-bold mx-3 my-2" name="barchart" value="city_IP">City Visitors</button>
-	  </form>   
-  </div>
+  <h2 class="mt-4 ms-5">Top 10 Bar Charts</h2>
+	<form method="POST" action="{{ url_for('geography.geography_assess') }}">	
+	  <div class="btn-group"  style="display:inline-block">
+		<button type="submit" class="btn btn-outline-primary fw-bold my-2" name="barchart" value="country_hits">Country Hits</button>
+		<button type="submit" class="btn btn-outline-primary fw-bold my-2" name="barchart" value="country_IP">Country Visitors</button>
+		<button type="submit" class="btn btn-outline-warning fw-bold my-2" name="barchart" value="city_locs">City Locations</button>		
+		<button type="submit" class="btn btn-outline-primary fw-bold my-2" name="barchart" value="city_hits">City Hits</button>
+		<button type="submit" class="btn btn-outline-primary fw-bold my-2" name="barchart" value="city_IP">City Visitors</button>	
+	  </div>  
+	</form> 
 <hr>
   <div class="row">
-    <h2 class="ms-3 mb-3">Locations per Country</h2>
-	  <div class="text-warning mb-3 bg-secondary text-center py-2 fw-bold rounded col-5" style="margin:auto">
-	    Click a <span class="text-light bg-dark fw-bold p-2 rounded">button</span> to view a location table, within which locations may be edited
+    <h2 class="mx-3 mb-3">Location Tables
+	  <form method="POST" action="{{ url_for('geography.geography_assess') }}" style="display:inline-block;float:right;">
+	    <button type="submit" class="btn btn-outline-dark fw-bold me-5 my-2" name="barchart" value="country_locs">Country Location Distribution</button>
+	  </form>  
+	</h2>
+	  <div class="text-warning mb-3 bg-secondary text-center py-2 fw-bold rounded col-6" style="margin:auto">
+	    Click a <span class="text-light bg-dark fw-bold p-2 rounded">button</span> below to view a location table, within which data may be edited
 	  </div>
   </div>
   <div class="row">

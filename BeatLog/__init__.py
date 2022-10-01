@@ -2,40 +2,45 @@ from flask import Flask, render_template
 from pathlib import Path
 import logging
 from os import getenv
-from .db import db_connect
+from .db import db_connect, db_startup, conninfo
 from .scheduler_tasks import init_tasks
+from time import sleep
 
 def create_app(test_config=None):
     app = Flask(__name__) # FLASK_APP configured via environmental variables
-    
+
     if not app.debug: # Gunicorn logging for deployment
         gunicorn_logger = logging.getLogger('gunicorn.error')
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
     else:
         app.logger.setLevel(logging.INFO) # INFO level for debug
-
-    # register DB, provide error page on failed connection
-    with app.app_context():
-        check = db_connect(getenv('db_host', 'localhost'),
-                           getenv('db_user', 'beatlog'),
-                           getenv('db_password'),
-                           getenv('db_database', 'beatlog'),
-                           getenv('db_port', '5432')) 
-        if check:
-            app.logger.critical('Database connection failed: %s', check)
-            from . import noDB
-            app.register_blueprint(noDB.bp)
-            return app           
-    app.logger.info('Database ready, connection established.')
     
-    # Register error handlers
-    @app.errorhandler(404)
-    def error_page(e):
-        return render_template('app_error404.html', e=e)
-    @app.errorhandler(500)
-    def error_page(e):
-        return render_template('app_error500.html', e=e)
+    # check DB connection, try up to 4 times to wait for postgres
+    i = 0
+    while i < 4:
+        app.logger.info('Attempting database connection . . .')
+        check = db_connect(conninfo)
+        i+=1
+        if check:
+            app.logger.critical(f'Database connection failed: {check}') 
+            if check.find('FATAL:') != -1:
+                i = 4 # critical failure, exit
+                app.logger.critical('Fatal error, getting out')
+            else:                
+                app.logger.info(f'trying again, {i+1}/4 attempts . . .')
+                sleep(2+i) # db container may be readying, wait and try again          
+        else:
+            app.logger.info('Database connection established.') # success
+            i=5 # success   
+    if i == 5:
+        check = db_startup(conninfo) # setup tables, settings if they don't exist  
+        app.logger.info('Database ready.') if not check else app.logger.critical(check)
+    if i < 5 or check: # failure with startup or no connection
+        @app.route("/")
+        def noDB():
+            return render_template('noDB.html', err=check)
+        return app
         
     # scheduler tasks
     check_IP = getenv('check_IP',default='12')
@@ -47,7 +52,7 @@ def create_app(test_config=None):
             from .scheduler import scheduler 
             scheduler.init_app(app)
             app.logger.info('Scheduler initialized.')
-            init_tasks(check_IP,check_Log, scheduler)
+            init_tasks(check_IP,check_Log, scheduler, conninfo)
             scheduler.start()
             app.logger.info('Scheduled tasks enabled:')
             app.logger.info(f" home IP check every {check_IP} hours, starting in 30s" 
@@ -57,12 +62,41 @@ def create_app(test_config=None):
         else:
             app.logger.info('Scheduler disabled.')
     except Exception as e:
-        app.logger.info(f'Error with scheduled tasks\n{e}')
+        app.logger.info(f'Error with scheduled tasks\n{e}')    
+
+    # Register error handlers
+    @app.errorhandler(404)
+    def error_page(e):
+        return render_template('app_error404.html', e=e), 404    
+    @app.errorhandler(500)
+    def error_page(e):
+        # pool checks not performed for NullConnectionPool, simple message below
+        # message = ['Probable database connection error. Apologies for the convenience, retry attempt or restart container.', 'danger']
+        from .db_pool import pool # check status of pool
+        pool.check()
+        sleep(3)
+        check = pool.get_stats()               
+        if check['pool_available'] == 0:
+            message=['Database connection lost, restart container to access web interface. Scheduled tasks should continue (check logs)', 'danger']
+        else:
+            message = ['Probable database connection error. Apologies for the convenience, retry attempt.', 'info']
+        return render_template('app_error500.html', e=e, message=message), 500     
     
     # register Blueprints
     from . import home, geography, logs
     app.register_blueprint(home.bp)
     app.register_blueprint(geography.bp)
-    app.register_blueprint(logs.bp)    
+    app.register_blueprint(logs.bp)
       
-    return app # https://flask.palletsprojects.com/en/2.2.x/tutorial/factory/
+    app.logger.info('. . . starting BeatLog . . .')  
+    return app
+    
+    
+# pool logging for development
+# try: 
+    # pool_logger = logging.getLogger("psycopg.pool")
+    # pool_logger.setLevel(logging.INFO)
+    # pool_logger.handlers = app.logger.handlers
+    # app.logger = pool_logger
+# except Exception as e:
+    # app.logger.info(f'Error with pool logging, may have to move to pool_check function, {e}')

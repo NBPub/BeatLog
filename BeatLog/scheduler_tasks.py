@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import warnings
+import psycopg
 
-def init_tasks(check_IP, check_Log, scheduler):
+def init_tasks(check_IP, check_Log, scheduler, conninfo):    
     with warnings.catch_warnings(): # (see:) from pytz_deprecation_shim import PytzUsageWarning
         warnings.simplefilter("ignore", category=RuntimeWarning)
         if check_IP > 0:
@@ -14,17 +15,16 @@ def init_tasks(check_IP, check_Log, scheduler):
             def homeIP_task():
                 """Check home IP"""
                 from .ops_log import home_ip
-                from .db_pool import pool
-                with pool.connection() as conn:
-                    with conn.cursor() as cur:
-                        _, task_log = home_ip(conn,cur)
-                        if task_log and type(task_log) == timedelta: 
-                            scheduler.app.logger.info("Scheduled Home IP check complete")
-                            # check if IP is ignored by Jail, would get IP instead of _ from home_ip                        
-                        elif task_log:
-                            scheduler.app.logger.error(f"Scheduled Home IP check error\n{task_log}")
+                try:
+                    with psycopg.connect(conninfo) as conn:
+                        cur = conn.cursor()
+                        _, task_log = home_ip(conn,cur) # return duration as timedelta, error as string, or None (first entry / no change to first)
+                        if task_log and type(task_log) == str:
+                            scheduler.app.logger.error(f"Scheduled Home IP check error\n{task_log}")                                         
                         else:
-                            scheduler.app.logger.info("Scheduled Home IP check skipped")        
+                            scheduler.app.logger.info("Scheduled Home IP check complete")
+                except Exception as e:
+                    scheduler.app.logger.info(f'Scheduled Home IP check error: {str(e)}')    
         if check_Log > 0:
             @scheduler.task(
                 "interval",
@@ -35,13 +35,15 @@ def init_tasks(check_IP, check_Log, scheduler):
             def parse_task():
                 """Parse Existing logs"""
                 from .ops_parse import parse_all
-                from .db_pool import pool
-                with pool.connection() as conn:
-                    with conn.cursor() as cur:
+                try:
+                    with psycopg.connect(conninfo) as conn:
+                        cur = conn.cursor()
                         result = parse_all(conn,cur)
                         if result != {}:
                             task_log = ".".join([f'\n{key}: {val[0]}' for key,val in result.items()])
                         else:
                             task_log = "No logs parsed during scheduled task"
-                scheduler.app.logger.info(task_log)
+                    scheduler.app.logger.info(f'Scheduled Log check complete {task_log}')
+                except Exception as e:
+                    scheduler.app.logger.info(f'Scheduled Log check error: {str(e)}')
 

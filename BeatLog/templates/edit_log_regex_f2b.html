@@ -3,6 +3,15 @@
 {% block content %}
     <h1>{{ log_file|capitalize }} Regex
 	  <a href="{{ url_for('logs.add_regex_method') }}" class="btn btn-info fw-bold mx-5" >Regex Methods</a>
+	    {% if others|length > 0 %}
+	      <button class="btn btn-sm btn-warning drowdown-toggle mx-5 mt-2 fw-bold" type="button" data-bs-toggle="dropdown" style="float:right">
+	      Other Logs</button>
+	      <ul class="dropdown-menu">
+		  {% for other_log in others %}
+		    <li><a class="dropdown-item" href="{{ url_for('logs.edit_log_regex', log_file=other_log) }}">{{ other_log }}</a></li>
+		  {% endfor %}
+		  </ul>
+		{% endif %}	  
 	</h1>
 	  <div class="row me-3">	  
 	  <form method="POST" action="{{ url_for('logs.edit_log_regex', log_file=log_file) }}" id="add_log_file" class="ms-3 my-3">
