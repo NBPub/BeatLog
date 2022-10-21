@@ -119,9 +119,7 @@ def parsef2b(conn, cur, log):
                         cur.execute('SELECT pattern FROM regex_methods WHERE name = %s', (regex_time,)).fetchone()[0])  
         SQL = "INSERT INTO fail2ban (date, ip, filter, action) VALUES (%s,%s,%s,%s)" # leave query hard coded due to actionIP split
         failed_lines = []
-        record = [0,0,0] # timeskips+ignored, added, failed, append seconds taken at the end        
-        
-        return None, ('Testing', 'info'), (lastParsed, mod, regex_1, None, regex_time)
+        record = [0,0,0] # timeskips+ignored, added, failed, append seconds taken at the end
         
         start = time()
         with open(Path(loc), mode='rt') as file, conn.transaction():
