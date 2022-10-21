@@ -58,7 +58,8 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 
 BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
 
-*current version:* **[alpha-0.1.1](#pre-release-changelog)**
+*current version:* **[alpha-0.1.2](#development)**<br>
+*NullConnectionPool and arm32v7 releases are not up to alpha-0.1.2, yet*
 | Architecture | Tag | *NullConnectionPool* |
 | :----: | --- | --- |
 | x86-64 | *latest* | *alpha-0.1.1t* |
@@ -267,40 +268,31 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-- ~~*Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?~~
-  - general issue of `ConnectionPool` with Gunicorn's forked workers. error may be solved: pool opened and checked after fork, before first request.
-  - Scheduled tasks created with `gunicorn --preload`, to run with a single Gunicorn worker.
-  - need to figure out how to best use (Flask)-**APScheduler**, **Gunicorn**, and **psycopg3 ConnectionPool** together. 
-    - reading up on [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks)
-- ~~*If modified location city/country is set to* `None`, *should save as* `NULL` *in database*.~~
-  - adding note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
-- ~~*Scheduled* `parse_all` *may cause duplicate prepared statements error*~~
-  - monitor, think this is fixed. probably result of spamming home page
-- ~~*Potential Gunicorn worker timeout for parsing or location fill operations*~~
-  - limited geofill to maximum of 20 locations at a time (20-25 second operation), could increase `gunicorn --timeout` from default 30 seconds.
-  - what is upper limit for parsing time?
-- ~~*change fail2ban lastparsed from last saved line to last read line*~~
-  - should be less confusing when checking last parsed
+### In Progress
+
+**alpha-0.1.2, latest**
+
+- General
+  - ~~Github workflow for publishing Docker images~~
+  - ~~improve SQL query creation, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)~~
+    - eliminated most poorly constructed queries
+    - *need to improve *`Known Devices`* and *`Home Ignorable`* usage*
+- Bug Fixes / Minor Improvements
+  - ~~database cleaning form error~~
+  - ~~buttons to View and Clean geography cache only appear when applicable~~
+  - ~~BeatLog page shows whitespace for invalid IP addresses~~
 
 ### Planned Improvements
 
-**In Progress**
-- ~~expand documentation~~
-  - *drafting*
-- ~~add production WSGI server~~ **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now
-  - *do workers+ConnectionPool take too many database connections?*
-  - *reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks*
-
-**Future**
 - Development
-  - Github workflow for publishing Docker images
   - utilize row factories with psycopg to make cleaner database selections
   - use template file for SQL commands to clean up code
   - add tests for code
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
 - Features
-  - pan to location on maps (using table links)
+  - visitor maps, pan to location from table entry
+  - country locations distribution, make bar chart responsive with scrollbar
   - fail2ban filter testing
   - failed regex analysis
   - data viewer page: forms for easy SQL selects --> present data in tables
@@ -322,8 +314,31 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 
 | Version (Docker Hub) | Notes |
 | :----: | --- |
-| alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Interal port is `5000` for this container. |
+| alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
+| alpha-0.1.2 | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection) |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
+
+### pre alpha-0.1.2
+
+- *Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?*
+  - general issue of `ConnectionPool` with Gunicorn's forked workers. error may be solved: pool opened and checked after fork, before first request.
+  - Scheduled tasks created with `gunicorn --preload`, to run with a single Gunicorn worker.
+  - need to figure out how to best use (Flask)-**APScheduler**, **Gunicorn**, and **psycopg3 ConnectionPool** together. 
+    - reading up on [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks)
+- *If modified location city/country is set to* `None`, *should save as* `NULL` *in database*.
+  - adding note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
+- *Scheduled* `parse_all` *may cause duplicate prepared statements error*
+  - monitor, think this is fixed. probably result of spamming home page
+- *Potential Gunicorn worker timeout for parsing or location fill operations*
+  - limited geofill to maximum of 20 locations at a time (20-25 second operation), could increase `gunicorn --timeout` from default 30 seconds.
+  - what is upper limit for parsing time?
+- *change fail2ban lastparsed from last saved line to last read line*
+  - should be less confusing when checking last parsed
+- *expand documentation*
+  - continuous drafting, documenting changes in detail until beta release
+- *add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now*
+  - do workers+ConnectionPool take too many database connections?
+  - reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks

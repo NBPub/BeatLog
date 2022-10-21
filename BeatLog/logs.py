@@ -1,9 +1,9 @@
 from flask import (
     Blueprint, render_template, request, current_app, redirect, url_for
 )
-from .db_pool import pool
 from pathlib import Path
 from datetime import datetime
+from .db_pool import pool
 from .ops_log import make_LogFile, make_RegexMethod, edit_LogFile, regex_LogFile,\
                      gather_RegexMethods, validate_LogFile, delete_LogFile
 from .ops_parse import regex_test, parse, parsef2b
@@ -41,6 +41,7 @@ def add_regex_method():
                         regex_groups[new_Reg[0]] = new_Reg[1]
                         regex_patterns[new_Reg[0]] = new_Reg[2]
                         existing = None
+    print(regex_logs)
     return render_template('add_regex_method.html', existing=existing, regex_groups=regex_groups, 
                            regex_patterns=regex_patterns, regex_logs=regex_logs, alert=alert)
 
@@ -83,14 +84,12 @@ def edit_log_file(log_file):
             current_app.logger.info('Invalid URL, redirecting to home')
             return redirect(url_for('home.home'))            
         location = cur.execute('SELECT location FROM logfiles WHERE name=%s', (log_file,)).fetchone()[0]
-
         # Form submitted
         if request.method == 'POST' and 'confirm_delete' in request.form:
             alert = delete_LogFile(conn,cur,log_file)
             if not alert:
                 current_app.logger.info(f'{log_file} deleted! redirecting to home')
-                return redirect(url_for('home.home')) 
-        
+                return redirect(url_for('home.home'))      
         elif request.method == 'POST' and 'update' in request.form and request.form['log_location'] != location:
             ok_log, alert = validate_LogFile(Path(request.form['log_location']), log_file)
             if ok_log:
@@ -137,7 +136,8 @@ def edit_log_regex(log_file):
         # log's methods            
         log_methods = {}
         log_methods['regex_1'], log_methods['regex_2'], log_methods['regex_time'] = \
-        cur.execute(f"SELECT regex_1,regex_2,regex_time FROM logfiles WHERE name = '{log_file}'").fetchone()
+        cur.execute("SELECT regex_1,regex_2,regex_time FROM logfiles WHERE name=%s", (log_file,)).fetchone()
+
         # available methods for forms, groups included in query         
         regex_methods = cur.execute('SELECT name, groups FROM regex_methods').fetchall()
         regex_methods = {entry[0]: entry[1] for entry in regex_methods if regex_methods}           
@@ -156,7 +156,7 @@ def edit_log_regex(log_file):
                 made, alert = regex_LogFile(conn, cur, new_regex, log_file)
                 if made: # update info for page                       
                     log_methods['regex_1'], log_methods['regex_2'], log_methods['regex_time'] = \
-                    cur.execute(f"SELECT regex_1,regex_2,regex_time FROM logfiles WHERE name = '{log_file}'").fetchone()            
+                    cur.execute("SELECT regex_1,regex_2,regex_time FROM logfiles WHERE name=%s", (log_file,)).fetchone()      
             else:
                 alert = ('Specify new methods to save changes', 'warning')            
         # log methods display 

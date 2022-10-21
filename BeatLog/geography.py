@@ -1,9 +1,10 @@
 from flask import (
     Blueprint, render_template, request, current_app#, redirect, url_for
 )
-from .db_pool import pool
 from datetime import datetime, timedelta
-from .ops_data import vacuum_tables
+from psycopg import sql
+from .db_pool import pool
+from .ops_data import vacuum_tables, geo_noIP_check
 from .ops_geo import null_assessment, modify_geo, geo_table_build, geo_clean, geo_map,\
                     location_bar_chart, top10_bar_chart, location_fill
 
@@ -30,7 +31,7 @@ def geography():
         places = places[0] if places else 0
         if places > 0:
             blanks, no_country, no_city = null_assessment(cur)
-            geo_table, IPs = geo_table_build(cur, "country IS NULL OR city IS NULL", True)
+            geo_table, IPs = geo_table_build(cur, {'no_names':"country IS NULL OR city IS NULL"}, True)
         else:
             return render_template('geo.html', places=places)         
     return render_template('geo.html', places=places, blanks=blanks, geo_table=geo_table,
@@ -39,30 +40,27 @@ def geography():
 @bp.route("/map/", methods = ['GET','POST'])
 def geography_map():
     with pool.connection() as conn:
-        cur = conn.cursor()    
-        byIP = cur.execute('SELECT mapcount FROM settings').fetchone()[0]                  
-        nixtip = True if request.form and 'nixtip' in request.form else False 
-        if request.form and 'switch' in request.form:
+        cur = conn.cursor()
+        # nixtip only for button press
+        nixtip = True if request.form and 'nixtip' in request.form else False
+        # byIP: switch / existing / setting
+        if request.form and 'switch' in request.form: 
             byIP = True if request.form['switch'] == 'True' else False
-
-        if request.form and 'existing_select' in request.form:     
-            time_select = request.form['existing_select']
-            begin = request.form['existing_begin']
-            stop = request.form['existing_stop'] 
-            if 'existing_byIP' in request.form:
-                byIP = True if request.form['existing_byIP'] == 'True' else False
-        elif request.form and 'CustomMap' in request.form:
-            time_select = f"AND date BETWEEN '{request.form['start']}' AND '{request.form['end']}'"
-            begin = datetime.strptime(request.form['start'],'%Y-%m-%dT%H:%M').strftime('%x %X')[:-3]
-            stop = datetime.strptime(request.form['end'],'%Y-%m-%dT%H:%M').strftime('%x %X')[:-3]    
+        elif request.form and 'existing_byIP' in request.form: 
+            byIP = True if request.form['existing_byIP'] == 'True' else False
         else:
-            duration = cur.execute('SELECT mapdays FROM settings').fetchone()
-            duration = 3 if not duration else duration[0]
-            time_select = f"AND date BETWEEN date_trunc('second', now()) - interval '{duration} day' AND date_trunc('second', now())"      
-            stop = datetime.now().strftime('%x %X')[:-3]
-            begin = (datetime.now() - timedelta(days=duration)).strftime('%x %X')[:-3]        
-        geomap = geo_map(cur,time_select, byIP, nixtip)    
-    return render_template('geo_map.html', geomap=geomap, begin=begin, stop=stop, byIP=byIP, time_select=time_select, nixtip=nixtip)
+            byIP = cur.execute('SELECT mapcount FROM settings').fetchone()[0]
+            
+        if request.method == 'GET': # load settings for GET
+            duration = cur.execute('SELECT mapdays FROM settings').fetchone() # Recent Map
+            duration = timedelta(days=3) if not duration else timedelta(days=duration[0])                                
+            stop = datetime.now()
+            begin = datetime.now() - duration
+        else: # time bounds from form for POST
+            stop = datetime.fromisoformat(request.form['end'])
+            begin = datetime.fromisoformat(request.form['start'])            
+        geomap = geo_map(cur, begin, stop, byIP, nixtip)          
+    return render_template('geo_map.html', geomap=geomap, begin=begin, stop=stop, byIP=byIP, nixtip=nixtip)
 
 @bp.route("/assess/", methods = ['GET','POST'])
 def geography_assess():
@@ -72,18 +70,16 @@ def geography_assess():
         if request.method == 'POST':
             # geo tables
             if 'country-select' in request.form:
-                where = f"country='{request.form['country-select']}'"
-                geo_table, IPs = geo_table_build(cur, where, True)                  
+                geo_table, IPs = geo_table_build(cur, {'country_select':request.form['country-select']}, True)                  
             elif 'count-select' in request.form:
                 SQL = '''SELECT  country FROM (SELECT DISTINCT country, COUNT(*)
 FROM "geoinfo" GROUP BY country ORDER BY count DESC) "tmp" WHERE count=%s GROUP BY country'''
-                countries = [f"'{val[0]}'" for val in cur.execute(SQL, (request.form['count-select'],)).fetchall()]
-                countries = f"({','.join(countries)})"
-                geo_table, IPs = geo_table_build(cur,f'country IN {countries} ORDER BY country,city', True)                              
+                countries = [val[0] for val in cur.execute(SQL, (request.form['count-select'],)).fetchall()]
+                geo_table, IPs = geo_table_build(cur,{'count_select':countries}, True)                              
             elif 'inspect' in request.form:
-                where = 'id NOT IN (SELECT DISTINCT geo FROM (SELECT DISTINCT geo FROM error WHERE geo IS NOT NULL UNION ALL \
+                no_IP_where = 'id NOT IN (SELECT DISTINCT geo FROM (SELECT DISTINCT geo FROM error WHERE geo IS NOT NULL UNION ALL \
 SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp") ORDER by country, city'
-                geo_table, IPs = geo_table_build(cur, where, False)      
+                geo_table, IPs = geo_table_build(cur, {'no_IPs':no_IP_where}, False)      
                 if not geo_table:
                     alert = ('All locations have associated IPs','warning')                  
             # bar charts
@@ -106,17 +102,15 @@ SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp") ORDER by country, 
                 alert = modify_geo(conn, cur, 'mod', request.form['Update'], new)
             elif 'Delete' in request.form:
                 alert = modify_geo(conn, cur, 'del', request.form['Delete'], None)
- 
             elif 'clean_cache' in request.form:
-                alert = geo_clean(conn, cur)
-        
+                alert = geo_clean(conn, cur)                
         SQL = '''SELECT * FROM (SELECT DISTINCT country, COUNT(*) "cities" 
 FROM "geoinfo" GROUP BY country ORDER BY cities DESC) "tmp" WHERE cities > 4'''
-        bigs = cur.execute(SQL).fetchall()
-        
+        bigs = cur.execute(SQL).fetchall()       
         SQL = '''SELECT  COUNT(*), cities FROM (SELECT DISTINCT country, COUNT(*) "cities" 
 FROM "geoinfo" GROUP BY country ORDER BY cities DESC) "tmp" WHERE cities < 5 GROUP BY tmp.cities 
 ORDER BY cities DESC'''
         littles = cur.execute(SQL) .fetchall()
-    return render_template('geo_details.html',bigs=bigs, littles=littles,
+        no_IP = geo_noIP_check(cur)
+    return render_template('geo_details.html',bigs=bigs, littles=littles, no_IP=no_IP,
                            geo_table=geo_table, IPs=IPs, alert=alert, chart=chart)

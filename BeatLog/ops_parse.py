@@ -2,32 +2,36 @@ from time import time
 from datetime import datetime
 import re
 from pathlib import Path
+from psycopg import sql
 from .models import RegexMethod
 from .ops_log import update_LogFile, home_ip
 from .ops_geo import geolocate
 
 def log_homeIP(conn, cur, log):
     # get start date to gather homeIPs
-    start = cur.execute(f'SELECT date FROM {log} WHERE home IS NULL ORDER BY date ASC LIMIT 1').fetchone()[0]  
+    start = cur.execute(sql.SQL('SELECT date FROM {} WHERE home IS NULL ORDER BY date ASC LIMIT 1').format(sql.Identifier(log))).fetchone()[0]
     # get homeIPs after updating
     _ = home_ip(conn, cur)
     data = cur.execute('SELECT row, ip, date FROM homeip WHERE date > %s ORDER BY date', (start,)).fetchall()    
     with conn.transaction():   
         if len(data) == 1: # one IP forever or for entire range, update everything
-            cur.execute(f'UPDATE {log} SET home=True WHERE home IS NULL AND ip=%s', (data[0][1],))
-            cur.execute(f'UPDATE {log} SET home=False WHERE home IS NULL AND ip!=%s', (data[0][1],))     
+            cur.execute(sql.SQL('UPDATE {} SET home=True WHERE home IS NULL AND ip=%s').format(sql.Identifier(log)), 
+                       (data[0][1],))
+            cur.execute(sql.SQL('UPDATE {} SET home=False WHERE home IS NULL AND ip!=%s').format(sql.Identifier(log)),
+                       (data[0][1],))   
         else: # multiple IPs, update sequentially
             for IP_record in data:
-                cur.execute(f'UPDATE {log} SET home=True WHERE home IS NULL AND ip=%s AND date < %s', 
+                cur.execute(sql.SQL('UPDATE {} SET home=True WHERE home IS NULL AND ip=%s AND date < %s').format(sql.Identifier(log)),
                             (IP_record[1], IP_record[2]))
-                cur.execute(f'UPDATE {log} SET home=False WHERE home IS NULL AND ip!=%s AND date < %s', 
+                cur.execute(sql.SQL('UPDATE {} SET home=False WHERE home IS NULL AND ip!=%s AND date < %s').format(sql.Identifier(log)),
                             (IP_record[1], IP_record[2]))         
 
 def regex_test(cur, log_file, alias): # log file's location, log_name
     location = cur.execute('SELECT location FROM logfiles WHERE name=%s', (log_file,)).fetchone()[0]      
     patterns = {}
     for key,val in alias.items():
-        name = cur.execute(f'SELECT {key} FROM logfiles WHERE name=%s', (log_file,)).fetchone()[0]
+        name = cur.execute(sql.SQL('SELECT {} FROM logfiles WHERE name=%s')\
+               .format(sql.Identifier(key)), (log_file,)).fetchone()[0] 
         patterns[val] = re.compile(cur.execute('SELECT pattern FROM regex_methods WHERE name=%s',
                        (name,)).fetchone()[0], re.IGNORECASE) if name else name
     result = {}
@@ -113,9 +117,11 @@ def parsef2b(conn, cur, log):
                    cur.execute('SELECT pattern FROM regex_methods WHERE name = %s', (regex_1,)).fetchone()[0])
         time_skipper =  RegexMethod('time_skipper', 
                         cur.execute('SELECT pattern FROM regex_methods WHERE name = %s', (regex_time,)).fetchone()[0])  
-        SQL = "INSERT INTO fail2ban (date, ip, filter, action) VALUES (%s,%s,%s,%s)"
+        SQL = "INSERT INTO fail2ban (date, ip, filter, action) VALUES (%s,%s,%s,%s)" # leave query hard coded due to actionIP split
         failed_lines = []
         record = [0,0,0] # timeskips+ignored, added, failed, append seconds taken at the end        
+        
+        return None, ('Testing', 'info'), (lastParsed, mod, regex_1, None, regex_time)
         
         start = time()
         with open(Path(loc), mode='rt') as file, conn.transaction():
@@ -143,9 +149,11 @@ def parsef2b(conn, cur, log):
 
         if record[1] > 0: # update lastParsed, assess homeIPs, add geodata.            
             try: # lastParsed: try saving last read line, if not last saved line
-                lastParsed_2 = [datetime.strptime(re.search(time_skipper.pattern, line).group(time_skipper.groups[0]), time_format), mod]
+                lastParsed_2 = [datetime.strptime(re.search(time_skipper.pattern, line)\
+                                .group(time_skipper.groups[0]), time_format), mod]
             except:
-                lastParsed_2 = [cur.execute(f'SELECT date FROM {log} ORDER BY date DESC LIMIT 1').fetchone()[0], mod]
+                lastParsed_2 = [cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date DESC LIMIT 1')\
+                               .format(sql.Identifier(log))).fetchone()[0], mod]
             with conn.transaction():
                 cur.execute('UPDATE logfiles SET lastparsed = %s WHERE name = %s', (lastParsed_2, log))              
             log_homeIP(conn, cur, log) # assess homeIPs for new records                
@@ -166,7 +174,7 @@ def parsef2b(conn, cur, log):
         return record, alert, (lastParsed_2, mod, regex_1, None, regex_time)
     else:
         return None, ('fail2ban has not changed since last parse', 'warning'), (lastParsed, mod, regex_1, None, regex_time)
-     
+
 def parse(conn, cur, log):
     # update LogFile, then get info
     _ = update_LogFile(conn, cur, log) 
@@ -180,17 +188,23 @@ def parse(conn, cur, log):
             if name:
                 cur.execute('SELECT pattern FROM regex_methods WHERE name = %s', (name,))
                 if i == 0:
-                    primary = RegexMethod('primary', cur.fetchone()[0])
-                    SQL_1 = f'INSERT INTO {log} ({(", ").join(primary.groups)}) VALUES ({",".join(["%s"]*len(primary.groups))})'
+                    primary = RegexMethod('primary', cur.fetchone()[0])                   
+                    SQL_1 = sql.SQL('INSERT INTO {table} ({fields}) VALUES ({values}) ').format(
+                           table=sql.Identifier(log),
+                           fields=sql.SQL(',').join([sql.Identifier(group.lower()) for group in primary.groups]),
+                           values=sql.SQL(',').join([sql.Placeholder()]*len(primary.groups))) 
                 elif i == 1:
                     secondary = RegexMethod('secondary', cur.fetchone()[0])
-                    SQL_2 = f'INSERT INTO {log} ({(", ").join(secondary.groups)}) VALUES ({",".join(["%s"]*len(secondary.groups))})'
+                    SQL_2 = sql.SQL('INSERT INTO {table} ({fields}) VALUES ({values}) ').format(
+                           table=sql.Identifier(log),
+                           fields=sql.SQL(',').join([sql.Identifier(group.lower()) for group in secondary.groups]),
+                           values=sql.SQL(',').join([sql.Placeholder()]*len(secondary.groups))) 
                 elif i == 2:
                     time_skipper = RegexMethod('time_skipper', cur.fetchone()[0])     
         record = [0,0,0,0] # timeskips, primary, secondary, failed, operation time(s) appended later
         failed_lines = []
         time_format = '%Y/%m/%d %H:%M:%S' if log == 'error' else '%d/%b/%Y:%H:%M:%S'
-        
+
         start = time() # begin parsing
         with open(Path(loc), mode='rt') as file, conn.transaction():
             for line in file:
@@ -230,7 +244,8 @@ def parse(conn, cur, log):
         
         # update lastParsed, assess homeIPs, add geodata       
         if record[1] + record[2] > 0:
-            lastParsed_2 = [cur.execute(f'SELECT date FROM {log} ORDER BY date DESC LIMIT 1').fetchone()[0], mod]          
+            lastParsed_2 = [cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date DESC LIMIT 1')\
+                            .format(sql.Identifier(log))).fetchone()[0], mod]   
             with conn.transaction():
                 cur.execute('UPDATE logfiles SET lastparsed = %s WHERE name = %s', (lastParsed_2, log))            
             log_homeIP(conn, cur, log)

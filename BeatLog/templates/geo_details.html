@@ -42,12 +42,16 @@
 	  </form></div>
 	{% endif %}
   </div>
-  <form method="POST" action="{{ url_for('geography.geography_assess') }}">
-    <span class="text-muted fs-6" style="float:right;">View / Delete locations without associated IPs</span><br />
-	<input type="submit" class="btn btn-success fw-bold mx-3" name="clean_cache" value="Clean Cache" style="float:right;">
-	<input type="submit" class="btn btn-warning fw-bold mx-3" name="inspect" value="Inspect" style="float:right;">
-  </form>
-  <a href="{{ url_for('geography.geography_map') }}" class="btn btn-info fw-bold mx-3" target="_blank" style="float:left;">Recent Visitors Map</a>
+  {% if no_IP %}
+    <form method="POST" action="{{ url_for('geography.geography_assess') }}">
+      <span class="text-muted fs-6" style="float:right;">View / Delete locations without associated IPs</span><br />
+	  <input type="submit" class="btn btn-success fw-bold mx-3" name="clean_cache" value="Clean Cache" style="float:right;">
+	  <input type="submit" class="btn btn-warning fw-bold mx-3" name="inspect" value="Inspect: {{no_IP}}" style="float:right;">
+    </form>
+    <a href="{{ url_for('geography.geography_map') }}" class="btn btn-info fw-bold mx-3" target="_blank" style="float:left;">Recent Visitors Map</a>
+  {% else %}
+    <a href="{{ url_for('geography.geography_map') }}" class="btn btn-info fw-bold mx-3" target="_blank" style="float:right;">Recent Visitors Map</a>
+  {% endif %}
 <br /><hr />
   {% if alert %}
     <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
@@ -86,7 +90,7 @@
   {% if chart %}
     <div class="row mt-5">
 	  {% if chart[0] == 'CountryBarChart' %}
-		<div id="{{ chart[0] }}" style="width:95%;height:90vh;margin:auto;z-index:0;"></div>
+		<div id="{{ chart[0] }}" style="width:95%;min-height:70vh;margin:auto;z-index:0;"></div>
       {% else %}
 		<div id="{{ chart[0] }}" style="width:95%;height:50vh;margin:auto;z-index:0;"></div>
       {% endif %}

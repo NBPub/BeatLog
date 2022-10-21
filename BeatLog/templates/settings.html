@@ -13,15 +13,21 @@
 		  
 		  <label for="HomeIgnore" class="form-label mt-3">Specify
 			<a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
-		    for specifically identifying <b>fail2ban home ignores</b> <em class="ms-5 text-muted">(status BETWEEN 399 AND 501 OR http<20)</em></label>
+		    for specifically identifying <b>fail2ban Home Ignores</b> <em class="ms-5 text-muted">(status BETWEEN 400 AND 499 OR http<20)</em>
+		  </label>
 	      <textarea class="form-control" name="HomeIgnore" id="HomeIgnore">{% if old[1] %}{{ old[1]}}{% endif %}</textarea>
-		  
+		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
+		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
+		  Use with caution</em>
 		  <label for="KnownDevices" class="form-label mt-3">Specify 
 		    <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
-		    for excluding <b>Known Devices</b><em class="ms-5 text-muted">tech NOT IN ('DSub', 'something else')</em>
+		    for excluding <b>Known Devices</b><em class="ms-5 text-muted">tech NOT IN ('DSub', 'something else')</em><br>
 		  </label>
-		  <textarea class="form-control mb-3" name="KnownDevices" id="KnownDevices">{% if old[2] %}{{ old[2]}}{% endif %}</textarea>		  		  		  
-		    <span class="ms-3 text-decoration-underline">Report options for <b>Known Devices:</b></span>
+		  <textarea class="form-control" name="KnownDevices" id="KnownDevices">{% if old[2] %}{{ old[2]}}{% endif %}</textarea>		  		  		  
+		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
+		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
+		   Use with caution.</em><br><br> 
+			<span class="ms-3 text-decoration-underline">Report options for <b>Known Devices:</b></span>
 			  <div class="form-check form-switch">
 				<input name="KD_1" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_1" {% if old[3] %}checked{% endif %}>
 				<label class="form-check-label my-1" for="KD_1">Exclude from Visitors in Daily Action Counts and Hit Distribution charts?</label><br>
@@ -113,7 +119,7 @@
 		  <div class="text-center">
 		  
 	        <button type="submit" class="btn btn-dark my-3 mx-5" name="GeoSet">Save Geography Settings</button>
-		    <button type="submit" class="btn btn-info my-3 mx-5" name="geomap" value="recent" formtarget="_blank" formaction="{{ url_for('geography.geography_map') }}">Open Visitor Map</button>
+		    <a class="btn btn-info my-3 mx-5" formtarget="_blank" href="{{ url_for('geography.geography_map') }}">Open Visitor Map</a>
 		  </div>
 	    </form>
 	  </div>

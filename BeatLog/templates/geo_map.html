@@ -12,11 +12,10 @@
 {% block content %}
   <h1>Visitor Map</h1>
   {% if geomap %}
-    <span class="ms-5 fw-bold fs-4 text-muted">{{ geomap[0] }} locations, from {{ begin }} to {{ stop }}</span>	
+    <span class="ms-5 fw-bold fs-4 text-muted">{{ geomap[0] }} locations, from {{ begin.strftime('%x %X')[:-3] }} to {{ stop.strftime('%x %X')[:-3] }}</span>	
 	<form method="POST" action="{{ url_for('geography.geography_map') }}" class="ms-5 text-muted">
-	  <input type="hidden" name="existing_begin" value="{{ begin }}">
-	  <input type="hidden" name="existing_stop" value="{{ stop }}">
-	  <input type="hidden" name="existing_select" value="{{ time_select }}">
+	  <input type="hidden" name="start" value="{{ begin }}">
+	  <input type="hidden" name="end" value="{{ stop }}">
 	  <input type="hidden" name="existing_byIP" value="{{ byIP }}">
 	  If map is not visible, try <a href="{{ url_for('home.settings', _anchor='Geography') }}">reducing map duration</a> 
 	  {% if not nixtip %} 
@@ -25,9 +24,8 @@
 	</form>	
     <div id="map" style="height:50vh;width:80%;margin:auto;"></div>
 	<form method="POST" class="text-muted text-center" action="{{ url_for('geography.geography_map') }}">
-	  <input type="hidden" name="existing_begin" value="{{ begin }}">
-	  <input type="hidden" name="existing_stop" value="{{ stop }}">
-	  <input type="hidden" name="existing_select" value="{{ time_select }}">
+	  <input type="hidden" name="start" value="{{ begin }}">
+	  <input type="hidden" name="end" value="{{ stop }}">
 	  Location marker size is scaled to {% if byIP %} its unique visitors. {% else %} its number of connections. {% endif %}
 	  <button type="submit" class="btn btn-dark btn-sm fw-bold m-2" value="{{ not byIP }}" name="switch">
 		{% if byIP %} Scale by Hits {% else %} Scale by IPs {% endif %}

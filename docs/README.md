@@ -297,7 +297,7 @@ Below is the overall summary shown at the top of the report. The **Daily Action 
 
 The home connections are summarized in a few tables and bar charts. I have strict fail2ban filters setup for connections that:
 1. do not use `HTTP/2`, i.e. `HTTP/1.0` or `HTTP/1.1` connections
-2. return 4xx status codes, client errors
+2. return 4xx [status codes](https://www.httpstatuses.org/), client errors
 
 Therefore, I flag these connections as **home ignorable**, indicated in the bottom row of the summary table and the action count chart above. 
 **Daily Action Counts** above shows a fortunate situation. Despite a number of **home ignorable** connections, no fail2ban filters registered **ignores**.
@@ -350,6 +350,7 @@ Provide criteria for a [SQL select](https://www.postgresql.org/docs/current/sql-
 beware that report generation may fail with invalid SQL syntax. 
 If the **Adminer** container was installed, it is a good place to craft selections.
 
+***Current implementation of Known Devices may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution***
 
 <details><summary>usage</summary>
 
@@ -376,6 +377,8 @@ Once **Known Devices** have been identified, they can be separated / excluded fr
 The criteria for **fail2ban home ignores** may seem redundant, provided the [discussion](#home) in the home section. 
 If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** table. 
 
+***Current implementation of fail2ban Home Ignores may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution***
+
 <details><summary>usage</summary>
 
 **Report Setting:** `(status ...)`
@@ -388,7 +391,7 @@ WHERE access.home=True AND fail2ban.home=True AND fail2ban.action='Ignore'
 
 -- further specify what might have been ignored
 -- 4xx status codes or non HTTP/2 connections
-AND (status BETWEEN 399 AND 501 OR http<20)
+AND (status BETWEEN 400 AND 499 OR http<20)
 
 ```
 

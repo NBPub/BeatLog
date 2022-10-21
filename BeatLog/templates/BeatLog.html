@@ -34,6 +34,8 @@
 	  {% endif %}
 	  </div>
 	{% else %}
-      <span class="fs-3 ms-3 text-danger bg-dark"> Invalid IP address - {{ beatIP[1] }}</span>
+      <span class="fs-3 mt-5 ms-3 text-info bg-dark px-5 py-2"> 
+	    Invalid IP address - <span class="text-danger">{{ beatIP[1].replace(' ','█') }}
+	  </span></span>  
     {% endif %}
 {% endblock %}

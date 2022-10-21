@@ -1,6 +1,7 @@
 from .ops_report import table_build
 from .models import RegexMethod
 from datetime import datetime
+from psycopg import sql
 
 def vacuum_tables(tables):
     try:
@@ -9,7 +10,7 @@ def vacuum_tables(tables):
         with psycopg.connect(conninfo, autocommit=True) as conn:
             cur = conn.cursor() 
             for table in tables:
-                cur.execute(f'VACUUM {table};')                   
+                cur.execute(sql.SQL('VACUUM {};').format(sql.Identifier(table)))            
         return ('garbage collected!','success')
     except Exception as e:
         return (str(e), 'danger')
@@ -21,11 +22,10 @@ def log_data_cleaning(cur):
     if logs == {}:
         return None, None
     data = [] # first record, last record, estimated size for table
-    for log in logs.keys():
-        SQL = f'SELECT date FROM {log} ORDER BY date desc LIMIT 1'
-        stop = cur.execute(SQL).fetchone()
-        stop = stop[0].strftime('%x %X') if stop else ''
-        start = cur.execute(SQL.replace(' desc','')).fetchone()
+    for log in logs.keys():      
+        stop = cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date desc LIMIT 1').format(sql.Identifier(log))).fetchone()
+        stop = stop[0].strftime('%x %X') if stop else '' 
+        start = cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date LIMIT 1').format(sql.Identifier(log))).fetchone()
         start = start[0].strftime('%x %X') if start else ''
         size = cur.execute('SELECT pg_size_pretty( pg_total_relation_size(%s));', (log,)).fetchone()[0]
         data.append((log, logs[log], start, stop, size))
@@ -33,17 +33,17 @@ def log_data_cleaning(cur):
     return logs, table
 
 def log_clean_estimate(cur,data):
-    SQL = f'SELECT COUNT(date) FROM {data[0]} WHERE date BETWEEN %s AND %s'
+    SQL = sql.SQL('SELECT COUNT(date) FROM {} WHERE date BETWEEN %s AND %s').format(sql.Identifier(data[0]))
     estimate = cur.execute(SQL, (data[1], data[2])).fetchone()[0]
     return estimate if estimate > 0 else None
     
 def log_clean_confirmed(conn,cur,data):
-    SQL = f"DELETE FROM {data[0]} WHERE date BETWEEN %s AND %s" 
+    SQL = sql.SQL("DELETE FROM {} WHERE date BETWEEN %s AND %s").format(sql.Identifier(data[0]))
     with conn.transaction():    
         deleted = int(cur.execute(SQL, (data[1], data[2])).statusmessage[7:])    
     if deleted > 0:
         # update last parsed if needed, set back to 0 if none
-        line = cur.execute(f"SELECT date FROM {data[0]} ORDER BY date desc LIMIT 1").fetchone()
+        line = cur.execute(sql.SQL("SELECT date FROM {} ORDER BY date desc LIMIT 1").format(sql.Identifier(data[0]))).fetchone()
         line = line[0] if line else datetime(1,1,1)
         lastParsed = cur.execute("SELECT lastparsed FROM logfiles WHERE name=%s", (data[0],)).fetchone()[0]
         if lastParsed[0] != line:

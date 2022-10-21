@@ -3,6 +3,7 @@ from flask import (
 )
 from pathlib import Path
 from datetime import datetime, timedelta
+from psycopg import sql
 from .db_pool import pool, conninfo
 from .db import db_startup
 from .ops_log import home_ip, update_Jail, make_Jail, delete_Jail,\
@@ -51,9 +52,10 @@ def home():
             if log[2][0] == datetime(1,1,1):
                 log_info[log[0]] = None
             else:
-                SQL = f"SELECT date FROM {log[0]} ORDER BY date LIMIT 1"
+                SQL = sql.SQL("SELECT date FROM {} ORDER BY date LIMIT 1").format(sql.Identifier(log[0]))
                 first = cur.execute(SQL).fetchone()[0]
-                rows = cur.execute('SELECT reltuples::int AS estimate FROM pg_class WHERE relname = %s', (log[0],)).fetchone()[0]
+                rows = cur.execute('SELECT reltuples::int AS estimate FROM pg_class WHERE relname = %s',
+                                    (log[0],)).fetchone()[0]
                 rows = "{:,}".format(rows)
                 log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over\
                                     <b>{(log[2][0] - first).days} days</b>'
@@ -87,7 +89,7 @@ def data_clean():
             elif 'confirm_delete' in request.form:
                 alert = log_clean_confirmed(conn,cur, existing)
                 if alert[1] == 'success':
-                    logs, table = log_data_cleaning(conn,cur) 
+                    logs, table = log_data_cleaning(cur) 
                     existing = None                   
     return render_template('data_clean.html', logs=logs, table=table, alert=alert, disable=disable,
                            estimate=estimate, existing=existing, noIPgeo=noIPgeo)
@@ -108,11 +110,7 @@ def settings():
     alert = mm_check = None
     with pool.connection() as conn:
         cur = conn.cursor()     
-        old = cur.execute('SELECT * FROM settings').fetchone()
-        if not old: # should not be needed now
-            with conn.transaction():
-                old = cur.execute('INSERT INTO settings (knowndevices,homeignores, maxminddb,\
-                            nominatimagent) VALUES (%s,%s,%s,%s) RETURNING *', (None,)*4).fetchone()      
+        old = cur.execute('SELECT * FROM settings').fetchone()  
         if old[9]: # maxmind check, message for None, another for false, date modified for true
             p = Path(old[9])
             mm_check = datetime.fromtimestamp(p.stat().st_mtime).strftime('%x %X') if p.exists() and p.suffix == '.mmdb' else False
@@ -144,7 +142,7 @@ def settings():
                 if newGeo != oldGeo:
                     with conn.transaction():
                         cur.execute('UPDATE settings SET maxminddb=%s,mapdays=%s,mapcount=%s,\
-                                      nominatimagent=%s WHERE reportdays=%s', (newGeo[0], newGeo[1], newGeo[2], newGeo[3], old[0]))
+                        nominatimagent=%s WHERE reportdays=%s', (newGeo[0], newGeo[1], newGeo[2], newGeo[3], old[0]))
                     alert = ('Geography settings updated', 'success')            
                 else:
                     alert = ('No changes detected', 'warning')                      
@@ -169,14 +167,12 @@ def recent_report():
     with pool.connection() as conn:
         cur = conn.cursor()   
         if request.method == 'POST' and 'CustomReport' in request.form:
-            time_select = f" \nAND date BETWEEN '{request.form['start']}' AND '{request.form['end']}'\n"
             end = datetime.strptime(request.form['end'],'%Y-%m-%dT%H:%M')
             start = datetime.strptime(request.form['start'],'%Y-%m-%dT%H:%M')
             duration = (end - start).days                
         else:
             duration = cur.execute('SELECT reportdays FROM settings').fetchone()
             duration = 3 if not duration else duration[0]
-            time_select = f" \nAND date BETWEEN date_trunc('second', now()) - interval '{duration} day' AND date_trunc('second', now())\n"
             end = datetime.now()
             start = (end - timedelta(days=duration))
         
@@ -188,16 +184,14 @@ def recent_report():
             i+=1
         del end_day, i
         report_days.sort()
-        start = start.strftime('%x %X')
-        end = end.strftime('%x %X')
-    
+   
         home_summary, out_summary, homeIP, homeDevices, home_table, homef2b,\
         homeStatus, homeMethod, actionCounts, outStatus, outMethod, \
         freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
         ErrorFiltrate, outHitsIP, outDaily, f2bFilters,\
-        f2b_unused, f2brecent = report_build(cur, time_select, report_days)           
+        f2b_unused, f2brecent = report_build(cur, start, end, report_days)           
 
-    return render_template('recent_report.html',duration=duration, start=start, end=end, time_select=time_select,
+    return render_template('recent_report.html',duration=duration, start=start, end=end,
                             home_summary=home_summary, out_summary=out_summary, homeIP=homeIP, 
                             homeDevices=homeDevices, report_days=report_days, home_table=home_table, 
                             homeStatus=homeStatus, homeMethod=homeMethod, homef2b=homef2b,

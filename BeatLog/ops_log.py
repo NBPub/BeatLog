@@ -4,6 +4,7 @@ from time import time
 from urllib.request import Request
 from urllib.request import urlopen
 from json import dumps
+from psycopg import sql
 from .models import LogFile, RegexMethod, Jail
 
 ## fail2ban / homeIP    
@@ -87,7 +88,6 @@ def home_ip(conn, cur):
         if record == []:
             ip = urlopen(Request('https://ident.me')).read().decode('utf8')
             SQL = "INSERT INTO homeip (IP, date) VALUES (%s, %s)"
-
             cur.execute(SQL, (ip, now))
             duration = None
         else:
@@ -132,15 +132,15 @@ def gather_RegexMethods(cur):
     regex_patterns = {entry[0]: entry[1] for entry in regex_patterns if regex_patterns}  
     regex_logs = {}
     for val in [('time','regex_time'),('primary','regex_1'),('secondary','regex_2')]:
-        data = cur.execute(\
-f'SELECT regex_methods.name, logfiles.name FROM logfiles INNER JOIN regex_methods ON \
-regex_methods.name = {val[1]}').fetchall()
+        data = cur.execute(sql.SQL(\
+'SELECT regex_methods.name, logfiles.name FROM logfiles INNER JOIN regex_methods ON \
+regex_methods.name={}').format(sql.Identifier(val[1]))).fetchall()
         if data != []:
             for regex, log in data:
-                if regex in regex_logs:
-                    regex_logs[regex].update({log:val[0]})  
+                if regex in regex_logs: # if method exists, add another entry
+                    regex_logs[regex].update({log:val[0]}) 
                 else:
-                    regex_logs[regex]= {log:val[0]} 
+                    regex_logs[regex]= {log:val[0]} # method name = {log:role}
     return regex_groups, regex_patterns, regex_logs
 
 ## Log Files
@@ -158,10 +158,10 @@ def validate_LogFile(path, old_log):
         return LogFile(path), None   
 # Create entry in database
 def make_LogFile(conn,cur,Log):
-    SQL = """INSERT INTO logfiles (location, name, modified, lastParsed)
-            VALUES (%s, %s, %s, %s)"""
+    SQL = """INSERT INTO logfiles (location, name, modified, lastParsed) 
+VALUES (%s, %s, %s, %s)"""
     # check for existing parsed lines
-    parsed = cur.execute(f'SELECT date FROM {Log.name} ORDER BY date desc LIMIT 1').fetchone()
+    parsed = cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date desc LIMIT 1').format(sql.Identifier(Log.name))).fetchone()
     parsed = parsed[0] if parsed else parsed
     if parsed:
         Log.lastParsed = [parsed, None]

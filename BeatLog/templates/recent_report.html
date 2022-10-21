@@ -18,8 +18,8 @@
 {% block content %}
   <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
     <!-- Title --> 
-    <h1 id="scrollspyTop">BeatLog Report - {{ duration }} days</h1>
-	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on {{ start }}, ending on {{ end }}</p>  
+    <h1 id="scrollspyTop">BeatLog Report - {{ duration+1 }} days</h1>
+	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on {{ start.strftime('%x %X') }}, ending on {{ end.strftime('%x %X') }}</p>  
 	<!-- Summary Table up top --> 
 	  <table class="table table-hover table-striped-columns me-5">
 	    <thead>
@@ -146,10 +146,9 @@
 	  <!-- Frequent Visitors --> 
 	  <h3 class="ms-2 my-3" id="scrollspyFrequents" >Frequent Visitors</h3>
 		<form method="POST" action="{{ url_for('geography.geography_map') }}" target="_blank" class="text-end">
-		  <input type="hidden" name="existing_begin" value="{{ start[:-3] }}">
-		  <input type="hidden" name="existing_stop" value="{{ end[:-3] }}">
-		  <input type="hidden" name="existing_select" value="{{ time_select }}"> 
-		  <button type="submit" class="btn btn-primary mx-3 fw-bold" name="map_from_report">Visitors Map</button>
+		  <input type="hidden" name="start" value="{{ start }}">
+		  <input type="hidden" name="end" value="{{ end }}">
+		  <button type="submit" class="btn btn-primary mx-3 fw-bold" name="ReportMap">Visitors Map</button>
 		</form>
 	  {% if freqIPs_access %}
 		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - {{ freqIPs_access[1] }}</span><br />  
