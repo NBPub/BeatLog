@@ -1,9 +1,8 @@
-FROM python:3.10-alpine3.16
+FROM python:3.10-alpine
 RUN apk --no-cache add curl tzdata libpq
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel && pip install -r requirements.txt && pip install gunicorn
+RUN pip install --upgrade pip setuptools wheel && pip install Flask python-dotenv "psycopg[binary,pool]" Flask-APScheduler geoip2 gunicorn
 
 COPY /BeatLog/ ./beatlog
 

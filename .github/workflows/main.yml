@@ -28,3 +28,8 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: nbpub/beatlog:latest
+        with:
+          push: true
+          file: ./Dockerfile_arm32
+          platforms: linux/arm/v7
+          tags: nbpub/beatlog:arm32v7-latest
