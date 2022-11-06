@@ -18,7 +18,7 @@
 {% block content %}
   <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
     <!-- Title --> 
-    <h1 id="scrollspyTop">BeatLog Report - {{ duration+1 }} days</h1>
+    <h1 id="scrollspyTop">BeatLog Report - {{ duration }} days</h1>
 	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on {{ start.strftime('%x %X') }}, ending on {{ end.strftime('%x %X') }}</p>  
 	<!-- Summary Table up top --> 
 	  <table class="table table-hover table-striped-columns me-5">
@@ -152,10 +152,11 @@
 		</form>
 	  {% if freqIPs_access %}
 		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - {{ freqIPs_access[1] }}</span><br />  
-	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5 caption-top">
-	      <caption>IPs with > 4 hits</caption>
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 caption-top">
+	      <caption>IPs with > 4 hits </caption>
 		    {{ freqIPs_access[0]|safe }}
 	    </table>
+
 	  {% endif %}
 	  {% if freqIPs_known %}
 	    <span class="fs-5 ms-4 fw-bold">Known Devices - {{ freqIPs_known[1] }}</span><br />

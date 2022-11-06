@@ -84,6 +84,8 @@ def edit_log_file(log_file):
             current_app.logger.info('Invalid URL, redirecting to home')
             return redirect(url_for('home.home'))            
         location = cur.execute('SELECT location FROM logfiles WHERE name=%s', (log_file,)).fetchone()[0]
+        _, alert = validate_LogFile(Path(location), None) # check location
+            
         # Form submitted
         if request.method == 'POST' and 'confirm_delete' in request.form:
             alert = delete_LogFile(conn,cur,log_file)
@@ -143,8 +145,11 @@ def edit_log_regex(log_file):
         regex_methods = {entry[0]: entry[1] for entry in regex_methods if regex_methods}           
         
         # Test Regex selected
-        if request.method == 'POST' and 'test_regex' in request.form:                                         
-            test_results = regex_test(cur, log_file, alias)           
+        if request.method == 'POST' and 'test_regex' in request.form:
+            try:
+                test_results = regex_test(cur, log_file, alias)
+            except Exception as e:
+                alert = (str(e), 'danger')
         # Add/Modify Log Regex    
         elif request.method == 'POST' and 'save_log_regex' in request.form:
             new_regex = {key: request.form[key] for key in request.form if key != 'save_log_regex'}

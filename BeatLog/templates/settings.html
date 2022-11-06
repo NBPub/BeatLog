@@ -18,7 +18,7 @@
 	      <textarea class="form-control" name="HomeIgnore" id="HomeIgnore">{% if old[1] %}{{ old[1]}}{% endif %}</textarea>
 		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
 		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
-		  Use with caution</em>
+		  Use with caution</em><br><br>
 		  <label for="KnownDevices" class="form-label mt-3">Specify 
 		    <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
 		    for excluding <b>Known Devices</b><em class="ms-5 text-muted">tech NOT IN ('DSub', 'something else')</em><br>
@@ -26,7 +26,7 @@
 		  <textarea class="form-control" name="KnownDevices" id="KnownDevices">{% if old[2] %}{{ old[2]}}{% endif %}</textarea>		  		  		  
 		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
 		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
-		   Use with caution.</em><br><br> 
+		   Use with caution.</em><br><br>
 			<span class="ms-3 text-decoration-underline">Report options for <b>Known Devices:</b></span>
 			  <div class="form-check form-switch">
 				<input name="KD_1" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_1" {% if old[3] %}checked{% endif %}>

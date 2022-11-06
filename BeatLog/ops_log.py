@@ -10,6 +10,9 @@ from .models import LogFile, RegexMethod, Jail
 ## fail2ban / homeIP    
 #
 def update_Jail(conn, cur, mod, location, lastcheck):
+    if not Path(location).exists():
+        return False, (f'Specified jail file not found! Update or delete file location.', 'danger', location)
+    
     # check for no modifications or recent check (last half-hour)
     if datetime.fromtimestamp(time()) - lastcheck < timedelta(minutes=30):
         return False, None
@@ -28,7 +31,7 @@ def update_Jail(conn, cur, mod, location, lastcheck):
                         dumps(new_jail.enabled_filters), new_jail.ignoreIP, location))
             return True, ('Jail updated', 'info')
         except Exception as e:
-            return False, (f'Failed to update jail:\n{str(e)}', 'danger')        
+            return False, (f'Failed to update jail:\n{str(e)}', 'warning')        
 def make_Jail(conn, cur, location, old_jail):
     if not location:
         return False, None
@@ -191,6 +194,9 @@ def delete_LogFile(conn,cur, log):
 # check log's date modified and update if changed    
 def update_LogFile(conn, cur, log):
     loc, mod = cur.execute('SELECT location,modified FROM logfiles WHERE name=%s', (log,)).fetchone()
+    check, message = validate_LogFile(Path(loc), None)
+    if not check:
+        return {log: message}
     new_mod = datetime.fromtimestamp(Path(loc).stat().st_mtime)
     if mod != new_mod:
         with conn.transaction():
@@ -199,6 +205,7 @@ def update_LogFile(conn, cur, log):
     else:
         alert = {log: ('no changes', 'warning')}
     return alert
+
 def update_all_Logs(conn,cur):
     logs = cur.execute('SELECT name FROM logfiles').fetchall()
     if logs == []:

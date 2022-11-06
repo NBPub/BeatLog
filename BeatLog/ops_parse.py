@@ -269,13 +269,16 @@ def parse_all(conn, cur):
         log_files = [name[0] for name in cur.execute('SELECT name FROM logfiles').fetchall()]
         alerts = {}    
         for log_file in log_files:
-            if log_file == 'fail2ban':
-                record, alert, _ = parsef2b(conn, cur, log_file)
-                if record:
-                    alert = (f'{alert[0]}, {record[1]} lines added in {record[3]}s', 'success')
-            else:
-                record, alert, _ = parse(conn, cur, log_file)
-                if record:
-                    alert = (f'{alert[0]}, {sum(record[1:3])} lines added in {record[4]}s', 'success')
+            try:
+                if log_file == 'fail2ban':
+                    record, alert, _ = parsef2b(conn, cur, log_file)
+                    if record:
+                        alert = (f'{alert[0]}, {record[1]} lines added in {record[3]}s', 'success')
+                else:
+                    record, alert, _ = parse(conn, cur, log_file)
+                    if record:
+                        alert = (f'{alert[0]}, {sum(record[1:3])} lines added in {record[4]}s', 'success')
+            except Exception as e:
+                alert = (str(e), 'danger')
             alerts[log_file] = alert
         return alerts

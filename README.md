@@ -32,6 +32,15 @@ Location information (coordinates, city, country) can be added to all "Outside" 
 If only coordinates are provided from the MaxMind database, locations can be ascertained using the [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/) reverse geocoding API, 
 based on [OpenStreetMap](https://www.openstreetmap.org/about) data.
 
+### Parsed Data
+
+Data is saved in a PostgreSQL database and can be used for your own purposes. 
+See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
+and check out the source [code](/BeatLog) for example SQL queries.
+Adminer [can be installed](#extra-options) to browse the database.
+
+![Adminer](/docs/pics/adminer.png "BeatLog database, viewed in Adminer")
+
 See the [BeatLog Guide](/docs) for a full list of features. The **Report** and **Visitor Map** are briefly highlighted here.
 
 ### Report
@@ -69,13 +78,15 @@ BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/t
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
 
-Logs and other files are added to the container via [volumes](https://docs.docker.com/storage/volumes/).
-See the [data sources](#data-sources) section for more details on the files added as volumes.
-In the example below, they will be available in the `/import` directory.
+Logs and other files are added to the container via [volumes](https://docs.docker.com/storage/volumes/). 
+See the [data sources](#data-sources) section for specific files in the mounted directories and their usage.
+In the example below, the specified directories, and their contents, will be available within a created `/import/` directory.
+
+*It is important to mount files that may change (log turnover, changed fail2ban settings, MaxMindDB updates) indirectly via their parent directories. Directly mounted files will not update within the container.*
 
 The [compose parameters](#parameters) are detailed in the next section. Optional `healthcheck` and `adminer` additions are shown [below](#extra-options).
 
-*With an existing database container,* `depends_on:` *and the following lines are not needed. Ensure a database with the name specified in BeatLog's environment exists.*
+*With an existing, connectable database,* `depends_on:` *and the following lines are not needed. Ensure a database with the name specified in BeatLog's environment exists.*
 
 ### Docker [Compose](https://docs.docker.com/compose/)
 
@@ -97,12 +108,9 @@ services:
       - check_IP=12
       - check_Log=3	  
     volumes:
-      - /path_to/access.log:/import/access.log
-      - /path_to/error.log:/import/error.log
-      - /path_to/unauthorized.log:/import/unauthorized.log
-      - /path_to/fail2ban.log:/import/fail2ban.log
-      - /path_to/jail.local:/import/jail.local # fail2ban jail.local
-      - /path_to/GeoLite2-City.mmdb:/import/GeoLite2-City.mmdb # MaxMindDB
+      - /path_to/swag_config/log:/import/log # NGINX and fail2ban logs
+      - /path_to/swag_config/fail2ban:/import/fail2ban # fail2ban jail.local
+      - /path_to/swag_config/geoip2db:/import/geoip2db # MaxMindDB
     depends_on:
       - db
   db:
@@ -143,8 +151,8 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | `check_IP=12` | Interval (hours) for checking / updating the home IP address, `12` hr default. Specify as integer, or `0` to disable |
 | `check_Log=3` | Interval (hours) for checking / parsing the Log Files, `3` hr default. Specify as integer, or `0` to disable  |
 | **volumes**  | ---- |
-| `/path/to/file:/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container, to be read by **BeatLog**. See [data sources](#data-sources) below |
-| `/file2/:/import/file2` | example for SWAG structure in [setup guide](/docs#data-sources) |
+| `/path/to/log_directory:/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container, to be read by **BeatLog**. See [data sources](#data-sources) below |
+| `/swag_config/<subdirectory>:/import/<subdirectory>` | example for SWAG structure in [setup guide](/docs#data-sources) |
 | *. . .* | *. . .* |
 | | |
 | **postgres db ports**  | ---- |
@@ -272,15 +280,24 @@ Get the most information from BeatLog following these steps:
 
 **alpha-0.1.2, latest**
 
+- Installation, Docker Compose
+  - switched instructions to mount directories instead of files, allowing updates within container
 - General
-  - ~~Github workflow for publishing Docker images~~
+  - ~~Github workflow for publishing Docker images~~ *only for latest tag right now*
   - ~~improve SQL query creation, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)~~
-    - eliminated most poorly constructed queries
-    - *need to improve *`Known Devices`* and *`Home Ignorable`* usage*
+    - eliminated poorly constructed queries, improved usage of variables within queries
+    - *need to improve *`Known Devices`* and *`Home Ignorable`* [usage](/docs#known-devices)*
+  - gunicorn worker timeouts for long operations
+    - increased timeout to 60s from default 30s. 
+	- Can revert by 
+	  - Timechecks in `Parse All`, individual parsing operations
+	  - Analyze report generation with profiler for potential improvements
 - Bug Fixes / Minor Improvements
   - ~~database cleaning form error~~
   - ~~buttons to View and Clean geography cache only appear when applicable~~
   - ~~BeatLog page shows whitespace for invalid IP addresses~~
+  - ~~Error handling for invalid file locations~~
+  - ~~Report improvements and fixes~~
 
 ### Planned Improvements
 
@@ -295,7 +312,7 @@ Get the most information from BeatLog following these steps:
   - country locations distribution, make bar chart responsive with scrollbar
   - fail2ban filter testing
   - failed regex analysis
-  - data viewer page: forms for easy SQL selects --> present data in tables
+  - data viewer page: forms for guided SQL selects --> present data in tables
 
 ### Local Installation - Python venv
 
@@ -317,7 +334,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
-| alpha-0.1.2 | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection) |
+| alpha-0.1.2 | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Bugfixes and improvements. |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 

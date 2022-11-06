@@ -5,10 +5,12 @@
 	  {% if message %}
 	    <div class="alert alert-{{ message[1] }} alert-dismissible fade show" role="alert">
 		  {{ message[0] }}
-		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		  {% if message|length < 3 %}
+		    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		  {% endif %}
 		</div>
-	  {% endif %}
-	  {% if not jail %}
+	  {% endif %}  
+	  {% if not jail or message|length < 3 %}
 	    <form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3 mt-3">	
 	      <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
 	      <input class="form-control" type="text" id="jailLocation" name="Location">
@@ -34,7 +36,9 @@
 			</form>
 			<br /><br /><hr />
 		  </div>		
-	    <p class="fs-3 ms-3 fw-bold">Status</p>
+	  {% endif %}
+	  {% if not jail %}	
+		<p class="fs-3 ms-3 fw-bold">Status</p>
 		<p class="ms-5">
 		  <b>Modified:</b> {{ jail[1].strftime('%x %X') }}<br>
 		  <b>Checked:&nbsp;</b> {{ jail[2].strftime('%x %X') }}<br>

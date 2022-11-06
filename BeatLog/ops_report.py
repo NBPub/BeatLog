@@ -58,25 +58,39 @@ chart.render();
     chart = (name, chart_string)
     return chart
 
-def frequent_table(cur, data, start, end, geocheck):
+def frequent_table(cur, data, start, end, log, cols, strict_duration):
     if data == []:
         return None
+    times_strict = '''SELECT MIN(date),MAX(date), MAX(date) - MIN(date) "duration" 
+FROM {} WHERE ip=%(frequenter)s AND home=False AND date BETWEEN %(start)s AND %(end)s'''
     times = '''SELECT MIN(date),MAX(date), MAX(date) - MIN(date) "duration" 
-FROM "access" WHERE ip=%(frequenter)s AND home=False'''
-    fails = '''SELECT date_trunc('second', date) FROM "fail2ban" 
-WHERE ip=%(frequenter)s AND action='Ban' AND home=False AND date BETWEEN %(start)s AND %(end)s LIMIT 1'''
+FROM {} WHERE ip=%(frequenter)s AND home=False'''
+    fails = '''SELECT DISTINCT date_trunc('second', date) FROM "fail2ban" WHERE ip=%(frequenter)s 
+AND action='Ban' AND home=False AND date BETWEEN %(start)s AND %(end)s'''
+    
     table = []
     for val in data:
-        start, stop, dur = cur.execute(times, {'frequenter':val[0]}).fetchone() # does not need to be in report range
-        bantime = cur.execute(fails, {'frequenter':val[0],'start':start,'end':end}).fetchone()
-        bantime = bantime[0] if bantime else bantime
-        if geocheck == 0:
-            table.append((str(val[0]), val[1], val[2], dur, start, stop, bantime))  #IP, Hits, Data
+        if strict_duration:
+            first, last, dur = cur.execute(sql.SQL(times_strict).format(sql.Identifier(log)),
+                               {'frequenter':val[0],'start':start,'end':end}).fetchone()
+        else: # don't enforce report time range for known devices
+            first, last, dur = cur.execute(sql.SQL(times).format(sql.Identifier(log)),
+                               {'frequenter':val[0]}).fetchone()
+        bantimes = cur.execute(fails, {'frequenter':val[0],'start':start,'end':end}).fetchall()
+        if bantimes == []:
+            bantime = '&#9940;'
+        elif len(bantimes) == 1:
+            bantime = f'<b class="text-success">{bantimes[0][0]}</b>'       
         else:
-            table.append((str(val[0]), val[1], val[2], val[3], dur, start, stop, bantime)) # IP, Hits, Location, Data
-    cols = ['IP', 'Hits', 'Location', 'Data', 'Duration', 'Start', 'Stop', 'Ban Time']
-    cols.remove('Location') if geocheck == 0 else cols
-    table = table_build(table, cols, False)   
+            bantime = [bantimes[0][0]]
+            for ban_date in bantimes[1:]:
+                if ban_date[0].date() != bantime[-1].date():
+                    bantime.append(ban_date[0])           
+            bantime = f"<b class='bg-success px-2'>{len(bantime)}:</b>  {' &#9889; '.join([str(ban_date) for ban_date in bantime])}"       
+        val = list(val)
+        val.extend([dur,first,last,bantime])
+        table.append(val)
+    table = table_build(table, cols, False)
     return table
 
 def top10_table(cur, KD_spec, KD_options, start, end, geocheck, LocTabCount):
@@ -106,29 +120,29 @@ ORDER BY bytes DESC LIMIT 10'''
     tenDataX_kd = tenDataX_kd[0] if tenDataX_kd else tenDataX_kd
 
     # RefURL, User-Agent
-    SQL1 = '''SELECT COUNT(*), CONCAT(referrer, URL) "URL" 
+    SQL1 = '''SELECT COUNT(URL), CONCAT(referrer, URL) "URL", pg_size_pretty(SUM(bytes)/COUNT(URL)) 
 FROM "access" WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
 GROUP BY "URL" ORDER BY count DESC LIMIT 10'''
-    SQL2 = '''SELECT COUNT(*), tech FROM "access" WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
-GROUP BY tech ORDER BY count DESC LIMIT 10'''
+    SQL2 = '''SELECT COUNT(tech), tech, pg_size_pretty(SUM(bytes)/COUNT(tech)) FROM "access" 
+WHERE home=False AND date BETWEEN %(start)s AND %(end)s GROUP BY tech ORDER BY count DESC LIMIT 10'''
 
     if KD_options[3]:
         cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end})
-        tenRefURL = table_build(cur.fetchall(), ['Hits','RefURL'], False)
+        tenRefURL = table_build(cur.fetchall(), ['Hits','RefURL','Avg Data'], False)
         cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end})
-        tenRefURL_kd = table_build(cur.fetchall(), ['Hits','RefURL'], False)
+        tenRefURL_kd = table_build(cur.fetchall(), ['Hits','RefURL','Avg Data'], False)
         
         cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end})
-        tenTech = table_build(cur.fetchall(), ['Hits','User-Agent'], False) 
+        tenTech = table_build(cur.fetchall(), ['Hits','User-Agent','Avg Data'], False) 
         cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end})
-        tenTech_kd = table_build(cur.fetchall(), ['Hits','User-Agent'], False) 
+        tenTech_kd = table_build(cur.fetchall(), ['Hits','User-Agent','Avg Data'], False) 
     else:
         cur.execute(SQL1, {'start':start,'end':end})
-        tenRefURL = table_build(cur.fetchall(), ['Hits','RefURL'], False)
+        tenRefURL = table_build(cur.fetchall(), ['Hits','RefURL','Avg Data'], False)
         tenRefURL_kd = None 
         
         cur.execute(SQL2, {'start':start,'end':end})
-        tenTech = table_build(cur.fetchall(), ['Hits','User-Agent'], False) 
+        tenTech = table_build(cur.fetchall(), ['Hits','User-Agent','Avg Data'], False) 
         tenTech_kd = None          
     tenRefURL = tenRefURL[0] if tenRefURL else tenRefURL
     tenRefURL_kd = tenRefURL_kd[0] if tenRefURL_kd else tenRefURL_kd
@@ -141,37 +155,36 @@ GROUP BY tech ORDER BY count DESC LIMIT 10'''
     else:       
         if not LocTabCount:
             col = "Hits"
-            SQL1 = '''SELECT COUNT(*), country FROM "access" INNER JOIN "geoinfo" 
+            SQL1 = '''SELECT COUNT(country), country, pg_size_pretty(sum(bytes)/COUNT(country)) FROM "access" INNER JOIN "geoinfo" 
 on access.geo = geoinfo.id WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
 GROUP BY country ORDER BY count DESC LIMIT 10'''
-            SQL2 = '''SELECT COUNT(*), CONCAT(city,', ', country) FROM "access" 
+            SQL2 = '''SELECT COUNT(loc), CONCAT(city,', ', country) "loc", pg_size_pretty(sum(bytes)/COUNT(loc)) FROM "access" 
 INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False AND date BETWEEN 
 %(start)s AND %(end)s GROUP BY city, country ORDER BY count DESC LIMIT 10'''
         else:
             col = "Visitors"
-            SQL1 = '''SELECT COUNT(*), country FROM (SELECT country,ip FROM "access" 
-INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False AND date BETWEEN %(start)s 
-AND %(end)s  GROUP BY country, ip) "tmp" GROUP BY country ORDER BY count DESC LIMIT 10'''
-            SQL2 = '''SELECT COUNT(*), location FROM (SELECT CONCAT(city,', ', country) 
-"location", ip FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False 
-AND date BETWEEN %(start)s AND %(end)s  GROUP BY location, ip) "tmp" 
-GROUP BY location ORDER BY count DESC LIMIT 10'''
+            SQL1 = '''SELECT COUNT(country), country, pg_size_pretty(sum(bytes)/COUNT(country)) FROM 
+(SELECT country,ip,bytes FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False AND 
+date BETWEEN %(start)s AND %(end)s  GROUP BY country, ip,bytes) "tmp" GROUP BY country ORDER BY count DESC LIMIT 10'''
+            SQL2 = '''SELECT COUNT(loc), loc, pg_size_pretty(sum(bytes)/COUNT(loc)) FROM 
+(SELECT CONCAT(city,', ', country) "loc",ip,bytes FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False 
+AND date BETWEEN %(start)s AND %(end)s  GROUP BY loc,ip,bytes) "tmp" GROUP BY loc ORDER BY count DESC LIMIT 10'''
         
         if KD_options[4]:
             cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end}) #
-            tenCountry = table_build(cur.fetchall(), [col,'Country'], False) 
+            tenCountry = table_build(cur.fetchall(), [col,'Country','Avg Data'], False) 
             cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end}) #
-            tenCountry_kd = table_build(cur.fetchall(), [col,'Country'], False)       
+            tenCountry_kd = table_build(cur.fetchall(), [col,'Country','Avg Data'], False)       
             cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end}) #
-            tenCity = table_build(cur.fetchall(), [col,'City'], False) 
+            tenCity = table_build(cur.fetchall(), [col,'City','Avg Data'], False) 
             cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end}) #
-            tenCity_kd = table_build(cur.fetchall(), [col,'City'], False) 
+            tenCity_kd = table_build(cur.fetchall(), [col,'City','Avg Data'], False) 
         else:
             cur.execute(SQL1, {'start':start,'end':end})
-            tenCountry = table_build(cur.fetchall(), [col,'Country'], False)
+            tenCountry = table_build(cur.fetchall(), [col,'Country','Avg Data'], False)
             tenCountry_kd = None        
             cur.execute(SQL2, {'start':start,'end':end})
-            tenCity = table_build(cur.fetchall(), [col,'City'], False) 
+            tenCity = table_build(cur.fetchall(), [col,'City','Avg Data'], False) 
             tenCity_kd = None           
         tenCountry = tenCountry[0] if tenCountry else tenCountry
         tenCountry_kd = tenCountry_kd[0] if tenCountry_kd else tenCountry_kd
@@ -218,7 +231,7 @@ FROM "access" WHERE home=True AND date BETWEEN %(start)s AND %(end)s GROUP BY te
     # home Table, days, total hits, error ~ unuathorized, HTTP/1.x ~ 4xx
     home_table = {}
     SQL = '''SELECT date_trunc('day', date) "day", COUNT(*) AS count 
-    FROM {} WHERE home=True AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDER BY day'''
+FROM {} WHERE home=True AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDER BY day'''
     for log in logs:
         home_table[log] = {val[0]:val[1] for val in cur.execute(sql.SQL(SQL)\
                           .format(sql.Identifier(log)),{'start':start,'end':end}).fetchall()}
@@ -226,7 +239,7 @@ FROM "access" WHERE home=True AND date BETWEEN %(start)s AND %(end)s GROUP BY te
 AND status BETWEEN 400 AND 499 AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDER BY day'''        
     home_table['4xx'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()} 
     SQL = SQL.replace('AND status BETWEEN 400 AND 499', 'AND http<20')  
-    home_table['HTTP/1.x'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()}   
+    home_table['HTTP/1.x'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()}    
     for key in home_table: # fill in 0's
         for day in report_days:
             if day not in home_table[key]:
@@ -392,11 +405,13 @@ GROUP BY ip ORDER BY hits) "tmp" GROUP BY hits ORDER BY hits'''
                           {'start':start,'end':end}).fetchone()[0]
     if geocheck == 0:  
         SQL = '''SELECT ip, COUNT(ip), pg_size_pretty(SUM(bytes)) FROM {table}
- WHERE home=False AND date BETWEEN %(start)s AND %(end)s GROUP BY ip HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''          
+ WHERE home=False AND date BETWEEN %(start)s AND %(end)s GROUP BY ip HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC''' 
+        cols = ['IP', 'Hits', 'Data', 'Duration', 'Start', 'Stop', 'Ban Time']
     else:
         SQL = '''SELECT ip, COUNT(ip), CONCAT(city,', ', country) "location", pg_size_pretty(SUM(bytes))
 FROM {table} INNER JOIN "geoinfo" on {table}.geo = geoinfo.id WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
-GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''       
+GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''     
+        cols = ['IP', 'Hits', 'Location', 'Data', 'Duration', 'Start', 'Stop', 'Ban Time(s)']
     if KD_options[1]: 
         freqIPs_access = cur.execute(sql.SQL(SQL.replace('WHERE',f'WHERE {KD_spec}')).format(table=sql.Identifier('access')),
                                     {'start':start,'end':end}).fetchall()
@@ -408,10 +423,13 @@ GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''
         freqIPs_known = []
     freqIPs_error = cur.execute(sql.SQL(SQL.replace(', pg_size_pretty(SUM(bytes))', ''))\
                    .format(table=sql.Identifier('error')),{'start':start,'end':end}).fetchall()
- 
-    freqIPs_access = frequent_table(cur, freqIPs_access, start, end, geocheck)
-    freqIPs_error = frequent_table(cur, freqIPs_error, start, end, geocheck)
-    freqIPs_known = frequent_table(cur, freqIPs_known, start, end, geocheck)
+                        
+    freqIPs_access = frequent_table(cur, freqIPs_access, start, end, 'access', cols, True)
+    freqIPs_known = frequent_table(cur, freqIPs_known, start, end, 'access', cols, False)
+    cols.remove('Data')
+    freqIPs_error = frequent_table(cur, freqIPs_error, start, end, 'error', cols, True)
+    
+    # print(freqIPs_access,'\n\n',freqIPs_known,'\n\n',freqIPs_error)
 
     # top 10 data transfers, RefURLs, city/country, entry methods
     top10s = top10_table(cur, KD_spec, KD_options, start, end, geocheck, LocTabCount)
@@ -469,17 +487,20 @@ GROUP BY filter, action, ip ORDER BY action desc, filter) "tmp" GROUP BY filter,
         elif val[0] == 'Ban':
             uniqueBans[f'"{val[1]}"'] = val[2]
 
-    OptionSettings = {'Finds': 'CornflowerBlue', 'Finds (IP)': 'LightSkyBlue',\
-                      'Bans': 'MediumSpringGreen', 'Bans (IP)': 'Aquamarine'}
+    OptionSettings = {'Finds': 'CornflowerBlue', 'Bans': 'MediumSpringGreen',\
+                      'Finds (IP)': 'LightSkyBlue','Bans (IP)': 'Aquamarine'}
     chart_options = []
     for key,val in OptionSettings.items():     
         chart_options.append({'type': '"column"', 'showInLegend': 'true',
                               'name':f'"{key}"', 'color':f'"{val}"'})
-    y_axis = {'title':'"Hits"', 'gridThickness':1}
+    if max(totalFinds.values())/min(totalFinds.values()) > 100:
+        y_axis = {'title':'"log Hits"', 'gridThickness':1, 'logarithmic':'true','minimum':0.1}
+    else:
+        y_axis = {'title':'"Hits"', 'gridThickness':1}
     x_axis = {'title':'""', 'gridThickness':0, 'lineThickness':1}    
     
     f2bFilters = chart_build('f2bFilterChart', 'fail2ban Filters', chart_options,\
-                             [totalFinds, uniqueFinds, totalBans, uniqueBans],\
+                             [totalFinds, totalBans, uniqueFinds, uniqueBans],\
                              y_axis, x_axis, 'label') 
     del totalFinds, uniqueFinds, totalBans, uniqueBans, OptionSettings, chart_options
     

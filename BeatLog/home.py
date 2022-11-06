@@ -143,14 +143,16 @@ def settings():
                     with conn.transaction():
                         cur.execute('UPDATE settings SET maxminddb=%s,mapdays=%s,mapcount=%s,\
                         nominatimagent=%s WHERE reportdays=%s', (newGeo[0], newGeo[1], newGeo[2], newGeo[3], old[0]))
+                    if newGeo[0]:
+                        p = Path(newGeo[0])
+                        mm_check = datetime.fromtimestamp(p.stat().st_mtime).strftime('%x %X') if p.exists() and p.suffix == '.mmdb' else False   
+                    else:
+                        mm_check = None
                     alert = ('Geography settings updated', 'success')            
                 else:
                     alert = ('No changes detected', 'warning')                      
         if alert and alert[1] == 'success':
             old = cur.execute('SELECT * FROM settings').fetchone()   
-            if old[9]:
-                p = Path(old[9])
-                mm_check = datetime.fromtimestamp(p.stat().st_mtime).strftime('%x %X') if p.exists() and p.suffix == '.mmdb' else False
     return render_template('settings.html', old=old, alert=alert, mm_check=mm_check)   
     
 @bp.route("/Beat/", methods = ['POST'])
@@ -204,8 +206,7 @@ def recent_report():
 
 @bp.route("/jail/", methods = ['GET','POST'])
 def configure_jail():
-    location = None
-    message = None
+    location = message =  None
     made = False
     with pool.connection() as conn:
         cur = conn.cursor()  
@@ -214,7 +215,8 @@ def configure_jail():
         if jail:
             location = jail[0]
             made, message = update_Jail(conn, cur, jail[1], location, jail[2]) # returns up to date, updated, or failure message
-            
+            # if message and message[1] == 'danger':
+                # return render_template('noJail.html', jail=jail, message=message)
         if request.method == 'POST':
             if 'set_jail' in request.form and 'Location' in request.form:              
                 made, message = make_Jail(conn, cur, request.form['Location'], location)  # new location, old location          

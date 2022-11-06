@@ -72,18 +72,22 @@ SWAG Config
 │ ...
 ```
 
-Following the example, the files can be loaded into **BeatLog** from the `/import/` directory.
+Following the example, the files can be loaded into **BeatLog** from the `/import/` directory as listed in the table below.
 
 ```yaml
     volumes:
-      - /path_to/swag_config/log/nginx/access.log:/import/access.log
-      - /path_to/swag_config/log/nginx/error.log:/import/error.log
-      - /path_to/swag_config/log/nginx/unauthorized.log:/import/unauthorized.log
-      - /path_to/swag_config/log/fail2ban/fail2ban.log:/import/fail2ban.log
-      - /path_to/swag_config/fail2ban/jail.local:/import/jail.local
-      - /path_to/swag_config/geoip2db/GeoLite2-City.mmdb:/import/GeoLite2-City.mmdb
+      - /path_to/swag_config/log:/import/log # NGINX and fail2ban logs
+      - /path_to/swag_config/fail2ban:/import/fail2ban # fail2ban jail.local
+      - /path_to/swag_config/geoip2db:/import/geoip2db # MaxMindDB
 ```
 
+| File | Path in Container |
+| :----: | --- |
+| access.log | `/import/log/nginx/access.log` |
+| error.log | `/import/log/nginx/error.log` |
+| unauthorized.log | `/import/log/nginx/unauthorized.log` |
+| fail2ban.log | `/import/log/fail2ban/fail2ban.log` |
+| GeoLite2-City.mmdb | `/import/geoip2db/GeoLite2-City.mmdb` |
 
 ### Log Files
 
@@ -95,6 +99,8 @@ Also note the home IP address is red, indicating it is not being ignored by fail
 ![homepage_fresh](/docs/pics/homepage_fresh.png "Homepage without any logfiles.")
 
 **✱ access.log ✱**
+
+*/import/log/nginx/access.log*
 
 ![add_log_file](/docs/pics/add_log_file.png "Adding access.log")
 
@@ -111,6 +117,8 @@ Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in 
 
 **✱ jail.local ✱**
 
+*/import/log/fail2ban/fail2ban.log*
+
 ![add_jail](/docs/pics/load_jail.png "Adding jail.local")
 
 ![added_jail](/docs/pics/loaded_jail.png "jail.local added")
@@ -123,6 +131,8 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 ![geo_set1](/docs/pics/navbar_settings.png "Geography settings")
 
 **✱ GeoLite2-City.mmdb ✱**
+
+*/import/geoip2db/GeoLite2-City.mmdb*
 
 ![geo_set2](/docs/pics/Settings_geography.png "Geography settings, MaxMindDB")
 
@@ -303,7 +313,8 @@ Therefore, I flag these connections as **home ignorable**, indicated in the bott
 **Daily Action Counts** above shows a fortunate situation. Despite a number of **home ignorable** connections, no fail2ban filters registered **ignores**.
 This suggests that the exceptions I have in my strict filters are allowing what I want them to.
 
-![report_home](/docs/pics/Report_Home_summary.png "Report's summary of Home connections")
+![report_home](/docs/pics/Report_Home_summary.png "Home Summary, daily table and graphs")
+![report_home2](/docs/pics/Report_Home_summary2.png "Home Summary, devices")
 
 Note **DSub** and the blurred user-agents in the **Home Devices** table. These are used in the **Known Devices** [setting](#known-devices), to separate certain Outside connections.
 
@@ -327,11 +338,12 @@ The graph below indicates that most visitors (>100) only visited one time.
 Note the one address that had 5 requests. It is also shown in the **Frequent Visitors** table. The table indicates that the IP's 5 hits occured within one second, and it was promptly banned.
 
 ![report_outside1](/docs/pics/Report_Outside_summary.png "Report's summary of Outside connections")
+![report_outside1](/docs/pics/Report_Outside_frequent.png "Frequent Visitors tables, updated to show data")
 
 As referenced in the **Home Devices** table, a separate **Frequent Visitors - Known Devices** table is provided due to the report [settings](#known-devices). 
 These IPs were separated based on their user-agents (tech), and are not shown in the **Hit Counts by Log** table.
 
-A number of **Top 10** tables are presented. The data in these tables may help design fail2ban filters.
+A number of **Top 10** tables are presented. The data in these tables may help design fail2ban filters. Top 10 tables now show the average data returned by the requests.
 
 ![report_outside2](/docs/pics/Report_Outside_top10_locations.png "Top 10 tables of Outside locations, note settings")
 

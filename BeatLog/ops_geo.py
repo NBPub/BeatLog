@@ -257,4 +257,4 @@ def geolocate(conn,cur,log,duration):
                     SQL = sql.SQL('UPDATE {} SET geo=%s WHERE ip=%s AND date BETWEEN %s AND %s AND geo IS NULL').format(sql.Identifier(log))
                     cur.execute(SQL, (record, IP, duration[0], duration[1]))
                 except:
-                    pass # could log
+                    pass # could log, along with returns above
