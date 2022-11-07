@@ -68,12 +68,11 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
 
 *current version:* **[alpha-0.1.2](#development)**<br>
-*NullConnectionPool and arm32v7 releases are not up to alpha-0.1.2, yet*
 | Architecture | Tag | *NullConnectionPool* |
 | :----: | --- | --- |
-| x86-64 | *latest* | *alpha-0.1.1t* |
-| arm64 | *latest*  | *alpha-0.1.1t* |
-| armhf | *arm32v7-latest* | *arm32v7-alpha-0.1.1t* |
+| x86-64 | *latest* | *alpha-0.1.2t* |
+| arm64 | *latest*  | *alpha-0.1.2t* |
+| armhf | *arm32v7-latest* | *arm32v7-alpha-0.1.2t* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -151,10 +150,9 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | `check_IP=12` | Interval (hours) for checking / updating the home IP address, `12` hr default. Specify as integer, or `0` to disable |
 | `check_Log=3` | Interval (hours) for checking / parsing the Log Files, `3` hr default. Specify as integer, or `0` to disable  |
 | **volumes**  | ---- |
-| `/path/to/log_directory:/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container, to be read by **BeatLog**. See [data sources](#data-sources) below |
-| `/swag_config/<subdirectory>:/import/<subdirectory>` | example for SWAG structure in [setup guide](/docs#data-sources) |
+| `/path/to/log_directory:`<br>`/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container, to be read by **BeatLog**. See [data sources](#data-sources) below |
+| `/swag_config/<subdirectory>:`<br>`/import/<subdirectory>` | example for SWAG structure in [setup guide](/docs#data-sources) |
 | *. . .* | *. . .* |
-| | |
 | **postgres db ports**  | ---- |
 | `5432:5432` | Default database port. If the external port is changed, then `db_port` must be specifed for the beatlog container |
 | **postgres db environment**  | ---- |
@@ -162,7 +160,7 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | `POSTGRES_PASSWORD=changeme` | PostgreSQL database password, should match `db_password` |
 | `TZ=Pacific/Galapagos` | See above |
 | **postgres db volumes**  | ---- |
-| `/path_to/beatlog_conifg/db:/var/lib/postgresql/data` | *[Optional](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. |
+| `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Optional](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. |
 
 ### Data Sources
 
@@ -316,10 +314,12 @@ Get the most information from BeatLog following these steps:
 
 ### Local Installation - Python venv
 
-- *Required: connectable postgresql database*
+- *Required: Python 3.10, connectable postgresql database*
 - Add **[BeatLog folder](https://github.com/NBPub/BeatLog/tree/main/BeatLog)** and **[requirements.txt](https://github.com/NBPub/BeatLog/blob/main/requirements.txt)** into a new directory
 - Create and activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html)
 - Install requirements `pip install -r requirements.txt`
+  - Packages: [Flask](https://flask.palletsprojects.com/), [Flask-APScheduler](https://github.com/viniciuschiele/flask-apscheduler), [python-dotenv](https://github.com/theskumar/python-dotenv), [psycopg3](https://www.psycopg.org/psycopg3/), [geoip2](https://github.com/maxmind/GeoIP2-python)
+  - *[gunicorn](https://gunicorn.org/) used in deployment, Flask's Werkzeug can be used for local use*
 - Create and populate a **.env** file, model after docker-compose [example](#docker-compose)
   - *Note:* `FLASK_APP=beatlog` is required, `FLASK_RUN_HOST` and `FLASK_RUN_PORT` can be used to change access options. 
   - See links below for details
@@ -334,7 +334,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
-| alpha-0.1.2 | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Bugfixes and improvements. |
+| alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Bugfixes and improvements. |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 

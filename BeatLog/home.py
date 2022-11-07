@@ -215,8 +215,8 @@ def configure_jail():
         if jail:
             location = jail[0]
             made, message = update_Jail(conn, cur, jail[1], location, jail[2]) # returns up to date, updated, or failure message
-            # if message and message[1] == 'danger':
-                # return render_template('noJail.html', jail=jail, message=message)
+            if message and len(message) == 3: # file not found
+                jail = None
         if request.method == 'POST':
             if 'set_jail' in request.form and 'Location' in request.form:              
                 made, message = make_Jail(conn, cur, request.form['Location'], location)  # new location, old location          

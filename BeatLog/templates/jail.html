@@ -10,16 +10,19 @@
 		  {% endif %}
 		</div>
 	  {% endif %}  
-	  {% if not jail or message|length < 3 %}
+	  {% if not jail %}
 	    <form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3 mt-3">	
 	      <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
-	      <input class="form-control" type="text" id="jailLocation" name="Location">
+	      <input class="form-control" type="text" id="jailLocation" name="Location" {% if message and message|length == 3 %} value="{{ message[2] }}" {% endif %}>
 		  <div id="HelpBlock" class="form-text">
 		    File will be read to determine fail2ban settings.
 		  </div>		
 		  <input type="submit" class="btn btn-dark mt-2 fw-bold" name="set_jail" value="Set Jail">
+		  {% if message and message|length == 3 %}
+		    <input type="submit" class="btn btn-danger mt-2 fw-bold" style="float:right" name="delete_jail" value="Delete Jail">
+		  {% endif %}
 	    </form>
-	    <br /><br /><hr />
+	    <br /><br /><hr />	  
 	  {% else %}
 	    <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#hiddenForm" style="float:right;">
 		  Modify Location
@@ -35,9 +38,7 @@
 			  <input type="submit" class="btn btn-danger mt-2 fw-bold" style="float:right" name="delete_jail" value="Delete Jail">
 			</form>
 			<br /><br /><hr />
-		  </div>		
-	  {% endif %}
-	  {% if not jail %}	
+		  </div>
 		<p class="fs-3 ms-3 fw-bold">Status</p>
 		<p class="ms-5">
 		  <b>Modified:</b> {{ jail[1].strftime('%x %X') }}<br>
