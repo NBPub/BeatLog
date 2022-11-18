@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Edit {{ log_file|capitalize }}{% endblock %}
 {% block content %}
-    <h1>Edit Log File</h1>
+    <h1>Edit Log File - {{ log_file }}.log
+	  <a href="{{ url_for('logs.edit_log_regex', log_file=log_file) }}" class="btn btn-info fw-bold mx-5 mt-3" style="float:right">Regex Methods</a>
+	</h1>
 	  <form method="POST" action="{{ url_for('logs.edit_log_file', log_file=log_file) }}" class="ms-3 mt-3">	
 	    <label for="formFileLocation" class="form-label fs-5 fw-bold">Specify new location for {{ log_file|capitalize }}</label>
 	    <input class="form-control" type="text" id="formFileLocation" name="log_location" value="{{ location}}" required>

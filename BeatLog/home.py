@@ -51,7 +51,7 @@ def home():
             alert = parse_all(conn, cur)
     
         # LogFile information: modified, last parsed, first record, # lines, duration
-        logs = cur.execute('SELECT Name,Modified,lastParsed FROM logfiles').fetchall()            
+        logs = cur.execute('SELECT Name,Modified,lastParsed FROM logfiles ORDER BY name').fetchall()            
         log_info = {}
         for log in logs:
             if log[2][0] == datetime(1,1,1):
@@ -62,9 +62,11 @@ def home():
                 rows = cur.execute('SELECT reltuples::int AS estimate FROM pg_class WHERE relname = %s',
                                     (log[0],)).fetchone()[0]
                 rows = "{:,}".format(rows)
-                log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over\
-                                    <b>{(log[2][0] - first).days} days</b>'
-            
+                log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over \
+<b>{(log[2][0] - first).days} days</b>'
+    print(logs)  
+    print()
+    print(log_info)
     return render_template('home.html', homeIP=homeIP, duration=duration, logs=logs, versions=versions,
                             check=datetime(1,1,1), ignoreIPs=ig, alert=alert, log_info=log_info)
 
@@ -235,7 +237,7 @@ def configure_jail():
                 log['stats'] = stats
             del stats
         elif request.method == 'POST' and 'activity' in request.form:
-            stats = filter_info(conn, cur, request.form['activity'])
+            stats = filter_info(cur, request.form['activity'])
             for log in jail[3]['enabled']:
                 if log['name'] == request.form['activity']:
                     log['stats'] = stats
