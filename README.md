@@ -65,7 +65,9 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and OpenStreetMap [tiles](https://operations.osmfoundation.org/policies/tiles/). 
 **[Documentation](/docs#visitor-map-demo)**
- - Location markers are scaled by total connections or unique visitors (IPs) over the time range
+ - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
+ - Location marker sizes are scaled by total connections or unique visitors
+ - Tabular data is presented beneath the map
 
 ## Installation
 
@@ -312,33 +314,9 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress
+### In Progress, alpha-0.1.3
 
-**alpha-0.1.2, latest**
-
-- Installation, Docker Compose
-  - ~~switched instructions to mount directories instead of files, allowing updates within container~~
-  - ~~database update / migration instructions~~
-- Documentation
-  - drafting example Map/Report for display with Github pages
-- General
-  - ~~Github workflow for publishing Docker images~~ *only for latest tag right now*
-  - ~~improve SQL query creation, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)~~
-    - eliminated poorly constructed queries, improved usage of variables within queries
-    - *need to improve *`Known Devices`* and *`Home Ignorable`* [usage](/docs#known-devices)*
-  - gunicorn worker timeouts for long operations
-    - ~~increased timeout to 60s from default 30s~~ 
-	- Can revert by 
-	  - Timechecks in `Parse All`, individual parsing operations
-	  - Analyze report generation with profiler for potential improvements
-- Bug Fixes / Minor Improvements
-  - ~~database cleaning form error~~
-  - ~~buttons to View and Clean geography cache only appear when applicable~~
-  - ~~BeatLog page shows whitespace for invalid IP addresses~~
-  - ~~Error handling for invalid file locations~~
-  - ~~Report improvements and fixes~~
-  - ~~Improved Regex page~~
-  
+current: **latest, alpha-0.1.2, alpha-0.1.2t**
 
 ### Planned Improvements
 
@@ -350,10 +328,11 @@ Get the most information from BeatLog following these steps:
   - consider smarter way to gather regex methods across functions
 - Features
   - visitor maps, pan to location from table entry
-  - country locations distribution, make bar chart responsive with scrollbar
   - fail2ban filter testing
-  - failed regex analysis
   - data viewer page: forms for guided SQL selects --> present data in tables
+    - utilize [HTMX](https://htmx.org/) or similar to provide smooth experience
+- Other
+  - consider phasing out `unauthorized.log`
 
 ### Local Installation - Python venv
 
@@ -377,28 +356,59 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
-| alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Bugfixes and improvements. |
+| alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 
-### pre alpha-0.1.2
+### pre alpha-0.1.3 details
 
-- *Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?*
+<details><summary>═════════</summary>
+
+- Installation, Docker Compose
+  - mount directories instead of files to update logs within **BeatLog** container
+  - PostgreSQL upgrade instructions
+- Docker Image
+  - Building **latest** and **arm32v7-latest** tags via Github [workflow](/actions/workflows/main.yml)
+  - NullConnectionPool versions uploaded manually for now, may stop later
+- Documentation
+  - [demonstration page](https://nbpub.github.io/BeatLog/) for Map and Report, added links to docs
+- General
+  - SQL query creation improved, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)
+    - *need to continue work on *`Known Devices`* and *`Home Ignorable`* [usage](/docs#known-devices)*
+  - increased gunicorn worker timeout to 60s, from 30s, to allow for long operations
+	- Can revert by 
+	  - Timechecks in `Parse All`, individual parsing operations
+	  - Analyze report generation with profiler for potential improvements
+	  - geography [location lookup](/docs#location-lookup) capped to 20 per attempt
+  - Bug Fixes / Minor Improvements
+    - various errors fixed
+    - added data to report tables
+    - various aesthetic / navigation improvements
+
+</details>
+
+### pre alpha-0.1.2 details
+
+<details><summary>═════════</summary>
+
+- Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?
   - general issue of `ConnectionPool` with Gunicorn's forked workers. error may be solved: pool opened and checked after fork, before first request.
   - Scheduled tasks created with `gunicorn --preload`, to run with a single Gunicorn worker.
   - need to figure out how to best use (Flask)-**APScheduler**, **Gunicorn**, and **psycopg3 ConnectionPool** together. 
     - reading up on [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks)
-- *If modified location city/country is set to* `None`, *should save as* `NULL` *in database*.
+- If modified location city/country is set to `None`, should save as `NULL` in database.
   - adding note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
-- *Scheduled* `parse_all` *may cause duplicate prepared statements error*
+- Scheduled `parse_all` may cause duplicate prepared statements error
   - monitor, think this is fixed. probably result of spamming home page
-- *Potential Gunicorn worker timeout for parsing or location fill operations*
+- Potential Gunicorn worker timeout for parsing or location fill operations
   - limited geofill to maximum of 20 locations at a time (20-25 second operation), could increase `gunicorn --timeout` from default 30 seconds.
   - what is upper limit for parsing time?
-- *change fail2ban lastparsed from last saved line to last read line*
+- change fail2ban lastparsed from last saved line to last read line
   - should be less confusing when checking last parsed
-- *expand documentation*
+- expand documentation*
   - continuous drafting, documenting changes in detail until beta release
-- *add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now*
+- add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now
   - do workers+ConnectionPool take too many database connections?
   - reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks
+  
+</details>

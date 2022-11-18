@@ -64,9 +64,6 @@ def home():
                 rows = "{:,}".format(rows)
                 log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over \
 <b>{(log[2][0] - first).days} days</b>'
-    print(logs)  
-    print()
-    print(log_info)
     return render_template('home.html', homeIP=homeIP, duration=duration, logs=logs, versions=versions,
                             check=datetime(1,1,1), ignoreIPs=ig, alert=alert, log_info=log_info)
 
