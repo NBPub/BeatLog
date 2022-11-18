@@ -13,15 +13,15 @@
 - [Scheduled Tasks](#scheduled-tasks)
 	- [Home IP](#home-ip-check)
 	- [Log Check](#log-check)
-- [Report](#report)
-	- [Home](#home)
-	- [Outside](#outside)
+- [Report](#report-demo)
+	- [Home](#home-demo)
+	- [Outside](#outside-demo)
 	- [Settings, Known Devices](#known-devices)
-	- [fail2ban](#fail2ban)
+	- [fail2ban](#fail2ban-demo)
 - [Beat! Button](#beat-button)
 - [Geography](#geography)
 	- [Fill Unnamed Locations](#location-lookup)
-	- [Visitor Map](#visitor-map)
+	- [Visitor Map](#visitor-map-demo)
 	- [Data Assessment](#tables-charts)
 - [Custom Reports or Maps](#custom-reports-and-maps)
 - [Database Cleanup](#database-cleanup)
@@ -495,7 +495,7 @@ The **Top 10** bar charts show top countries or cities by total requests or uniq
 
 ## Custom Reports and Maps
 
-The form to generate **[Maps](#visitor-map)** or **[Reports](#report)** over a user-defined date range is on the bottom of the Report and Geography Settings page, 
+The form to generate **[Maps](#visitor-map-demo)** or **[Reports](#report-demo)** over a user-defined date range is on the bottom of the Report and Geography Settings page, 
 and can also be accessed from the **Options** drop-down menu.
 
 ![custom](/docs/pics/Settings_custom.png "Custom date range for Report or Visitor Map")

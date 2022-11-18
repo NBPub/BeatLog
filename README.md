@@ -53,7 +53,7 @@ See the [BeatLog Guide](/docs) for a full list of features. The **Report** and *
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
-**[Documentation](/docs#report)**
+**[Documentation](/docs#report-demo)**
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
  - Scrutinize traffic from frequent visitors, monitor popular client requests
  - **Known Devices** can be identified and separated from other outside connections
@@ -64,7 +64,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and OpenStreetMap [tiles](https://operations.osmfoundation.org/policies/tiles/). 
-**[Documentation](/docs#visitor-map)**
+**[Documentation](/docs#visitor-map-demo)**
  - Location markers are scaled by total connections or unique visitors (IPs) over the time range
 
 ## Installation
