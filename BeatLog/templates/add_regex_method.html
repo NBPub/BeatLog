@@ -7,6 +7,15 @@
 	  <form style="display:inline-block" method="POST" action="{{ url_for('logs.add_regex_method') }}">
 	  <button type="submit" class="btn btn-success fw-bold mx-5" name="populate_methods">Load Default Methods</button>
 	  </form>
+		{% if logs|length > 0 %}
+	      <button class="btn btn-sm btn-info drowdown-toggle mx-5 mt-2 fw-bold" type="button" data-bs-toggle="dropdown" style="float:right">
+	      Log Methods</button>
+	      <ul class="dropdown-menu">
+		  {% for log in logs %}
+		    <li><a class="dropdown-item fw-semibold" href="{{ url_for('logs.edit_log_regex', log_file=log) }}">{{ log }}</a></li>
+		  {% endfor %}
+		  </ul>
+		{% endif %}
 	</h1><br />
 	  <form method="POST" action="{{ url_for('logs.add_regex_method') }}" id="add_log_file" class="ms-3 mt-3">	
 	    <label class="form-label fs-5 fw-bold">Enter pattern</label>
@@ -23,8 +32,8 @@
 	  </form>
 	  <br /><br />	  
 	  {% if alert %}
-	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
-		  {{ alert[0] }}
+	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show me-5" role="alert">
+		  {{ alert[0]|safe }}
 		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div><br />
 	  {% endif %}

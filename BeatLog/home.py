@@ -12,6 +12,7 @@ from .ops_data import log_data_cleaning, log_clean_estimate, log_clean_confirmed
                       geo_noIP_check, vacuum_tables                      
 from .ops_parse import parse_all
 from .ops_report import report_build, beat_analyze
+from sys import version
 
 bp = Blueprint('home', __name__, url_prefix='/')
 @bp.before_app_request
@@ -29,6 +30,10 @@ def home():
         alert[request.form['vacuum']] =  vacuum_tables([request.form['vacuum']])        
     with pool.connection() as conn:
         cur = conn.cursor()
+        # Footer Info
+        versions = cur.execute('SELECT version();').fetchone()[0].split(' ')[0:2]
+        versions.append(version.split(' | ')[0])
+        
         # check home IP, gather ignoreIPs from f2b jail
         homeIP, duration = home_ip(conn, cur)
         ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
@@ -60,7 +65,7 @@ def home():
                 log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over\
                                     <b>{(log[2][0] - first).days} days</b>'
             
-    return render_template('home.html', homeIP=homeIP, duration=duration, logs=logs,
+    return render_template('home.html', homeIP=homeIP, duration=duration, logs=logs, versions=versions,
                             check=datetime(1,1,1), ignoreIPs=ig, alert=alert, log_info=log_info)
 
 @bp.route("/data_cleaning/", methods = ['GET','POST'])
@@ -73,6 +78,8 @@ def data_clean():
         cur = conn.cursor()
         logs, table = log_data_cleaning(cur) # logs with > 0 rows, table of data
         noIPgeo = geo_noIP_check(cur)
+        versions = [cur.execute('SELECT version();').fetchone()[0]]
+        versions.append(f'Python - {version}')
                     
         if request.method == 'POST' and 'Estimate' in request.form or 'confirm_delete' in request.form:
             existing = (request.form['log_select'],request.form['start'],
@@ -92,7 +99,7 @@ def data_clean():
                     logs, table = log_data_cleaning(cur) 
                     existing = None                   
     return render_template('data_clean.html', logs=logs, table=table, alert=alert, disable=disable,
-                           estimate=estimate, existing=existing, noIPgeo=noIPgeo)
+                           estimate=estimate, existing=existing, noIPgeo=noIPgeo, versions=versions)
 
 @bp.route("/failed_regex/", methods = ['GET','POST'])
 def failed_regex():
@@ -191,8 +198,8 @@ def recent_report():
         homeStatus, homeMethod, actionCounts, outStatus, outMethod, \
         freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
         ErrorFiltrate, outHitsIP, outDaily, f2bFilters,\
-        f2b_unused, f2brecent = report_build(cur, start, end, report_days)           
-
+        f2b_unused, f2brecent = report_build(cur, start, end, report_days)   
+                     
     return render_template('recent_report.html',duration=duration, start=start, end=end,
                             home_summary=home_summary, out_summary=out_summary, homeIP=homeIP, 
                             homeDevices=homeDevices, report_days=report_days, home_table=home_table, 

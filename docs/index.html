@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Other CSS -->
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+   integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+   crossorigin=""/>
+ <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+   crossorigin=""></script>	
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <title>Visitors Map</title>
+	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png"/>
+  </head>
+  <body>
+    <!-- Navbar, https://getbootstrap.com/docs/5.2/components/navbar/-->	
+	<nav class="navbar navbar-expand-md bg-light border fixed-top">
+	  <div class="container-fluid">
+		<a class="navbar-brand" href="/home/">
+		  <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/navcon.png" style="width:30px;"/>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBase">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarBase">
+		  <ul class="navbar-nav me-auto">
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end border-start" href="/Logs/add">Logs</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="/Logs/add_regex/">Regex</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="/jail/">fail2ban</a>
+			</li>	
+			<li class="nav-item">
+			  <a class="nav-link fw-bold border-end" href="/report/">Report</a>
+			</li>			
+			<li class="nav-item dropdown">
+			  <a class="nav-link dropdown-toggle fw-bold border-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+				Geography
+			  </a>
+			  <ul class="dropdown-menu">
+				<li><a class="dropdown-item" href="/geo/">(Un)named Locations</a></li>
+				<li><a class="dropdown-item" href="/geo/assess/">Data Assessment</a></li>
+				<li><a class="dropdown-item" href="/geo/map/">Visitor Map</a></li>
+			  </ul>
+			</li>			
+			<li class="nav-item dropdown">
+			  <a class="nav-link dropdown-toggle fw-bold border-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+				Options
+			  </a>
+			  <ul class="dropdown-menu">
+			    <li class="dropdown-item fw-bold text-center">Settings</li>
+				<li><a class="dropdown-item" href="/settings/#Report">Recent Report</a></li>
+				<li><a class="dropdown-item" href="/settings/#Geography">Geography</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li class="dropdown-item fw-bold text-center">Custom Dates</li>
+				<li><a class="dropdown-item" href="/settings/#Custom">Report &#9946; Map</a></li>				
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="/data_cleaning/">Database Clean</a></li>
+				<li><a class="dropdown-item" href="/failed_regex/">Failed Regex</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item text-primary fw-bold text-center" href="https://github.com/NBPub/BeatLog/tree/main/docs#beatlog-guide-" target="_blank">BeatLog Docs</a></li>
+			  </ul>
+			</li>			
+			<li class="nav-item ms-2">
+			  <form method="POST" action="/home/">
+			    <input type="submit" value="Parse All" name="parse_all" class="text-success fw-bold btn"/>
+			  </form> 
+			</li>	
+			<li class="nav-item dropdown bg-dark">
+			  <a class="nav-link dropdown-toggle text-warning fw-bold bg-dark" href="#" role="button" data-bs-toggle="dropdown">Contents</a>
+			  <ul class="dropdown-menu" id="reportNav">
+			    <li><a class="dropdown-item fw-bold" href="#scrollspyVisitorMap">Visitor Map Demo</a></li>
+				<li><a class="dropdown-item fw-bold" href="#scrollspyTop">Report Demo</a></li>
+				<li><a class="dropdown-item fw-bold" href="#scrollspyHome">Home</a></li>
+				<li><a class="dropdown-item text-center" href="#scrollspyHomeIgs">Ignores</a></li>
+				<li><a class="dropdown-item fw-bold" href="#scrollspyOutside">Outside</a></li>
+				<li><a class="dropdown-item text-center" href="#scrollspyFrequents">Frequenters</a></li>	
+				<li><a class="dropdown-item fw-bold" href="#scrollspyfail2ban">fail2ban</a></li>
+				<li><a class="dropdown-item text-center" href="#scrollspyFiltrate">Filtrate</a></li>	
+			  </ul>	
+			</li>  									
+		  </ul>
+		  <form method="POST" class="d-flex needs-validation" action="/Beat/">
+			<input class="form-control me-2"  type="text" name="BeatLog" placeholder="Enter IP address" value="" id="validationBeatLog" required>
+			<button class="btn btn-outline-success" type="submit" formtarget="_blank">Beat</button>
+		  </form>
+		</div>
+	  </div>
+	</nav><br /><br /><br />
+
+	
+
+			
+
+<div class="container-fluid">  	
+  <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
+  <h1 id="scrollspyVisitorMap">Visitor Map
+    <em class="text-danger ms-5">Page Demo, Links do not function!</em>
+  </h1>
+  
+    <span class="ms-5 fw-bold fs-4 text-muted">31 locations, from 11/14/22 19:04 to 11/15/22 19:04</span>	
+	<form method="POST" action="/geo/map/" class="ms-5 text-muted">
+	  <input type="hidden" name="start" value="2022-11-14 19:04:37.069774">
+	  <input type="hidden" name="end" value="2022-11-15 19:04:37.069774">
+	  <input type="hidden" name="existing_byIP" value="False">
+	  If map is not visible, try <a href="/settings/#Geography">reducing map duration</a> 
+	  or removing <button type="submit" class="btn btn-danger btn-sm my-2 fw-bold" value="nixtip" name="nixtip">Tooltips</button>	  
+	</form>	
+    <div id="map" style="height:50vh;width:80%;margin:auto;"></div>
+	<form method="POST" class="text-muted text-center" action="/geo/map/">
+	  <input type="hidden" name="start" value="2022-11-14 19:04:37.069774">
+	  <input type="hidden" name="end" value="2022-11-15 19:04:37.069774">
+	  Location marker size is scaled to  its number of connections. 
+	  <button type="submit" class="btn btn-dark btn-sm fw-bold m-2" value="True" name="switch">
+		 Scale by IPs 
+	  </button>
+	</form>	
+	<hr /></div>
+	  <div style="max-height:30vh;overflow:scroll;width:100%;">
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+	      <thead><tr><th scope="col">Location</th><th scope="col">Hits</th><th scope="col">Latitude</th><th scope="col">Longitude</th></tr></thead>
+<tbody>
+<tr>
+  <th class="text-info" scope="row" data-lat="-0.5"" data-lon="-90.5">
+  Galápagos Islands, Ecuador
+  </th><td>35</td><td>-0.5</td><td>-90.5</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="37.7308"" data-lon="-122.3838">
+  Atlanta, United States
+  </th><td>17</td><td>33.7673</td><td>-84.5602</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="45.6514"" data-lon="-121.3833">
+  Mosier, United States
+  </th><td>4</td><td>45.6514</td><td>-121.3833</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="38.4116"" data-lon="-122.7332">
+  Santa Rosa, United States
+  </th><td>3</td><td>38.4116</td><td>-122.7332</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="31.5019"" data-lon="34.4666">
+  Gaza, Palestine
+  </th><td>3</td><td>31.5019</td><td>34.4666</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="38.7057"" data-lon="-9.1359">
+  Lisbon, Portugal
+  </th><td>3</td><td>38.7057</td><td>-9.1359</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="47.6131"" data-lon="-122.2053">
+  Bellevue, United States
+  </th><td>3</td><td>47.6131</td><td>-122.2053</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="34.7732"" data-lon="113.722">
+  Zhengzhou, China
+  </th><td>3</td><td>34.7732</td><td>113.722</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="37.751"" data-lon="-97.822">
+  Reno County, United States
+  </th><td>3</td><td>37.751</td><td>-97.822</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="48.8322"" data-lon="2.4075">
+  Paris, France
+  </th><td>2</td><td>48.8322</td><td>2.4075</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="39.9143"" data-lon="116.3861">
+  Beijing, China
+  </th><td>2</td><td>39.9143</td><td>116.3861</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="48.8581"" data-lon="2.3386">
+  Paris, France
+  </th><td>2</td><td>48.8581</td><td>2.3386</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="40.793"" data-lon="-74.0247">
+  North Bergen, United States
+  </th><td>2</td><td>40.793</td><td>-74.0247</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="-1.2841"" data-lon="36.8155">
+  Nairobi, Kenya
+  </th><td>2</td><td>-1.2841</td><td>36.8155</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="37.393"" data-lon="-121.962">
+  Santa Clara, United States
+  </th><td>2</td><td>37.393</td><td>-121.962</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="1.3078"" data-lon="103.6818">
+  Singapore, Singapore
+  </th><td>2</td><td>1.3078</td><td>103.6818</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="34.0544"" data-lon="-118.2441">
+  Los Angeles, United States
+  </th><td>1</td><td>34.0544</td><td>-118.2441</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="13.7749"" data-lon="100.5197">
+  Bangkok, Thailand
+  </th><td>1</td><td>13.7749</td><td>100.5197</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="45.9968"" data-lon="24.997">
+  Brașov, Romania
+  </th><td>1</td><td>45.9968</td><td>24.997</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="50.8534"" data-lon="4.347">
+  Brussels, Belgium
+  </th><td>1</td><td>50.8534</td><td>4.347</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="40.8228"" data-lon="-74.4592">
+  Cedar Knolls, United States
+  </th><td>1</td><td>40.8228</td><td>-74.4592</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="22.2908"" data-lon="114.1501">
+  Central, Hong Kong
+  </th><td>1</td><td>22.2908</td><td>114.1501</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="50.1188"" data-lon="8.6843">
+  Frankfurt am Main, Germany
+  </th><td>1</td><td>50.1188</td><td>8.6843</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="22.2578"" data-lon="114.1657">
+  Hong Kong Island, China
+  </th><td>1</td><td>22.2578</td><td>114.1657</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="27.8329"" data-lon="113.1454">
+  Jianning, China
+  </th><td>1</td><td>27.8329</td><td>113.1454</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="6.4474"" data-lon="3.3903">
+  Lagos, Nigeria
+  </th><td>1</td><td>6.4474</td><td>3.3903</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="51.4964"" data-lon="-0.1224">
+  London, United Kingdom
+  </th><td>1</td><td>51.4964</td><td>-0.1224</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="52.3759"" data-lon="4.8975">
+  Amsterdam, Netherlands
+  </th><td>1</td><td>52.3759</td><td>4.8975</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="10.2178"" data-lon="-64.6127">
+  Puerto Cruz, Venezuela
+  </th><td>1</td><td>10.2178</td><td>-64.6127</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="40.6063"" data-lon="-74.1774">
+  Staten Island, United States
+  </th><td>1</td><td>40.6063</td><td>-74.1774</td>
+</tr>
+<tr>
+  <th class="text-info" scope="row" data-lat="35.698"" data-lon="51.4114">
+  Tehran, Iran
+  </th><td>1</td><td>35.698</td><td>51.4114</td>
+</tr></tbody>
+	    </table>
+	  </div>	  
+
+
+<hr class="border border-primary border-5 my-5">
+  <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
+    <!-- Title --> 
+    <h1 id="scrollspyTop">BeatLog Report - 5 day(s)
+	  <em class="text-danger ms-5">Demo, Links do not function!</em>
+	</h1>
+	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on 11/10/22 19:02:21, ending on 11/15/22 19:02:21</p>  
+	<!-- Summary Table up top --> 
+	  <table class="table table-hover table-striped-columns me-5">
+	    <thead>
+	      <tr>
+		    <th scope="col" class="text-muted fs-6 text-end"> Total Hits (Unique IP)</th>
+		    <th scope="col" class="table-primary">Access Log</th>
+		    <th scope="col" class="table-danger">Error Log</th>
+		    <th scope="col" class="table-warning">Unauthorized</th>
+		  </tr>
+	    </thead>
+		<tbody>
+		  <tr class="text-center fw-bold">
+		    <th scope="row" class="text-center">Home</th>
+		    <td class="table-primary">5196  (1)</td>
+		    <td class="table-danger">0  (0)</td>
+		    <td class="table-warning">0  (0)</td>
+		  </tr>
+		  <tr class="text-center fw-bold">
+		    <th scope="row" class="text-center">Outside</th>
+		    <td class="table-primary">620   (296)</td>
+		    <td class="table-danger">33   (20)</td>
+		    <td class="table-warning">0   (0)</td>
+		  </tr>
+		</tbody>
+	  </table>
+	  <!-- Action Count bar chart -->
+	  <div style="background-color:rgb(42,42,42);"><div style="width:50%;margin:auto;">
+	    <p class="text-center fw-bold text-light mt-5">
+	    fail2ban <span style="color:LightSkyBlue;">Finds</span>, <span style="color:PaleGreen;">Bans</span> vs outside <span style="color:PaleVioletRed;">Visitors</span> (unique IP)<br />
+	    fail2ban home <span style="color:LightSalmon;">Ignores</span> vs total home <span style="color:MediumOrchid;">Ignorable</span> hits</p>	  
+	    </div><div id="actionCountChart" style="width:70%;height:420px;margin:auto;z-index:0;"></div></div>
+	  <div class="text-center mt-2">
+	  
+	    <a class="fw-bold" href="#scrollspyFiltrate">Filtrate Table(s)</a>
+	  
+	  </div>
+		
+<br /><hr />
+<!-- Home Summary  --> 
+	<h2 class="ms-2 mt-3" id="scrollspyHome">Home Summary</h2>
+	    <p class="fs-5 ms-4 fw-bold">Home IP(s): 		  
+	        <span class="text-success fw-bold fs-6">< HOME IP 1 ></span> •  
+		</p>	
+	<!-- daily table --> 	
+	  <table class="table table-sm table-responsive table-hover table-striped-columns me-5">
+	    <thead>
+	      <tr>
+		    <th scope="col"> </th>
+		    <th scope="col" class="table-dark text-center">Duration</th>
+			
+		      <th scope="col" class="text-center">11/10/22</th>
+		    
+		      <th scope="col" class="text-center">11/11/22</th>
+		    
+		      <th scope="col" class="text-center">11/12/22</th>
+		    
+		      <th scope="col" class="text-center">11/13/22</th>
+		    
+		      <th scope="col" class="text-center">11/14/22</th>
+		    
+		      <th scope="col" class="text-center">11/15/22</th>
+		    
+		  </tr>
+	    </thead>
+		<tbody>
+		  <tr>
+		    <th scope="row" class="text-center">Total Hits</th>
+		    <td class="table-dark text-center">5196</td>
+			
+		      <td class="text-center">537</td>
+		    
+		      <td class="text-center">865</td>
+		    
+		      <td class="text-center">695</td>
+		    
+		      <td class="text-center">512</td>
+		    
+		      <td class="text-center">1197</td>
+		    
+		      <td class="text-center">1390</td>
+		    
+		  </tr>
+		  <tr>
+		    <th scope="row" class="text-center">Error &nbsp;&#10568;&nbsp; Unauthorized</th>
+		    <td class="table-dark text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+			
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		  </tr>
+		  <tr>
+		    <th scope="row" class="text-center">HTTP/1.x &nbsp;&#10568;&nbsp; 4xx client error</th>
+		    <td class="table-dark text-center">26 &nbsp;&#10571;&nbsp;  31</td>
+			
+		      <td class="text-center">0 &nbsp;&#10571;&nbsp; 0</td>
+		    
+		      <td class="text-center">5 &nbsp;&#10571;&nbsp; 7</td>
+		    
+		      <td class="text-center">7 &nbsp;&#10571;&nbsp; 11</td>
+		    
+		      <td class="text-center">1 &nbsp;&#10571;&nbsp; 3</td>
+		    
+		      <td class="text-center">8 &nbsp;&#10571;&nbsp; 7</td>
+		    
+		      <td class="text-center">5 &nbsp;&#10571;&nbsp; 3</td>
+		    
+		  </tr>	  
+		</tbody>
+	  </table>
+	  <br />	  
+	  <!-- HTTP codes / methods bar charts --> 
+	  <p class="text-center fw-bold text-muted" style="position:relative;top:15px;">
+	    Counts of HTTP <a href="https://www.httpstatuses.org/">status codes</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">request methods</a> from Home connections
+	  </p>
+	  <div id="homeStatusChart" style="width:40%;height:300px;display:inline-block;z-index:0;" class="ms-5" ></div>
+	  <div id="homeMethodChart" style="width:40%;height:300px;display:inline-block;z-index:0;" class="ms-5" ></div>	  
+	  <!-- Unique Devices --> 	
+	    <p class="fs-5 ms-4 mt-5 fw-bold">
+		  Home Devices: 6
+		</p>
+	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		    <caption>Devices AKA tech AKA <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent</a></caption>
+		    <thead><tr><th scope="col">Count</th><th scope="col">User-Agent</th><th scope="col">Avg Data</th><th scope="col">Total Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">3798</th><td>Mozilla/5.0...</td><td>354 kB</td><td>1312 MB</td>
+</tr>
+<tr>
+  <th scope="row">876</th><td>iOS...</td><td>408 bytes</td><td>350 kB</td>
+</tr>
+<tr>
+  <th scope="row">241</th><td>iOS...</td><td>478 bytes</td><td>113 kB</td>
+</tr>
+<tr>
+  <th scope="row">219</th><td>Mozilla...</td><td>34 kB</td><td>7519 kB</td>
+</tr>
+<tr>
+  <th scope="row">36</th><td>...</td><td>1351 bytes</td><td>48 kB</td>
+</tr>
+<tr>
+  <th scope="row">26</th><td>DSub</td><td>3749 bytes</td><td>95 kB</td>
+</tr></tbody>
+	      </table>		  
+	  <!-- Ignores Table --> 
+	  
+	    <p class="fs-5 ms-4 fw-bold" id="scrollspyHomeIgs">Home Ignores:</p>
+		  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		    <thead><tr><th scope="col">Day</th><th scope="col">Filter</th><th scope="col">Count</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">11-14</th><td>nginx-http</td><td>4</td>
+</tr></tbody>
+		  </table>
+		
+	    <button class="btn btn-dark ms-4" type="button" data-bs-toggle="collapse" data-bs-target="#homeIgnores">Show Log Matches: 4</button>	
+	    <div class="collapse" id="homeIgnores">
+	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+		    <caption>More than one access log entry may match a fail2ban ignore. Specify <a href="/settings/">fail2ban home ignores</a> to improve matching.</caption>
+		    <thead><tr><th scope="col">Date</th><th scope="col">Filter</th><th scope="col">http</th><th scope="col">Method</th><th scope="col">Status</th><th scope="col">bytes</th><th scope="col">Ref+URL</th><th scope="col">Tech</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">2022-11-14 14:18:26</th><td>nginx-http</td><td>2.0</td><td>GET</td><td>404</td><td>179</td><td>...</td><td>Mozilla/5.0 ...</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-14 15:00:41</th><td>nginx-http</td><td>2.0</td><td>GET</td><td>401</td><td>53</td><td>...</td><td>Mozilla/5.0 ...</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-14 15:00:41</th><td>nginx-http</td><td>2.0</td><td>GET</td><td>401</td><td>53</td><td>..</td><td>Mozilla/5.0 ...</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-14 15:00:41</th><td>nginx-http</td><td>2.0</td><td>GET</td><td>401</td><td>53</td><td>..</td><td>Mozilla/5.0 ...</td>
+</tr></tbody>
+	      </table>
+		</div>
+		
+	  		  
+<br /><hr />
+<!-- Outside Summary, daily line graph + barcharts  --> 
+	<h2 class="ms-2 my-3" id="scrollspyOutside">Outside Summary</h2>
+	  <p class="fw-bold text-muted">
+	    <span style="float:left">Outside connections per log, with unique IPs shown from the access log.</span>
+		<span style="float:right;position:relative;right:80px;">Visitors by amount of hits.</span>
+	  </p>
+	  <div id="outsideDailyChart" style="width:65%;height:420px;display:inline-block;z-index:0;"></div>
+	  <div id="outsideHitsIP" style="width:30%;height:420px;display:inline-block;z-index:0;" class="ms-4" ></div>  
+	  <p class="text-center fw-bold text-muted mt-3" style="position:relative;top:15px;">
+	    Counts of HTTP <a href="https://www.httpstatuses.org/">status codes</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">request methods</a> from outside connections
+	  </p>
+	  <div id="outsideStatusChart" style="width:45%;height:300px;display:inline-block;z-index:0;" class="mx-3" ></div>
+	  <div id="outsideMethodChart" style="width:45%;height:300px;display:inline-block;z-index:0;" class="mx-3" ></div>
+	  <br />
+	  <!-- Frequent Visitors --> 
+	  <h3 class="ms-2 my-3" id="scrollspyFrequents" >Frequent Visitors</h3>
+		<form method="POST" action="/geo/map/" target="_blank" class="text-end">
+		  <input type="hidden" name="start" value="2022-11-10 19:02:21.372632">
+		  <input type="hidden" name="end" value="2022-11-15 19:02:21.372632">
+		  <button type="submit" class="btn btn-primary mx-3 fw-bold" name="ReportMap">Visitors Map</button>
+		</form>
+	  
+		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - 2</span><br />  
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 caption-top">
+	      <caption>IPs with > 4 hits</caption>
+		    <thead><tr><th scope="col">IP</th><th scope="col">Hits</th><th scope="col">Location</th><th scope="col">Data</th><th scope="col">Duration</th><th scope="col">Start</th><th scope="col">Stop</th><th scope="col">Ban Time(s)<br><em class="fw-normal">max 1 per day</em></th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">104.143.83.241</th><td>6</td><td>Reno County, United States</td><td>2483 bytes</td><td>0:00:01</td><td>2022-11-14 00:22:02</td><td>2022-11-14 00:22:03</td><td><b class="text-success">2022-11-14 00:22:03</b></td>
+</tr>
+<tr>
+  <th scope="row">162.142.125.213</th><td>5</td><td>Reno County, United States</td><td>2438 bytes</td><td>0:00:01</td><td>2022-11-12 10:56:26</td><td>2022-11-12 10:56:27</td><td><b class="text-success">2022-11-12 10:56:27</b></td>
+</tr></tbody>
+	    </table>
+
+	  
+	  
+	    <span class="fs-5 ms-4 fw-bold">Known Devices - 3</span><br />
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mb-5 caption-top">
+	      <caption>Known Devices with > 4 hits</caption>
+		    <thead><tr><th scope="col">IP</th><th scope="col">Hits</th><th scope="col">Location</th><th scope="col">Data</th><th scope="col">Duration</th><th scope="col">Start</th><th scope="col">Stop</th><th scope="col">Ban Time(s)<br><em class="fw-normal">max 1 per day</em></th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">174....</th><td>185</td><td>...</td><td>71 kB</td><td>6 days, 7:12:41</td><td>2022-11-08 13:02:32</td><td>2022-11-14 20:15:13</td><td>&#9940;</td>
+</tr>
+<tr>
+  <th scope="row">69...</th><td>31</td><td>...</td><td>12 kB</td><td>1:52:47</td><td>2022-11-13 11:14:17</td><td>2022-11-13 13:07:04</td><td>&#9940;</td>
+</tr>
+<tr>
+  <th scope="row">174...</th><td>24</td><td>...</td><td>9950 bytes</td><td>1:53:35</td><td>2022-11-15 16:01:13</td><td>2022-11-15 17:54:48</td><td>&#9940;</td>
+</tr></tbody>
+	    </table>
+	  		
+	  
+	  <!-- Top 10 Tables --> 
+	  <h4 class="mt-5">Top 10 Tables</h4> 
+	    <nav><div class="nav nav-tabs" id="nav-tab" role="tablist">
+		  <button class="nav-link text-muted fw-bold" id="out10data-tab" data-bs-toggle="tab" data-bs-target="#out10data" type="button" role="tab">Data Transfers</button>
+		  
+		    <button class="nav-link text-primary fw-bold" id="out10dataKD-tab" data-bs-toggle="tab" data-bs-target="#out10dataKD" type="button" role="tab">Known Data</button>
+		  
+		  <button class="nav-link text-muted fw-bold" id="out10refurl-tab" data-bs-toggle="tab" data-bs-target="#out10refurl" type="button" role="tab">RefURL, User-Agents</button>
+		  
+		    <button class="nav-link text-primary fw-bold" id="out10refurlKD-tab" data-bs-toggle="tab" data-bs-target="#out10refurlKD" type="button" role="tab">Known Devices</button>
+		  		  
+		  <button class="nav-link active text-muted fw-bold" id="out10location-tab" data-bs-toggle="tab" data-bs-target="#out10location" type="button" role="tab">Locations</button>
+		  
+		    <button class="nav-link text-primary fw-bold" id="out10location-tabKD" data-bs-toggle="tab" data-bs-target="#out10locationKD" type="button" role="tab">Known Locations</button>
+		  			  
+		</div></nav>
+	    <div class="tab-content" id="out10content">
+		    <div class="tab-pane fade" id="out10data" role="tabpanel" tabindex="0">
+			  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			    <caption>Top 10 connections by data transferred</caption>
+			    <thead><tr><th scope="col">Data</th><th scope="col">Date</th><th scope="col">IP</th><th scope="col">HTTP/x</th><th scope="col">Method</th><th scope="col">Status</th><th scope="col">Location</th><th scope="col">URL</th><th scope="col">Tech</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">12 kB</th><td>2022-11-12 08:31:27</td><td>3.85.63.188</td><td>1.1</td><td>GET</td><td>200</td><td>Ashburn, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">12 kB</th><td>2022-11-12 09:34:57</td><td>193.34.72.170</td><td>1.1</td><td>GET</td><td>200</td><td>Medford, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">11 kB</th><td>2022-11-12 08:31:28</td><td>54.242.185.138</td><td>1.1</td><td>GET</td><td>200</td><td>Ashburn, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">3298 bytes</th><td>2022-11-13 20:50:47</td><td>63.117.14.4</td><td>1.1</td><td>GET</td><td>200</td><td>Parsippany, United States</td><td>https://www.google.com//</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">2937 bytes</th><td>2022-11-12 09:34:59</td><td>95.164.159.166</td><td>1.1</td><td>GET</td><td>200</td><td>New York, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">2697 bytes</th><td>2022-11-12 08:31:27</td><td>54.196.10.19</td><td>1.1</td><td>GET</td><td>200</td><td>Ashburn, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">2256 bytes</th><td>2022-11-14 14:18:38</td><td>63.88.73.71</td><td>1.1</td><td>GET</td><td>200</td><td>Bellefonte, United States</td><td>-/...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">2131 bytes</th><td>2022-11-14 00:22:03</td><td>104.143.83.241</td><td>1.1</td><td>GET</td><td>200</td><td>Reno County, United States</td><td>https://...</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">988 bytes</th><td>2022-11-10 23:38:29</td><td>64.62.197.79</td><td>1.1</td><td>GET</td><td>200</td><td>Mosier, United States</td><td>-/</td><td>Mozilla/5.0...</td>
+</tr>
+<tr>
+  <th scope="row">988 bytes</th><td>2022-11-11 08:39:51</td><td>94.102.61.8</td><td>1.1</td><td>GET</td><td>200</td><td>London, United Kingdom</td><td>-/</td><td>Mozilla/5.0...</td>
+</tr></tbody>
+			  </table>
+		    </div>
+		  
+		    <div class="tab-pane fade" id="out10dataKD" role="tabpanel" tabindex="0">
+			  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			    <caption>Top data transfers from Known Devices</caption>
+			    <thead><tr><th scope="col">Data</th><th scope="col">Date</th><th scope="col">IP</th><th scope="col">HTTP/x</th><th scope="col">Method</th><th scope="col">Status</th><th scope="col">Location</th><th scope="col">URL</th><th scope="col">Tech</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-12 16:38:38</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-12 16:38:43</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 17:14:55</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 18:36:48</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 15:27:38</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 22:05:55</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 16:42:53</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 16:12:53</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-11 17:51:20</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr>
+<tr>
+  <th scope="row">937 bytes</th><td>2022-11-12 15:27:52</td><td>174...</td><td>2.0</td><td>PROPFIND</td><td>207</td><td>...</td><td>-/...</td><td>...</td>
+</tr></tbody>
+			  </table>
+		    </div>
+		  
+		  <div class="tab-pane fade" id="out10refurl" role="tabpanel" tabindex="0"> 
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top 10 referrer+URL combinations</caption>
+			  <thead><tr><th scope="col">Hits</th><th scope="col">RefURL</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">184</th><td>-/</td><td>421 bytes</td>
+</tr>
+<tr>
+  <th scope="row">14</th><td>-/....</td><td>432 bytes</td>
+</tr>
+<tr>
+  <th scope="row">11</th><td>-/...</td><td>762 bytes</td>
+</tr>
+<tr>
+  <th scope="row">7</th><td>-/...</td><td>988 bytes</td>
+</tr>
+<tr>
+  <th scope="row">6</th><td>-/wp-login.php</td><td>162 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>-\x03\x00\....</td><td>150 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>-/...</td><td>988 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>-/....</td><td>822 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>-/...</td><td>150 bytes</td>
+</tr>
+<tr>
+  <th scope="row">4</th><td>-/...</td><td>988 bytes</td>
+</tr></tbody>
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top 10 devices AKA tech AKA <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent</a></caption>
+			  <thead><tr><th scope="col">Hits</th><th scope="col">User-Agent</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">102</th><td>-</td><td>234 bytes</td>
+</tr>
+<tr>
+  <th scope="row">52</th><td>Mozilla/5.0...</td><td>617 bytes</td>
+</tr>
+<tr>
+  <th scope="row">20</th><td>Mozilla/5.0...</td><td>698 bytes</td>
+</tr>
+<tr>
+  <th scope="row">13</th><td>Mozilla/5.0...</td><td>606 bytes</td>
+</tr>
+<tr>
+  <th scope="row">13</th><td>Mozilla/5.0...</td><td>326 bytes</td>
+</tr>
+<tr>
+  <th scope="row">8</th><td>Mozilla/5.0...</td><td>3387 bytes</td>
+</tr>
+<tr>
+  <th scope="row">8</th><td>Mozilla/5.0...</td><td>162 bytes</td>
+</tr>
+<tr>
+  <th scope="row">7</th><td>Mozilla/5.0...</td><td>162 bytes</td>
+</tr>
+<tr>
+  <th scope="row">7</th><td>Mozilla/5.0...</td><td>162 bytes</td>
+</tr>
+<tr>
+  <th scope="row">7</th><td>Mozilla/5.0...</td><td>1213 bytes</td>
+</tr></tbody>
+			</table></div></div>
+		  </div>
+		  
+		    <div class="tab-pane fade" id="out10refurlKD" role="tabpanel" tabindex="0"> 
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top referrer+URL combinations from Known Devices</caption>
+			  <thead><tr><th scope="col">Hits</th><th scope="col">RefURL</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">95</th><td>-/.../</td><td>283 bytes</td>
+</tr>
+<tr>
+  <th scope="row">91</th><td>-/...inbox/</td><td>250 bytes</td>
+</tr>
+<tr>
+  <th scope="row">51</th><td>-/...</td><td>877 bytes</td>
+</tr>
+<tr>
+  <th scope="row">2</th><td>-/...personal/</td><td>443 bytes</td>
+</tr>
+<tr>
+  <th scope="row">2</th><td>-/.../</td><td>280 bytes</td>
+</tr>
+<tr>
+  <th scope="row">1</th><td>-/.../</td><td>280 bytes</td>
+</tr></tbody>
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agents</a> from Known Devices</caption>
+			  <thead><tr><th scope="col">Hits</th><th scope="col">User-Agent</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">225</th><td>...</td><td>393 bytes</td>
+</tr>
+<tr>
+  <th scope="row">15</th><td>iOS...</td><td>442 bytes</td>
+</tr>
+<tr>
+  <th scope="row">2</th><td>...</td><td>443 bytes</td>
+</tr></tbody>
+			</table></div></div></div>
+		  		  
+		  <div class="tab-pane fade show active" id="out10location" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+		    
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top countries</caption>
+			  <thead><tr><th scope="col">Visitors</th><th scope="col">Country</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">160</th><td>United States</td><td>779 bytes</td>
+</tr>
+<tr>
+  <th scope="row">20</th><td>China</td><td>449 bytes</td>
+</tr>
+<tr>
+  <th scope="row">18</th><td>United Kingdom</td><td>484 bytes</td>
+</tr>
+<tr>
+  <th scope="row">15</th><td>France</td><td>370 bytes</td>
+</tr>
+<tr>
+  <th scope="row">11</th><td>Netherlands</td><td>521 bytes</td>
+</tr>
+<tr>
+  <th scope="row">10</th><td>Russia</td><td>457 bytes</td>
+</tr>
+<tr>
+  <th scope="row">10</th><td>Germany</td><td>143 bytes</td>
+</tr>
+<tr>
+  <th scope="row">9</th><td>Singapore</td><td>294 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>Canada</td><td>157 bytes</td>
+</tr>
+<tr>
+  <th scope="row">5</th><td>Portugal</td><td>657 bytes</td>
+</tr></tbody>
+			</table></div>
+			<div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top cities</caption>
+			  <thead><tr><th scope="col">Visitors</th><th scope="col">City</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">47</th><td>Atlanta, United States</td><td>526 bytes</td>
+</tr>
+<tr>
+  <th scope="row">27</th><td>Reno County, United States</td><td>466 bytes</td>
+</tr>
+<tr>
+  <th scope="row">18</th><td>Mosier, United States</td><td>575 bytes</td>
+</tr>
+<tr>
+  <th scope="row">18</th><td>London, United Kingdom</td><td>484 bytes</td>
+</tr>
+<tr>
+  <th scope="row">15</th><td>Paris, France</td><td>370 bytes</td>
+</tr>
+<tr>
+  <th scope="row">12</th><td>Zhengzhou, China</td><td>365 bytes</td>
+</tr>
+<tr>
+  <th scope="row">11</th><td>Amsterdam, Netherlands</td><td>521 bytes</td>
+</tr>
+<tr>
+  <th scope="row">11</th><td>Ashburn, United States</td><td>2747 bytes</td>
+</tr>
+<tr>
+  <th scope="row">9</th><td>Moscow, Russia</td><td>490 bytes</td>
+</tr>
+<tr>
+  <th scope="row">8</th><td>North Bergen, United States</td><td>346 bytes</td>
+</tr></tbody>
+			</table></div></div>
+			
+		  </div>
+		  
+		    <div class="tab-pane fade" id="out10locationKD" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top countries from Known Devices</caption>
+			  <thead><tr><th scope="col">Visitors</th><th scope="col">Country</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">22</th><td>...</td><td>414 bytes</td>
+</tr></tbody>
+			</table></div><div class="col">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Top cities from Known Devices</caption>
+			  <thead><tr><th scope="col">Visitors</th><th scope="col">City</th><th scope="col">Avg Data</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">14</th><td>...</td><td>419 bytes</td>
+</tr>
+<tr>
+  <th scope="row">8</th><td>...</td><td>405 bytes</td>
+</tr></tbody>
+			</table></div></div></div>
+		  			  
+	    </div>
+<br /><hr />
+<!-- Fail2Ban: filter bar chart, unused filters, recent actions, filtrate tables  --> 
+	<h2 class="ms-2 my-3" id="scrollspyfail2ban">fail2ban Summary</h2>
+	  <h4 class="ms-5">Filters Utilized</h4>
+	    <p class="text-center fw-bold text-muted">Total / Unique IP finds and bans for each filter from past 5 day(s)</p>
+	    <div id="f2bFilterChart" style="width:70%;height:420px;margin:auto;z-index:0;"></div>
+	  
+	  <h4 class="ms-5 mt-5">Last 20 actions</h4>
+	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		  <thead><tr><th scope="col">Date</th><th scope="col">IP</th><th scope="col">Action</th><th scope="col">Filter</th><th scope="col">Location</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">2022-11-15 18:59:17.674000</th><td>94.183.194.150</td><td>Ban</td><td>nginx-httpone</td><td>Tehran, Iran</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-15 18:59:17.576000</th><td>94.183.194.150</td><td>Found</td><td>nginx-httpone</td><td>Tehran, Iran</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-15 18:36:37.408000</th><td>185.180.143.6</td><td>Ban</td><td>nginx-httpone</td><td>Lisbon, Portugal</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-15 18:36:36.966000</th><td>185.180.143.6</td><td>Found</td><td>nginx-httpone</td><td>Lisbon, Portugal</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-15 18:01:15.372000</th><td>222.240.1.12</td><td>Ban</td><td>nginx-httpone</td><td>Jianning, China</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-15 18:01:15.162000</th><td>222.240.1.12</td><td>Found</td><td>nginx-httpone</td><td>Jianning, China</td>
+</tr>
+<tr>
+  <th scope="row">...</th><td>...</td><td>...</td><td>...</td><td>...</td>
+</tr>
+</tbody>
+		</table>
+	  <h3 class="mt-5" id="scrollspyFiltrate">Outside Filtrate Tables</h3>	
+
+	 
+ 
+		<h4 class="ms-5">Error Log - 3
+		  <button class="btn btn-dark btn-sm ms-3 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#errorfiltrate">Show Table</button>
+		</h4>	
+		  <div class="collapse" id="errorfiltrate">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>Error Log outside connections not captured by fail2ban</caption>
+			  <thead><tr><th scope="col">Date</th><th scope="col">IP</th><th scope="col">Location</th><th scope="col">Level</th><th scope="col">Message</th></tr></thead>
+<tbody>
+<tr>
+  <th scope="row">2022-11-10 22:08:15</th><td>2600:...</td><td>..., United States</td><td>crit</td><td>connect() to [...]:80 failed (99: Address not available) while requesting certificate status</td>
+</tr>
+<tr>
+  <th scope="row">2022-11-10 22:08:15</th><td>2600:...</td><td>..., United States</td><td>crit</td><td>connect() to [...]:80 failed (99: Address not available) while requesting certificate status</td>
+</tr><tr class="table-primary" height="20px"><th scope="row"> </th><td> </td><td> </td><td> </td><td> </td></tr>
+<tr>
+  <th scope="row">2022-11-11 23:31:44</th><td>2600:...</td><td>..., United States</td><td>crit</td><td>connect() to [...]:80 failed (99: Address not available) while requesting certificate status</td>
+</tr>
+</tbody>
+			</table>	
+		  </div>
+	  
+  </div><br /><br /><br />
+
+</div>		
+	<!-- Bootstrap JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+<script>
+	  
+var map = L.map('map').setView([0,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 9, minZoom: 2, attribution: '© OpenStreetMap'}).addTo(map);
+L.control.scale().addTo(map);
+var circle = L.circleMarker([-0.5,-90.5], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 14.35}).addTo(map)
+    .bindTooltip("<b>35</b><br>Galápagos Islands, Ecuador");
+var circle = L.circleMarker([33.7673,-84.5602], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 11.84}).addTo(map)
+    .bindTooltip("<b>17</b><br>Atlanta, United States");
+var circle = L.circleMarker([45.6514,-121.3833], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 6.82}).addTo(map)
+    .bindTooltip("<b>4</b><br>Mosier, United States");
+var circle = L.circleMarker([38.4116,-122.7332], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Santa Rosa, United States");
+var circle = L.circleMarker([31.5019,34.4666], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Gaza, Palestine");
+var circle = L.circleMarker([38.7057,-9.1359], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Lisbon, Portugal");
+var circle = L.circleMarker([47.6131,-122.2053], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Bellevue, United States");
+var circle = L.circleMarker([34.7732,113.722], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Zhengzhou, China");
+var circle = L.circleMarker([37.751,-97.822], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 5.82}).addTo(map)
+    .bindTooltip("<b>3</b><br>Reno County, United States");
+var circle = L.circleMarker([48.8322,2.4075], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Paris, France");
+var circle = L.circleMarker([39.9143,116.3861], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Beijing, China");
+var circle = L.circleMarker([48.8581,2.3386], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Paris, France");
+var circle = L.circleMarker([40.793,-74.0247], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>North Bergen, United States");
+var circle = L.circleMarker([-1.2841,36.8155], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Nairobi, Kenya");
+var circle = L.circleMarker([37.393,-121.962], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Santa Clara, United States");
+var circle = L.circleMarker([1.3078,103.6818], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 4.41}).addTo(map)
+    .bindTooltip("<b>2</b><br>Singapore, Singapore");
+var circle = L.circleMarker([34.0544,-118.2441], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Los Angeles, United States");
+var circle = L.circleMarker([13.7749,100.5197], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Bangkok, Thailand");
+var circle = L.circleMarker([45.9968,24.997], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Brașov, Romania");
+var circle = L.circleMarker([50.8534,4.347], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Brussels, Belgium");
+var circle = L.circleMarker([40.8228,-74.4592], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Cedar Knolls, United States");
+var circle = L.circleMarker([22.2908,114.1501], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Central, Hong Kong");
+var circle = L.circleMarker([50.1188,8.6843], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Frankfurt am Main, Germany");
+var circle = L.circleMarker([22.2578,114.1657], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Hong Kong Island, China");
+var circle = L.circleMarker([27.8329,113.1454], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Jianning, China");
+var circle = L.circleMarker([6.4474,3.3903], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Lagos, Nigeria");
+var circle = L.circleMarker([51.4964,-0.1224], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>London, United Kingdom");
+var circle = L.circleMarker([52.3759,4.8975], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Amsterdam, Netherlands");
+var circle = L.circleMarker([10.2178,-64.6127], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Puerto Cruz, Venezuela");
+var circle = L.circleMarker([40.6063,-74.1774], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Staten Island, United States");
+var circle = L.circleMarker([35.698,51.4114], {
+    fillOpacity: 0.2, color: 'BlueViolet', radius: 2.0}).addTo(map)
+    .bindTooltip("<b>1</b><br>Tehran, Iran");
+	</script>
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+  
+var chart = new CanvasJS.Chart("homeStatusChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "HTTP Status Codes", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Home Hits",logarithmic:true,titleFontSize:24,lineThickness:4,tickThickness:4,gridThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Status Code",gridThickness:0,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",
+dataPoints: [{ label:"200", y:3073 },{ label:"201", y:4 },{ label:"204", y:1 },{ label:"206", y:290 },{ label:"207", y:889 },{ label:"301", y:1 },{ label:"302", y:9 },{ label:"304", y:898 },{ label:"401", y:24 },{ label:"404", y:1 },{ label:"499", y:6 }]}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("homeMethodChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "HTTP Request Methods", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Home Hits",logarithmic:true,titleFontSize:24,lineThickness:4,tickThickness:4,gridThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Method",gridThickness:0,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",
+dataPoints: [{ label:"GET", y:3528 },{ label:"OPTIONS", y:266 },{ label:"POST", y:24 },{ label:"PROPFIND", y:699 },{ label:"PUT", y:469 },{ label:"REPORT", y:210 }]}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("actionCountChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "Daily Action Counts", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Hits",gridThickness:1,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Day",gridThickness:0,lineThickness:1,valueFormatString:"MMM DD",intervalType:"day",interval:1,titleFontSize:24,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",showInLegend:true,name:"Finds",color:"LightSkyBlue",
+dataPoints: [{ x:new Date(2022,10,12), y:90 },{ x:new Date(2022,10,13), y:69 },{ x:new Date(2022,10,10), y:9 },{ x:new Date(2022,10,11), y:62 },{ x:new Date(2022,10,15), y:55 },{ x:new Date(2022,10,14), y:81 }]},{type:"column",showInLegend:true,name:"Bans",color:"PaleGreen",
+dataPoints: [{ x:new Date(2022,10,15), y:53 },{ x:new Date(2022,10,12), y:82 },{ x:new Date(2022,10,13), y:73 },{ x:new Date(2022,10,14), y:71 },{ x:new Date(2022,10,11), y:60 },{ x:new Date(2022,10,10), y:8 }]},{type:"column",showInLegend:true,name:"Visitors",color:"PaleVioletRed",
+dataPoints: [{ x:new Date(2022,10,10), y:8 },{ x:new Date(2022,10,11), y:51 },{ x:new Date(2022,10,12), y:76 },{ x:new Date(2022,10,13), y:66 },{ x:new Date(2022,10,14), y:63 },{ x:new Date(2022,10,15), y:47 }]},{type:"column",showInLegend:true,name:"Ignores",color:"LightSalmon",
+dataPoints: [{ x:new Date(2022,10,14), y:4 }]},{type:"column",showInLegend:true,name:"Ignorable",color:"MediumOrchid",
+dataPoints: [{ x:new Date(2022,10,10), y:0 },{ x:new Date(2022,10,11), y:12 },{ x:new Date(2022,10,12), y:18 },{ x:new Date(2022,10,13), y:4 },{ x:new Date(2022,10,14), y:15 },{ x:new Date(2022,10,15), y:8 }]}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("outsideStatusChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "HTTP Status Codes", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Outside Hits",titleFontSize:24,lineThickness:4,tickThickness:4,gridThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Status Code",gridThickness:0,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",
+dataPoints: [{ label:"200", y:169 },{ label:"207", y:186 },{ label:"301", y:156 },{ label:"302", y:12 },{ label:"400", y:85 },{ label:"401", y:8 },{ label:"404", y:4 }]}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("outsideMethodChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "HTTP Request Methods", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Outside Hits",titleFontSize:24,lineThickness:4,tickThickness:4,gridThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Method",gridThickness:0,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",
+dataPoints: [{ label:"CONNECT", y:5 },{ label:"GET", y:301 },{ label:"HEAD", y:3 },{ label:"OPTIONS", y:48 },{ label:"POST", y:9 },{ label:"PRI", y:4 },{ label:"PROPFIND", y:150 },{ label:"REPORT", y:44 },{ label:"None", y:56 }]}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("outsideHitsIP", {theme: "dark1", exportEnabled:true,
+	title:{text: "Hit Counts by Log", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Outside IPs",gridThickness:1,lineThickness:1,titleFontSize:24,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Hits",gridThickness:0,lineThickness:1,interval:1,titleFontSize:24,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",showInLegend:true,name:"Access",
+dataPoints: [{ x:1, y:225 },{ x:2, y:54 },{ x:3, y:6 },{ x:4, y:4 },{ x:5, y:1 },{ x:6, y:1 }]},{type:"column",showInLegend:true,name:"Error",
+dataPoints: [{ x:1, y:7 },{ x:2, y:13 }]},{type:"column",showInLegend:true,name:"Unauthorized",
+dataPoints: []}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("outsideDailyChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "Daily Visits", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"Outside Hits",gridThickness:1,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"Date",gridThickness:1,valueFormatString:"MMM DD",intervalType:"day",interval:1,lineThickness:1,titleFontSize:24,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"stepLine",showInLegend:true,name:"Access - Total",markerSize:20,lineThickness:5,
+dataPoints: [{ x:new Date(2022,10,10), y:10 },{ x:new Date(2022,10,11), y:120 },{ x:new Date(2022,10,12), y:156 },{ x:new Date(2022,10,13), y:137 },{ x:new Date(2022,10,14), y:116 },{ x:new Date(2022,10,15), y:81 }]},{type:"stepLine",showInLegend:true,name:"Access - Unique",markerSize:20,color:"BlueViolet",lineThickness:5,
+dataPoints: [{ x:new Date(2022,10,10), y:7 },{ x:new Date(2022,10,11), y:49 },{ x:new Date(2022,10,12), y:72 },{ x:new Date(2022,10,13), y:63 },{ x:new Date(2022,10,14), y:63 },{ x:new Date(2022,10,15), y:45 }]},{type:"line",showInLegend:true,name:"Error",markerSize:20,color:"Tomato",lineThickness:3,
+dataPoints: [{ x:new Date(2022,10,10), y:2 },{ x:new Date(2022,10,11), y:8 },{ x:new Date(2022,10,12), y:7 },{ x:new Date(2022,10,13), y:7 },{ x:new Date(2022,10,14), y:4 },{ x:new Date(2022,10,15), y:5 }]},{type:"line",showInLegend:true,name:"Unauthorized",markerSize:20,color:"YellowGreen",lineThickness:3,
+dataPoints: []}]});
+chart.render();
+        
+  
+var chart = new CanvasJS.Chart("f2bFilterChart", {theme: "dark1", exportEnabled:true,
+	title:{text: "fail2ban Filters", fontColor: "PapayaWhip",},
+    
+toolTip: {shared: true},
+
+    axisY:{
+        title:"log Hits",gridThickness:1,logarithmic:true,minimum:0.1,titleFontSize:24,lineThickness:4,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},
+    axisX:{
+        title:"",gridThickness:0,lineThickness:1,titleFontSize:24,tickThickness:4,gridColor:"PapayaWhip",labelFontColor:"PapayaWhip",lineColor:"PeachPuff",tickColor:"PeachPuff",titleFontColor:"PeachPuff"},   
+    data: [{type:"column",showInLegend:true,name:"Finds",color:"CornflowerBlue",
+dataPoints: [{ label:"nginx-crit-err", y:4 },{ label:"nginx-http", y:66 },{ label:"nginx-httpone", y:299 },{ label:"nginx-noscript", y:1 }]},{type:"column",showInLegend:true,name:"Bans",color:"MediumSpringGreen",
+dataPoints: [{ label:"nginx-crit-err", y:4 },{ label:"nginx-http", y:57 },{ label:"nginx-httpone", y:287 },{ label:"nginx-noscript", y:1 }]},{type:"column",showInLegend:true,name:"Finds (IP)",color:"LightSkyBlue",
+dataPoints: [{ label:"nginx-crit-err", y:4 },{ label:"nginx-http", y:53 },{ label:"nginx-httpone", y:260 },{ label:"nginx-noscript", y:1 }]},{type:"column",showInLegend:true,name:"Bans (IP)",color:"Aquamarine",
+dataPoints: [{ label:"nginx-crit-err", y:4 },{ label:"nginx-http", y:53 },{ label:"nginx-httpone", y:260 },{ label:"nginx-noscript", y:1 }]}]});
+chart.render();
+        
+</script>
+
+  </body>
+</html>

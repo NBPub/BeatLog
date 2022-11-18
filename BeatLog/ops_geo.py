@@ -184,12 +184,10 @@ GROUP BY location ORDER BY count DESC LIMIT 10'''
     return chart        
 
 def location_fill(conn,cur):
-    agent = cur.execute('SELECT nominatimagent FROM settings').fetchone()
+    agent = cur.execute('SELECT nominatimagent FROM settings').fetchone()[0]
+    result = [] 
     if not agent:
-        return ('No user agent specified, see Geography Settings','danger')
-    else:
-        agent = agent[0]
-        result = []    
+        return ('No user agent specified, see Geography Settings','danger'), result       
     start = time()
     # Nominatim reverse API (OpenStreetMap), https://nominatim.org/release-docs/develop/api/Reverse/
     base = 'https://nominatim.openstreetmap.org/reverse?'

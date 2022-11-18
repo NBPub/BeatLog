@@ -59,7 +59,7 @@ def geography_map():
         else: # time bounds from form for POST
             stop = datetime.fromisoformat(request.form['end'])
             begin = datetime.fromisoformat(request.form['start'])            
-        geomap = geo_map(cur, begin, stop, byIP, nixtip)          
+        geomap = geo_map(cur, begin, stop, byIP, nixtip)      
     return render_template('geo_map.html', geomap=geomap, begin=begin, stop=stop, byIP=byIP, nixtip=nixtip)
 
 @bp.route("/assess/", methods = ['GET','POST'])

@@ -8,7 +8,7 @@
 	      Other Logs</button>
 	      <ul class="dropdown-menu">
 		  {% for other_log in others %}
-		    <li><a class="dropdown-item" href="{{ url_for('logs.edit_log_regex', log_file=other_log) }}">{{ other_log }}</a></li>
+		    <li><a class="dropdown-item fw-semibold" href="{{ url_for('logs.edit_log_regex', log_file=other_log) }}">{{ other_log }}</a></li>
 		  {% endfor %}
 		  </ul>
 		{% endif %}	  

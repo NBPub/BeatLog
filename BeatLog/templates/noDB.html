@@ -12,9 +12,10 @@
 	  <h1 class="mt-3">&#127812; &#128018; </h1>
 		<p class="fs-3 ms-3 text-danger">Error connecting to database!<br>
 		Ensure database container is ready, and that BeatLog environment is correctly set. Then restart container.</p>	
-		<div class="bg-dark p-3 rounded">
-		  <p class="fs-5 ms-3 text-info">{{ err }}</p>
+		<div class="bg-dark p-3 rounded my-3">
+		  <p class="fs-5 ms-3 text-warning">{{ err }}.<br>Check container logs for more information.</p>
 		</div>
+		<a class="fw-bold m-4" href="https://github.com/NBPub/BeatLog#installation">Installation instructions</a>
 	  <footer class="d-flex flex-wrap justify-content-between align-items center border-top mt-5" style="font-size:10pt;position:relative;float:bottom;">
 	    <p class="text-muted fw-bold justify-content-start ms-3 mt-2">BeatLog <em class="fw-normal ms-2">alpha-0.1.2</em></p>
 	    <a class="link-secondary text-underline fw-bold justify-content-center mt-2" href="https://github.com/NBPub/BeatLog">Source Code - GPLv3</a>	  

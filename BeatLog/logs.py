@@ -17,7 +17,8 @@ def add_regex_method():
         cur = conn.cursor()
         if request.method == 'POST' and 'populate_methods' in request.form:
             populate_regex(conn, cur)
-        regex_groups, regex_patterns, regex_logs= gather_RegexMethods(cur)       
+        regex_groups, regex_patterns, regex_logs= gather_RegexMethods(cur)  
+        logs = [name[0] for name in cur.execute('SELECT name FROM logfiles').fetchall()]        
         # Form submitted - delete method
         if request.method == 'POST':
             if 'delete_method' in request.form:
@@ -25,11 +26,15 @@ def add_regex_method():
                 with conn.transaction():
                     try: # delete existing method
                         cur.execute('DELETE FROM regex_methods WHERE name=%s', (existing[0],))
-                        alert = (f'{existing[0]} deleted', 'warning')
+                        if existing[0] in regex_logs:
+                            affected = [f'<li>{val.capitalize()} method for {key} log removed</li>' for key,val in regex_logs[existing[0]].items()]
+                            alert = (f'<b>{existing[0]} deleted</b><ul class="ms-3">{"".join(affected)}</ul>', 'warning')
+                        else:
+                            alert = (f'{existing[0]} deleted', 'warning')
                         del regex_groups[existing[0]]
                     except Exception as e:
                         existing = None
-                        alert = str(e)               
+                        alert = (str(e), 'danger')               
         # add new regex method
             elif 'Add_Regex_Method' in request.form:
                 existing = (request.form['name'], request.form['pattern'])
@@ -41,9 +46,8 @@ def add_regex_method():
                         regex_groups[new_Reg[0]] = new_Reg[1]
                         regex_patterns[new_Reg[0]] = new_Reg[2]
                         existing = None
-    print(regex_logs)
     return render_template('add_regex_method.html', existing=existing, regex_groups=regex_groups, 
-                           regex_patterns=regex_patterns, regex_logs=regex_logs, alert=alert)
+                           regex_patterns=regex_patterns, regex_logs=regex_logs, logs=logs, alert=alert)
 
 @bp.route("/add", methods = ['GET', 'POST'])
 def add_log_file():

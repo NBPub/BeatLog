@@ -18,7 +18,7 @@
 {% block content %}
   <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
     <!-- Title --> 
-    <h1 id="scrollspyTop">BeatLog Report - {{ duration }} days</h1>
+    <h1 id="scrollspyTop">BeatLog Report - {{ duration }} day(s)</h1>
 	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on {{ start.strftime('%x %X') }}, ending on {{ end.strftime('%x %X') }}</p>  
 	<!-- Summary Table up top --> 
 	  <table class="table table-hover table-striped-columns me-5">
@@ -119,14 +119,19 @@
 	      </table>		  
 	  <!-- Ignores Table --> 
 	  {% if homef2b %}
-	    <p class="fs-5 ms-4 fw-bold" id="scrollspyHomeIgs">Home Ignores: {{ homef2b[1] }}</p>
-	      <button class="btn btn-dark ms-4" type="button" data-bs-toggle="collapse" data-bs-target="#homeIgnores">Show Table</button>	
+	    <p class="fs-5 ms-4 fw-bold" id="scrollspyHomeIgs">Home Ignores:</p>
+		  <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3">
+		    {{ homef2b[0]|safe }}
+		  </table>
+		{% if homef2b[1] %}
+	    <button class="btn btn-dark ms-4" type="button" data-bs-toggle="collapse" data-bs-target="#homeIgnores">Show Log Matches: {{ homef2b[1][1] }}</button>	
 	    <div class="collapse" id="homeIgnores">
 	      <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
 		    <caption>More than one access log entry may match a fail2ban ignore. Specify <a href="{{ url_for('home.settings') }}">fail2ban home ignores</a> to improve matching.</caption>
-		    {{ homef2b[0]|safe }}
+		    {{ homef2b[1][0]|safe }}
 	      </table>
 		</div>
+		{% endif %}
 	  {% endif %}		  
 <br /><hr />
 <!-- Outside Summary, daily line graph + barcharts  --> 
@@ -153,7 +158,7 @@
 	  {% if freqIPs_access %}
 		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - {{ freqIPs_access[1] }}</span><br />  
 	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 caption-top">
-	      <caption>IPs with > 4 hits </caption>
+	      <caption>IPs with > 4 hits</caption>
 		    {{ freqIPs_access[0]|safe }}
 	    </table>
 
@@ -225,14 +230,19 @@
 			</table></div></div></div>
 		  {% endif %}		  
 		  <div class="tab-pane fade show active" id="out10location" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+		    {% if not top10s[6] and not top10s[8] %}
+			  <p class="text-danger fw-bold mt-3">No locations found! Add MaxMindDB to associate locations with IPs</p>
+			{% else %}
 			<div class="row"><div class="col"><table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
 			  <caption>Top countries</caption>
 			  {{ top10s[6]|safe }}
-			</table></div><div class="col">
+			</table></div>
+			<div class="col">
 			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
 			  <caption>Top cities</caption>
 			  {{ top10s[8]|safe }}
 			</table></div></div>
+			{% endif %}
 		  </div>
 		  {% if top10s[7] %}
 		    <div class="tab-pane fade" id="out10locationKD" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
@@ -250,7 +260,7 @@
 <!-- Fail2Ban: filter bar chart, unused filters, recent actions, filtrate tables  --> 
 	<h2 class="ms-2 my-3" id="scrollspyfail2ban">fail2ban Summary</h2>
 	  <h4 class="ms-5">Filters Utilized</h4>
-	    <p class="text-center fw-bold text-muted">Total / Unique IP finds and bans for each filter from past {{ duration }} days</p>
+	    <p class="text-center fw-bold text-muted">Total / Unique IP finds and bans for each filter from past {{ duration }} day(s)</p>
 	    <div id="{{ f2bFilters[0] }}" style="width:70%;height:420px;margin:auto;z-index:0;"></div>
 	  {% if f2b_unused %}
 	    <h4 class="ms-5 mt-5">Unused Filters</h4>

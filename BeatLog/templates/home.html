@@ -29,7 +29,7 @@
 	  </div>	  
 	  <div class="row mx-5">
 	    {% for name, mod, parsed in logs %}
-		  <div class="col-xl-4 col-lg-5 border border-dark  bg-light m-1">
+		  <div class="col-xl-4 col-lg-5 col-md-5 border border-dark  bg-light m-1">
 		    <h3 class="ms-5 fs-4 fw-bold text-center">{{ name|capitalize }}
 			  <span class="badge"><form method="POST" action="{{ url_for('home.home') }}">
 		        <button type="submit" name="vacuum" value="{{ name }}" class="btn btn-sm btn-info fw-bold fs-6">&#11156;</button>
@@ -70,7 +70,7 @@
 	  </div>		  
 	{% if 4 > logs|length %}
 	  <div class="row mx-5">
-	    <div class="col-xl-4 col-lg-5 border border-dark bg-secondary m-1">
+	    <div class="col-xl-4 col-lg-5 col-md-5 border border-dark bg-secondary m-1">
 		  <a href="{{ url_for('logs.add_log_file') }}" class="text-decoration-none">      
 			<button class="btn btn-danger fw-bold mb-2 me-3 p-3 border-dark"></button>
 			<span class="fs-3 fw-bold text-dark" style="-webkit-text-stroke:1px paleturquoise;">Add Log</span>
@@ -78,9 +78,13 @@
 		</div>
 	  </div>
     {% endif %}
-	<footer class="d-flex flex-wrap justify-content-between align-items center border-top mt-5" style="font-size:10pt;position:relative;float:bottom;">
-	  <p class="text-muted fw-bold justify-content-start ms-3 mt-2">BeatLog <em class="fw-normal ms-2">alpha-0.1.2</em></p>
-	  <a class="link-secondary text-underline fw-bold justify-content-center mt-2" href="https://github.com/NBPub/BeatLog">Source Code - GPLv3</a>	  
-	  <img src="/static/greycon.png" class="justify-content-end mt-2" style="height:24px;"/>
+	<footer class="d-flex flex-wrap justify-content-between align-items center border-top fixed-bottom bg-white" style="font-size:10pt;">
+	  <ul class="text-muted fw-bold justify-content-start ms-3 mt-2 list-unstyled">
+	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.2</em></li>
+		<li>{{ versions[0] }}<em class="fw-normal ms-2">{{ versions[1] }}</em><span class="mx-4 text-info">║</span> 
+		Python <em class="fw-normal ms-2">{{ versions[2] }}</em></li>
+	  </ul>
+	  <a class="link-secondary text-underline fw-bold justify-content-center mt-2 me-5" href="https://github.com/NBPub/BeatLog">Source Code - GPLv3</a>	  
+	  <img src="/static/greycon.png" class="justify-content-end mt-3" style="height:32px;"/>
 	</footer>
 {% endblock %}

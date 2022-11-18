@@ -2,6 +2,7 @@
 {% block title %}Database Cleanup{% endblock %}
 {% block content %}
   <h1>Database Cleanup</h1>
+    
 	{% if not logs %}
 	  <h3 class="text-danger m-3">No records in the database! This page is intended to delete parsed log data</h3>
 	{% else %}
@@ -55,5 +56,10 @@
 		  {{ alert[0] }}
 		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
-	  {% endif %}	
+	  {% endif %}
+  <footer class="d-flex flex-wrap justify-content-between align-items center border-top mt-5 fw-semibold text-muted" style="font-size:10pt;position:relative;float:bottom;">
+	<span class="justify-content-start">{{ versions[0] }}</span>
+	<span class="justify-content-center mx-2 text-primary">║</span>
+	<span class="justify-content-end">{{ versions[1] }}</span>	
+  </footer>
 {% endblock %}

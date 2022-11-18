@@ -23,11 +23,11 @@ def create_app(test_config=None):
         check = db_connect(conninfo)
         i+=1
         if check:
-            app.logger.critical(f'Database connection failed: {check}') 
+            app.logger.critical(f'Database {check}') 
             if check.find('FATAL:') != -1:
                 i = 4 # critical failure, exit
                 app.logger.critical('Fatal error, getting out')
-            else:                
+            elif i<4:                
                 app.logger.info(f'trying again, {i+1}/4 attempts . . .')
                 sleep(2+i) # db container may be readying, wait and try again          
         else:
@@ -38,6 +38,7 @@ def create_app(test_config=None):
         app.logger.info('Database ready.') if not check else app.logger.critical(check)
     if i < 5 or check: # failure with startup or no connection
         @app.route("/")
+        @app.route("/home")
         def noDB():
             return render_template('noDB.html', err=check)
         return app

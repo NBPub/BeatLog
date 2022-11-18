@@ -138,7 +138,11 @@ def parsef2b(conn, cur, log):
                                 action = data["actionIP"].split(' ')[0]
                                 IP = data["actionIP"].split(' ')[1]
                                 cur.execute(SQL, (date, IP, data["filter"], action))                      
-                        record[1]+=1
+                                record[1]+=1
+                            else:
+                                record[0]+=1
+                        else:
+                            record[0]+=1
                     else:
                         record[0]+=1
                 except:

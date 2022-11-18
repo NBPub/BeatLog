@@ -43,6 +43,7 @@ Adminer [can be installed](#extra-options) to browse the database.
 
 See the [BeatLog Guide](/docs) for a full list of features. The **Report** and **Visitor Map** are briefly highlighted here.
 
+
 ### Report
 
 A report synthesizes all log data from the previous few days or a custom date range. 
@@ -122,7 +123,7 @@ services:
       - POSTGRES_PASSWORD=changeme
       - TZ=Pacific/Galapagos	  
     volumes:
-      - /path_to/beatlog_conifg/db:/var/lib/postgresql/data # optional
+      - /path_to/beatlog_conifg/db:/var/lib/postgresql/data # recommended
     restart: unless-stopped   	
 ```
 
@@ -160,7 +161,7 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | `POSTGRES_PASSWORD=changeme` | PostgreSQL database password, should match `db_password` |
 | `TZ=Pacific/Galapagos` | See above |
 | **postgres db volumes**  | ---- |
-| `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Optional](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. |
+| `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Recommended](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. Facilitates PostgreSQL updates. |
 
 ### Data Sources
 
@@ -254,6 +255,39 @@ services:
 ```
 </details>
 
+### Updating PostgreSQL container
+
+<details><summary>Instructions</summary>
+
+**BeatLog** should work well with PostgreSQL 14 and 15. 
+As mentioned above, if the database data is mounted to a volume, then upgrading should be as easy as deleting the old image and recreating a new container with the same volume. 
+Release logs for PostgreSQL should be checked for any breaking changes.
+
+If the volume was not mounted, upgrading PostgreSQL may erase existing data. In this case, data can be transferred from PostgreSQL containers. 
+See **[Migration Between Releases](https://www.postgresql.org/docs/9.0/migration.html)** for more info, and also: 
+ * [pg_dumpall](https://www.postgresql.org/docs/current/app-pg-dumpall.html)
+ * [docker cp](https://docs.docker.com/engine/reference/commandline/cp/)
+
+The following shows how to manually copy existing database data to a new container. After following these steps, update the container information as needed in the **BeatLog** environment.
+```bash
+# enter existing container
+docker exec -it beatlog_db /bin/bash
+
+# pg_dumpall into convenient directory, exit container
+cd home
+pg_dumpall -U beatlog > db.out
+exit
+
+# copy to local directory, then into new database container
+docker cp beatlog_db:/home/db.out  /path/of/choosing
+docker cp /path/of/choosing/db.out  beatlog_db_NEW:/home
+
+# enter new container and execute script
+docker exec -it beatlog_NEW /bin/bash
+psql -f db.out -U beatlog postgres
+ ```
+</details>
+
 ## Application Setup
 
 Create the container, monitor logs for proper startup, and then navigate to the WebUI at `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup)**
@@ -279,14 +313,17 @@ Get the most information from BeatLog following these steps:
 **alpha-0.1.2, latest**
 
 - Installation, Docker Compose
-  - switched instructions to mount directories instead of files, allowing updates within container
+  - ~~switched instructions to mount directories instead of files, allowing updates within container~~
+  - ~~database update / migration instructions~~
+- Documentation
+  - drafting example Map/Report for display with Github pages
 - General
   - ~~Github workflow for publishing Docker images~~ *only for latest tag right now*
   - ~~improve SQL query creation, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)~~
     - eliminated poorly constructed queries, improved usage of variables within queries
     - *need to improve *`Known Devices`* and *`Home Ignorable`* [usage](/docs#known-devices)*
   - gunicorn worker timeouts for long operations
-    - increased timeout to 60s from default 30s. 
+    - ~~increased timeout to 60s from default 30s~~ 
 	- Can revert by 
 	  - Timechecks in `Parse All`, individual parsing operations
 	  - Analyze report generation with profiler for potential improvements
@@ -296,6 +333,8 @@ Get the most information from BeatLog following these steps:
   - ~~BeatLog page shows whitespace for invalid IP addresses~~
   - ~~Error handling for invalid file locations~~
   - ~~Report improvements and fixes~~
+  - ~~Improved Regex page~~
+  
 
 ### Planned Improvements
 
