@@ -286,7 +286,7 @@ Without scheduling, logs are only [parsed](#parsing) by user request. Logs will 
 
 The default interval for checking and parsing all available logs is `3` hours, starting 15 minutes after container startup. Set to `0` to disable task.
 
-## Report
+## Report [|demo|](https://nbpub.github.io/BeatLog/#scrollspyTop)
 
 The report provides valaubale information from your processed data. The duration of a "recent report", **Known Devices**, and other options can be set in the **[Report Settings](#known-devices)**. 
 See [custom reports](#custom-reports-and-maps) for report generation over a chosen time range.
@@ -303,7 +303,7 @@ Below is the overall summary shown at the top of the report. The **Daily Action 
 - fail2ban **Ignores** (total) `... [filter] Ignore <IP> ...`
 - home **Ignorable** (total) - *see bottom row of [home summary](#home) below*
 
-### Home
+### Home [|demo|](https://nbpub.github.io/BeatLog/#scrollspyHome)
 
 The home connections are summarized in a few tables and bar charts. I have strict fail2ban filters setup for connections that:
 1. do not use `HTTP/2`, i.e. `HTTP/1.0` or `HTTP/1.1` connections
@@ -329,7 +329,7 @@ The `404` status returns were caught by the **nginx-http** filter. These request
 
 </details>
 
-### Outside
+### Outside [|demo|](https://nbpub.github.io/BeatLog/#scrollspyOutside)
 
 The outside section provides more detail than the home section. 
 The **Hit Counts by Log** chart (top-right) lists the amount of IPs that visited a certain amount of times. For unwanted visitors, the amount of hits should be low. 
@@ -412,7 +412,7 @@ AND (status BETWEEN 400 AND 499 OR http<20)
 Given that many requests can happen within a second, and **access.log**'s time resolution of one second vs. fail2ban.log's one micro-second resolution, 
 speciying home connections that should be ignored (ignorable) will help match the appropriate home requests with fail2ban ignores. Excess matches may be presented otherwise.
 
-### fail2ban
+### fail2ban [|demo|](https://nbpub.github.io/BeatLog/#scrollspyfail2ban)
 
 The fail2ban section provides a bar-chart summarizing the filters used (and a table for un-used filters, if present). 
 A section of the recent-actions table is shown in the image, which can serve as a sanity check. Are filters finding, and then banning IPs as expected with their number of retries?
@@ -469,7 +469,7 @@ How did the Nominatim service do for the top row in the table?
  - Location Filled: **Kassel, Germany**
 
 
-### Visitor Map
+### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Outside visitor locations can be plotted on an interactive map, with their markers scaled to total connections or number of visitors. 
 The **Visitor Map** shows locations logged from the previous few days, or a [customized](#custom-reports-and-maps) date range.

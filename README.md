@@ -39,17 +39,21 @@ See the [Processed Data](/docs#processed-data) section in the Docs to see the ta
 and check out the source [code](/BeatLog) for example SQL queries.
 Adminer [can be installed](#extra-options) to browse the database.
 
-![Adminer](/docs/pics/adminer.png "BeatLog database, viewed in Adminer")
+<details><summary>Adminer - Database Overview</summary>
+
+![Adminer](/docs/pics/adminer.png "BeatLog tables, viewed in Adminer")
+
+</details>
+
+----
 
 See the [BeatLog Guide](/docs) for a full list of features. The **Report** and **Visitor Map** are briefly highlighted here.
 
-
-### Report
+### Report [|demo|](https://nbpub.github.io/BeatLog/#scrollspyTop)
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
-
-***[Details and screenshots](/docs#report)***
+**[Documentation](/docs#report)**
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
  - Scrutinize traffic from frequent visitors, monitor popular client requests
  - **Known Devices** can be identified and separated from other outside connections
@@ -57,11 +61,10 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
  matching requests from a [Subsonic Android app](http://subsonic.org/pages/apps.jsp#dsub), may be [separated from other Outside connections](/docs#known-devices)
 
 
-### Visitor Map
+### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and OpenStreetMap [tiles](https://operations.osmfoundation.org/policies/tiles/). 
-
-***[Details and screenshots](/docs#visitor-map)***
+**[Documentation](/docs#visitor-map)**
  - Location markers are scaled by total connections or unique visitors (IPs) over the time range
 
 ## Installation
@@ -259,30 +262,31 @@ services:
 
 <details><summary>Instructions</summary>
 
-**BeatLog** should work well with PostgreSQL 14 and 15. 
+**BeatLog** should work well with PostgreSQL 14 and 15.
 As mentioned above, if the database data is mounted to a volume, then upgrading should be as easy as deleting the old image and recreating a new container with the same volume. 
 Release logs for PostgreSQL should be checked for any breaking changes.
 
 If the volume was not mounted, upgrading PostgreSQL may erase existing data. In this case, data can be transferred from PostgreSQL containers. 
 See **[Migration Between Releases](https://www.postgresql.org/docs/9.0/migration.html)** for more info, and also: 
+ * [docker exec](https://docs.docker.com/engine/reference/commandline/exec/)
  * [pg_dumpall](https://www.postgresql.org/docs/current/app-pg-dumpall.html)
  * [docker cp](https://docs.docker.com/engine/reference/commandline/cp/)
 
 The following shows how to manually copy existing database data to a new container. After following these steps, update the container information as needed in the **BeatLog** environment.
 ```bash
-# enter existing container
+# 1. enter existing container "beatlog_db"
 docker exec -it beatlog_db /bin/bash
 
-# pg_dumpall into convenient directory, exit container
+# 2. pg_dumpall into convenient directory, exit container
 cd home
 pg_dumpall -U beatlog > db.out
 exit
 
-# copy to local directory, then into new database container
+# 3. copy to local directory, then into new database container "beatlog_db_NEW"
 docker cp beatlog_db:/home/db.out  /path/of/choosing
 docker cp /path/of/choosing/db.out  beatlog_db_NEW:/home
 
-# enter new container and execute script
+# 4. enter new container and execute script
 docker exec -it beatlog_NEW /bin/bash
 psql -f db.out -U beatlog postgres
  ```

@@ -32,7 +32,7 @@ def home():
         cur = conn.cursor()
         # Footer Info
         versions = cur.execute('SELECT version();').fetchone()[0].split(' ')[0:2]
-        versions.append(version.split(' | ')[0])
+        versions.append(version.split(' ')[0])
         
         # check home IP, gather ignoreIPs from f2b jail
         homeIP, duration = home_ip(conn, cur)
