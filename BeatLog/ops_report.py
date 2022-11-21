@@ -271,14 +271,14 @@ AND date BETWEEN %(start)s AND %(end)s GROUP BY {field} ORDER BY {field}'''
     # home / fail2ban ignores. Day/Filter count and Access Log matches
     SQL = '''SELECT to_char(date_trunc('day', date), 'MM-DD') "day", filter, COUNT(filter) 
 FROM fail2ban WHERE action = 'Ignore' AND date BETWEEN %(start)s AND %(end)s GROUP BY filter, day ORDER BY day'''
-    homef2b = table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(),['Day', 'Filter','Count'], False)[0]
+    homef2b = table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(),['Day', 'Filter','Count'], False)
     if homef2b:
         SQL = f'''SELECT  DISTINCT date_trunc('second', fail2ban.date) "time", filter,
 http/10::float4 "http",method, status, bytes, CONCAT(referrer, URL) "URL", tech
 FROM "fail2ban" INNER JOIN "access" on date_trunc('second',fail2ban.date) = access.date
 WHERE access.home=True AND fail2ban.home=True AND fail2ban.action='Ignore'
 {ignorable_spec} AND fail2ban.date BETWEEN %(start)s AND %(end)s ORDER BY time'''
-        homef2b = (homef2b, table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(),
+        homef2b = (homef2b[0], table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(),
               ['Date', 'Filter','http','Method','Status', 'bytes','Ref+URL','Tech'], True))
     # action count bar graph
     # outside Unique IP
