@@ -327,10 +327,13 @@ current: **latest, alpha-0.1.2, alpha-0.1.2t**
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
 - Features
+  - scheduled task for location lookup, or add to scheduled log checks
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
-  - data viewer page: forms for guided SQL selects --> present data in tables
-    - utilize [HTMX](https://htmx.org/) or similar to provide smooth experience
+  - serve log data per user selection
+    - data viewer page: forms for guided SQL selects --> present data in tables
+      - utilize [HTMX](https://htmx.org/) or similar to provide smooth experience
+	- build simple [data query API](/issues/1) and associated help page
 - Other
   - consider phasing out `unauthorized.log`
 
