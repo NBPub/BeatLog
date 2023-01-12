@@ -20,7 +20,7 @@
     <!-- Navbar, https://getbootstrap.com/docs/5.2/components/navbar/-->	
 	<nav class="navbar navbar-expand-md bg-light border fixed-top">
 	  <div class="container-fluid">
-		<a class="navbar-brand" href="/home/">
+		<a class="navbar-brand disabled" href="https://github.com/NBPub/BeatLog">
 		  <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/navcon.png" style="width:30px;"/>
 		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBase">
@@ -29,25 +29,25 @@
 		<div class="collapse navbar-collapse" id="navbarBase">
 		  <ul class="navbar-nav me-auto">
 			<li class="nav-item">
-			  <a class="nav-link fw-bold border-end border-start" href="/Logs/add">Logs</a>
+			  <a class="nav-link fw-bold border-end border-start disabled" href="/Logs/add">Logs</a>
 			</li>
 			<li class="nav-item">
-			  <a class="nav-link fw-bold border-end" href="/Logs/add_regex/">Regex</a>
+			  <a class="nav-link fw-bold border-end disabled" href="/Logs/add_regex/">Regex</a>
 			</li>
 			<li class="nav-item">
-			  <a class="nav-link fw-bold border-end" href="/jail/">fail2ban</a>
+			  <a class="nav-link fw-bold border-end disabled" href="/jail/">fail2ban</a>
 			</li>	
 			<li class="nav-item">
-			  <a class="nav-link fw-bold border-end" href="/report/">Report</a>
+			  <a class="nav-link fw-bold border-end disabled" href="/report/">Report</a>
 			</li>			
 			<li class="nav-item dropdown">
 			  <a class="nav-link dropdown-toggle fw-bold border-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
 				Geography
 			  </a>
 			  <ul class="dropdown-menu">
-				<li><a class="dropdown-item" href="/geo/">(Un)named Locations</a></li>
-				<li><a class="dropdown-item" href="/geo/assess/">Data Assessment</a></li>
-				<li><a class="dropdown-item" href="/geo/map/">Visitor Map</a></li>
+				<li><a class="dropdown-item disabled" href="/geo/">(Un)named Locations</a></li>
+				<li><a class="dropdown-item disabled" href="/geo/assess/">Data Assessment</a></li>
+				<li><a class="dropdown-item disabled" href="/geo/map/">Visitor Map</a></li>
 			  </ul>
 			</li>			
 			<li class="nav-item dropdown">
@@ -56,22 +56,20 @@
 			  </a>
 			  <ul class="dropdown-menu">
 			    <li class="dropdown-item fw-bold text-center">Settings</li>
-				<li><a class="dropdown-item" href="/settings/#Report">Recent Report</a></li>
-				<li><a class="dropdown-item" href="/settings/#Geography">Geography</a></li>
+				<li><a class="dropdown-item disabled" href="/settings/#Report">Recent Report</a></li>
+				<li><a class="dropdown-item disabled" href="/settings/#Geography">Geography</a></li>
 				<li><hr class="dropdown-divider"></li>
 				<li class="dropdown-item fw-bold text-center">Custom Dates</li>
-				<li><a class="dropdown-item" href="/settings/#Custom">Report &#9946; Map</a></li>				
+				<li><a class="dropdown-item disabled" href="/settings/#Custom">Report &#9946; Map</a></li>				
 				<li><hr class="dropdown-divider"></li>
-				<li><a class="dropdown-item" href="/data_cleaning/">Database Clean</a></li>
-				<li><a class="dropdown-item" href="/failed_regex/">Failed Regex</a></li>
+				<li><a class="dropdown-item disabled" href="/data_cleaning/">Database Clean</a></li>
+				<li><a class="dropdown-item disabled" href="/failed_regex/">Failed Regex</a></li>
 				<li><hr class="dropdown-divider"></li>
 				<li><a class="dropdown-item text-primary fw-bold text-center" href="https://github.com/NBPub/BeatLog/tree/main/docs#beatlog-guide-" target="_blank">BeatLog Docs</a></li>
 			  </ul>
 			</li>			
-			<li class="nav-item ms-2">
-			  <form method="POST" action="/home/">
-			    <input type="submit" value="Parse All" name="parse_all" class="text-success fw-bold btn"/>
-			  </form> 
+			<li class="nav-item ms-2"> 
+			  <input type="submit" value="Parse All" name="parse_all" class="text-success fw-bold btn"/>
 			</li>	
 			<li class="nav-item dropdown bg-dark">
 			  <a class="nav-link dropdown-toggle text-warning fw-bold bg-dark" href="#" role="button" data-bs-toggle="dropdown">Contents</a>
@@ -87,9 +85,10 @@
 			  </ul>	
 			</li>  									
 		  </ul>
-		  <form method="POST" class="d-flex needs-validation" action="/Beat/">
+		  <div class="mx-5 text-danger fw-bold">** DEMONSTRATION PAGE **</div>
+		  <form method="GET" class="d-flex needs-validation" action="#">
 			<input class="form-control me-2"  type="text" name="BeatLog" placeholder="Enter IP address" value="" id="validationBeatLog" required>
-			<button class="btn btn-outline-success" type="submit" formtarget="_blank">Beat</button>
+			<button class="btn btn-outline-success disabled" type="submit" formtarget="_blank">Beat</button>
 		  </form>
 		</div>
 	  </div>
@@ -102,11 +101,11 @@
 <div class="container-fluid">  	
   <div data-bs-spy="scroll" data-bs-target="#reportNav" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">	
   <h1 id="scrollspyVisitorMap">Visitor Map
-    <em class="text-danger ms-5">Page Demo, Links do not function!</em>
+    <em class="text-danger ms-5 fs-4">Page Demo, links disabled! Use <span class="bg-dark text-warning">Contents</span> to browse page</em>
   </h1>
   
     <span class="ms-5 fw-bold fs-4 text-muted">31 locations, from 11/14/22 19:04 to 11/15/22 19:04</span>	
-	<form method="POST" action="/geo/map/" class="ms-5 text-muted">
+	<form method="GET" action="#" class="ms-5 text-muted">
 	  <input type="hidden" name="start" value="2022-11-14 19:04:37.069774">
 	  <input type="hidden" name="end" value="2022-11-15 19:04:37.069774">
 	  <input type="hidden" name="existing_byIP" value="False">
@@ -114,7 +113,7 @@
 	  or removing <button type="submit" class="btn btn-danger btn-sm my-2 fw-bold" value="nixtip" name="nixtip">Tooltips</button>	  
 	</form>	
     <div id="map" style="height:50vh;width:80%;margin:auto;"></div>
-	<form method="POST" class="text-muted text-center" action="/geo/map/">
+	<form method="GET" class="text-muted text-center" action="#">
 	  <input type="hidden" name="start" value="2022-11-14 19:04:37.069774">
 	  <input type="hidden" name="end" value="2022-11-15 19:04:37.069774">
 	  Location marker size is scaled to  its number of connections. 
@@ -289,7 +288,7 @@
 <hr class="border border-primary border-5 my-5">
     <!-- Title --> 
     <h1 id="scrollspyTop">BeatLog Report - 5 day(s)
-	  <em class="text-danger ms-5">Demo, Links do not function!</em>
+	  <em class="text-danger ms-5 fs-4">Page Demo, links disabled! Use <span class="bg-dark text-warning">Contents</span> to browse page</em>
 	</h1>
 	  <p class="ms-3 mt-3 text-muted fw-bold fs-4">starting on 11/10/22 19:02:21, ending on 11/15/22 19:02:21</p>  
 	<!-- Summary Table up top --> 
@@ -494,11 +493,7 @@
 	  <br />
 	  <!-- Frequent Visitors --> 
 	  <h3 class="ms-2 my-3" id="scrollspyFrequents" >Frequent Visitors</h3>
-		<form method="POST" action="/geo/map/" target="_blank" class="text-end">
-		  <input type="hidden" name="start" value="2022-11-10 19:02:21.372632">
-		  <input type="hidden" name="end" value="2022-11-15 19:02:21.372632">
-		  <button type="submit" class="btn btn-primary mx-3 fw-bold" name="ReportMap">Visitors Map</button>
-		</form>
+	    <div class="text-end"><a href="#scrollspyVisitorMap" class="btn btn-primary mx-3 fw-bold">Visitors Map</a></div>
 	  
 		<span class="fs-5 ms-4 fw-bold mt-5">Access Log - 2</span><br />  
 	    <table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 caption-top">
