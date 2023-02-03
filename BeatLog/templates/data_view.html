@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Database EzQuery{% endblock %}
+{% block content %}
+  <h1>Database Explorer
+    <a href="{{ url_for('home.data_clean') }}" class="btn btn-sm btn-info me-3 mt-2 fw-bold" style="float:right;">Clean Data</a>
+  </h1>
+  	{% if check %}
+	  <h3 class="text-danger m-3">No records in the database!</h3>
+	{% else %}
+	  <form method="POST" action="{{ url_for('db_view.db_view_result') }}">  
+	    <h2 class="my-3 text-center"><span class="border border-2 py-1 px-2 border-dark">Query Options</span></h2>
+		  <div class="row my-4">
+			<div class="col my-3"><div style="float:right;">
+			  <div class="form-check">
+			    <input class="form-check-input mt-2" type="radio" name="dateOrder" id="dateStartlabel" value="asc">
+			    <label class="form-check-label fw-bold" for="dateStartlabel">Starting:</label>
+			    <input type="datetime-local" class="form-control-sm bg-warning" name="start" value="{{ def_start }}">	
+			  </div>
+			  <div class="form-check">
+			    <input class="form-check-input mt-2" type="radio" name="dateOrder" id="dateEndlabel" value="desc" checked>
+			    <label class="form-check-label fw-bold" for="dateEndlabel">&nbsp Ending:</label>
+			    <input type="datetime-local" class="form-control-sm bg-warning" name="end" value="{{ def_end }}">	
+			  </div>			
+			</div></div><div class="col mx-2 text-center">
+			  <label for="maxRows" class="form-label-sm fs-5 text-muted">Result row limit (20-100)</label> 	
+			  <input id="maxRows" name="maxRows" type="range" class="form-range-lg mx-3 mt-3" min="20" max="100" value="50" step="1" oninput="maxRowsOutput.value = maxRows.value">						  		
+			  <output name="maxRowsOutput" id="maxRowsOutput" class="fw-bold border border-dark border-3 px-2 fs-5">50</output>	
+			</div><div class="col me-3 text-start">
+			  <div class="form-check">
+			    <input class="form-check-input" type="radio" name="homeFilter" id="homeFilter_all" value="all" checked>
+			    <label class="form-check-label fw-bold" for="homeFilter_all">All Entries</label>
+			  </div>		  
+			  <div class="form-check">
+			    <input class="form-check-input" type="radio" name="homeFilter" id="homeFilter_home" value="True">
+			    <label class="form-check-label fw-bold" for="homeFilter_home">Home Only</label>
+			  </div>
+			  <div class="form-check">
+			    <input class="form-check-input" type="radio" name="homeFilter" id="homeFilter_outside" value="False">
+			    <label class="form-check-label fw-bold" for="homeFilter_outside">Outside Only</label>
+			  </div>	
+		    </div>
+	      </div>
+
+	  <div class="row mt-3">
+	    <h4 class="ms-3">Additional Filters</h4>
+	    <div class="btn-group mb-3 d-flex justify-content-center" role="group">
+		  <a class="btn btn-sm btn-secondary rounded mx-5 fs-5 fw-bold" href="#LocationCollapse" data-bs-toggle="collapse">Location</a>
+		  <a class="btn btn-sm btn-secondary rounded mx-5 fs-5 fw-bold" href="#IPCollapse" data-bs-toggle="collapse">IP Address</a>
+	    </div>
+		<div class="collapse my-2" id="LocationCollapse">
+		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . .</p>
+
+		  <div class="d-flex">
+			<input class="form-control mx-5"  class="form-control" list="countryOptions" name="countryOptions"  placeholder="Countries ❖ type to search . . .">
+			  <datalist id="countryOptions">
+			    {% for country in country_list %}<option value="{{ country }}">{% endfor %}
+			  </datalist>
+			<input class="form-control mx-5"  class="form-control" list="cityOptions" name="cityOptions"  placeholder="Cities ❖ type to search . . .">
+			  <datalist id="cityOptions">
+			    {% for city in city_list %}<option value="{{ city }}">{% endfor %}
+			  </datalist>			
+		  </div>
+		</div>	  	
+		<div class="collapse my-2" id="IPCollapse">
+		  <p class="text-muted fw-bold ms-5">Specify valid IP address . . .</p>
+		    <div class="d-flex">
+			<input class="form-control mx-5"  type="text" name="IP_search" placeholder="Enter IP address" value="">
+		    </div>
+		</div>	  	
+	  </div>		  	  
+<hr class="border border-3 border-primary">
+
+	  <h2 class="my-5 text-center"><span class="border border-2 p-1 border-dark">Available Queries</span></h2>
+	  {% for log, info in log_info.items() %}{% if info %}
+	  <div class="row">
+		<div class="col">
+		  <h4 class="ms-3">{{ log|capitalize }} Log</h4>
+		    <p class="fw-bold">
+			  <span class="text-muted">Dataspan:</span> {{ info[0].strftime('%x %X') }} - {{ info[1].strftime('%x %X') }}<br>
+			  <span class="text-success">geoinfo:<span class="fw-normal ms-3"> {{ info[2].strftime('%x %X') }} - {{ info[3].strftime('%x %X') }}</span></span><br>
+			</p>
+		</div>
+		<div class="col">
+		  <div class="btn-group my-2" role="group">
+		      <button type="submit" class="btn btn-sm btn-warning me-3 fw-bold rounded" name="query_log" value="{{ log}},basic"  
+			  formtarget="_blank" data-bs-toggle="tooltip" title="Above Options only">Basic</a>
+		    {% for query in log_buttons[log].keys() %}
+		      <button type="submit" class="btn btn-sm btn-dark me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
+			  formtarget="_blank" data-bs-toggle="tooltip" title="{{ log_buttons[log][query] }}" data-bs-html="true">{{ query }}</button>
+			{% endfor %}
+		  </div><br><div class="btn-group my-2" role="group">
+			{% for query in lb2[log] %}
+			  <button type="submit" class="btn btn-sm btn-success me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
+			  formtarget="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ lb2['tooltip'][log] }}">{{ query|capitalize }}</button>
+		    {% endfor %}
+		  </div>
+		</div>
+	  </div>
+<hr class="border border-2 border-primary">
+	  {% endif %}{% endfor %}
+	</form>
+	{% endif %}
+{% endblock %}
+
+{% block script_additions %}
+	<script>
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+	</script>
+{% endblock %}

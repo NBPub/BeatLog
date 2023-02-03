@@ -39,12 +39,23 @@ Location information (coordinates, city, country) can be added to all "Outside" 
 If only coordinates are provided from the MaxMind database, locations can be ascertained using the [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/) reverse geocoding API, 
 based on [OpenStreetMap](https://www.openstreetmap.org/about) data.
 
+----
+
+See the [BeatLog Guide](/docs) for a full list of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
+
 ### Parsed Data
 
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
 See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
-and check out the source [code](/BeatLog) for example SQL queries.
-Adminer [can be installed](#extra-options) to browse the database.
+and [Database Explorer](/docs#database-explorer) to see how data can be queried and viewed within **BeatLog**.
+
+<details><summary>Database Query - fail2ban Log</summary>
+
+![dataview](/docs/pics/query_3.png "Query result table (entire table not shown).") 
+
+</details>
+
+Adminer [can be installed](#extra-options) to facilitate interaction with the database.
 
 <details><summary>Adminer - Database Overview</summary>
 
@@ -53,8 +64,6 @@ Adminer [can be installed](#extra-options) to browse the database.
 </details>
 
 ----
-
-See the [BeatLog Guide](/docs) for a full list of features. The **Report** and **Visitor Map** are briefly highlighted here.
 
 ### Report [|demo|](https://nbpub.github.io/BeatLog/#scrollspyTop)
 
@@ -67,6 +76,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
    - ex: connections with a [user-agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) of `DSub`, 
  matching requests from a [Subsonic Android app](http://subsonic.org/pages/apps.jsp#dsub), may be [separated from other Outside connections](/docs#known-devices)
 
+----
 
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
@@ -80,12 +90,12 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 
 BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
 
-*current version:* **[alpha-0.1.2](#development)**<br>
+*current version:* **[alpha-0.1.3](#development)**<br>
 | Architecture | Tag | *NullConnectionPool* |
 | :----: | --- | --- |
-| x86-64 | *latest* | *alpha-0.1.2t* |
-| arm64 | *latest*  | *alpha-0.1.2t* |
-| armhf | *arm32v7-latest* | *arm32v7-alpha-0.1.2t* |
+| x86-64 | *latest* | *alpha-0.1.3t* |
+| arm64 | *latest*  | *alpha-0.1.3t* |
+| armhf | *arm32v7-latest* | *arm32v7-alpha-0.1.3t* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -183,7 +193,7 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 - **NGINX reverse proxy**
 	- access.log - *client requests to the server*
 	- error.log - *client request errors and associated severity levels*
-	- unauthorized.log - *redundant to **access.log**, captures requests with [401 HTTP status codes](https://www.httpstatuses.org/401)*
+	- ~~unauthorized.log - *redundant to **access.log**, captures requests with [401 HTTP status codes](https://www.httpstatuses.org/401)*~~ ***Support to be removed***
 - **fail2ban**
 	- fail2ban.log - *all activity of fail2ban service, relevant information is parsed and the rest ignored*
 	- jail.local - *fail2ban settings and activated filters, checks ignored IPs*
@@ -241,7 +251,7 @@ services:
 ```
 </details>
 
-- Add an [Adminer](https://www.adminer.org/) container to interact with your database. Database adjustments outside **BeatLog** are not supported and could break functionality. 
+- Add an [Adminer](https://www.adminer.org/) container to interact with your database. Database adjustments outside **BeatLog** are *not* supported and could break functionality. 
 
 <details><summary>Adminer</summary>
 
@@ -323,7 +333,8 @@ Get the most information from BeatLog following these steps:
 
 ### In Progress, alpha-0.1.3
 
-current: **latest, alpha-0.1.2, alpha-0.1.2t**
+current: **latest, alpha-0.1.3, alpha-0.1.3t**
+previous: **alpha-0.1.2, alpha-0.1.2t**
 
 ### Planned Improvements
 
@@ -334,15 +345,15 @@ current: **latest, alpha-0.1.2, alpha-0.1.2t**
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
 - Features
-  - scheduled task for location lookup, or add to scheduled log checks
+  - ~~scheduled task for location lookup, or add to scheduled log checks~~
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
   - serve log data per user selection
-    - data viewer page: forms for guided SQL selects --> present data in tables
-      - utilize [HTMX](https://htmx.org/) or similar to provide smooth experience
-	- build simple [data query API](/../../issues/1) and associated help page
+    - ~~data viewer page: forms for guided SQL selects --> present data in tables~~
+	- build simple [data query API](/../../issues/1) and associated help page *. . . deciding if this is worth it*
+	  - Query creation scheme for data viewer page could easily be adapted for API
 - Other
-  - consider phasing out `unauthorized.log`
+  - consider phasing out `unauthorized.log` *in progress*
 
 ### Local Installation - Python venv
 
@@ -367,8 +378,23 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
+| alpha-0.1.3, alpha-0.1.3t | Added **DB Query** and **View** pages to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
+
+### pre alpha-0.1.4 details
+
+<details><summary>═════════</summary>
+
+- Documentation
+  - added sections detailing new DB features
+  - fixes for some images and file paths
+- SQL query creation improved **[Known Devices](/docs#known-devices)**
+  - details
+- Bug Fixes / Minor Improvements
+  - various aesthetic / navigation improvements
+
+</details>
 
 ### pre alpha-0.1.3 details
 

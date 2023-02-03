@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, current_app#, redirect, url_for
+    Blueprint, render_template, request, current_app#, redirect, url_for, json
 )
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -116,19 +116,26 @@ def settings():
     alert = mm_check = None
     with pool.connection() as conn:
         cur = conn.cursor()     
-        old = cur.execute('SELECT * FROM settings').fetchone()  
+        old = list(cur.execute('SELECT * FROM settings').fetchone()) 
         if old[9]: # maxmind check, message for None, another for false, date modified for true
             p = Path(old[9])
             mm_check = datetime.fromtimestamp(p.stat().st_mtime).strftime('%x %X') if p.exists() and p.suffix == '.mmdb' else False
-    
-        oldRep = (old[0], old[1], old[2], old[3], old[4], old[5], old[6], old[7], old[8])
-        oldGeo = (old[9], old[10], old[11], old[12])
         
+            # separate settings to check changes before saving
+        # report days, homeignores, knowndevices, kd_options (4-8)
+        oldRep = (old[0], old[1], old[2], old[3], old[4], old[5], old[6], old[7], old[8])
+        # top10 location table, maxmindDB, map days, map count for total/unique IP, nominatim agent for location fill
+        oldGeo = (old[9], old[10], old[11], old[12])
+
         if request.method == 'POST':
             if 'ReportSet' in request.form: # report settings
+                KnownDevices = []
+                for key in request.form:
+                    if key.startswith('KnownDevice_') and request.form[key]:
+                        KnownDevices.append(request.form[key])  
                 newRep = (int(request.form['ReportDays']), \
                           request.form['HomeIgnore'] if request.form['HomeIgnore'].replace(' ','') !='' else None,
-                          request.form['KnownDevices'] if request.form['KnownDevices'].replace(' ','') !='' else None,
+                          KnownDevices if KnownDevices != [] else None,
                           True if 'KD_1' in request.form else False, True if 'KD_2' in request.form else False, 
                           True if 'KD_3' in request.form else False, True if 'KD_4' in request.form else False, 
                           True if 'KD_5' in request.form else False, True if request.form['LocTab']=='IP' else False)       
@@ -158,8 +165,12 @@ def settings():
                 else:
                     alert = ('No changes detected', 'warning')                      
         if alert and alert[1] == 'success':
-            old = cur.execute('SELECT * FROM settings').fetchone()   
-    return render_template('settings.html', old=old, alert=alert, mm_check=mm_check)   
+            old = list(cur.execute('SELECT * FROM settings').fetchone())   
+    # number of known devices to display
+    k = len(old[2])+3 if old[2] and len(old[2])>2 else 6
+    kds = len(old[2]) if old[2] else 0
+    k = range(kds+1,k+1)
+    return render_template('settings.html', old=old, alert=alert, mm_check=mm_check, k=k, kds=kds)   
     
 @bp.route("/Beat/", methods = ['POST'])
 def Beat():
@@ -172,6 +183,7 @@ def Beat():
 @bp.route("/report/", methods = ['GET', 'POST'])
 def recent_report():
     current_app.logger.info('generating report . . .')
+    
     with pool.connection() as conn:
         cur = conn.cursor()   
         if request.method == 'POST' and 'CustomReport' in request.form:
@@ -192,13 +204,13 @@ def recent_report():
             i+=1
         del end_day, i
         report_days.sort()
-   
+
         home_summary, out_summary, homeIP, homeDevices, home_table, homef2b,\
         homeStatus, homeMethod, actionCounts, outStatus, outMethod, \
         freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
         ErrorFiltrate, outHitsIP, outDaily, f2bFilters,\
         f2b_unused, f2brecent = report_build(cur, start, end, report_days)   
-                     
+
     return render_template('recent_report.html',duration=duration, start=start, end=end,
                             home_summary=home_summary, out_summary=out_summary, homeIP=homeIP, 
                             homeDevices=homeDevices, report_days=report_days, home_table=home_table, 

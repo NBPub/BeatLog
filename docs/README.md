@@ -19,6 +19,7 @@
 	- [Settings, Known Devices](#known-devices)
 	- [fail2ban](#fail2ban-demo)
 - [Beat! Button](#beat-button)
+- [Database Explorer](#database-explorer)
 - [Geography](#geography)
 	- [Fill Unnamed Locations](#location-lookup)
 	- [Visitor Map](#visitor-map-demo)
@@ -38,7 +39,6 @@ The following files provide information for BeatLog to generate reports and maps
 - **NGINX reverse proxy**
 	- access.log - *client requests to the server*
 	- error.log - *client request errors and associated severity levels*
-	- unauthorized.log - *redundant to **access.log**, captures requests with [401 HTTP status codes](https://www.httpstatuses.org/401)*
 - **fail2ban**
 	- fail2ban.log - *all activity of fail2ban service, relevant information is parsed and the rest ignored*
 	- jail.local - *fail2ban settings and activated filters, checks ignored IPs*
@@ -59,7 +59,6 @@ SWAG Config
 │   └───nginx
 │   │    │   access.log
 │   │    │   error.log
-│   │    │   unauthorized.log
 │   │    │   ...  
 │   │   ...
 │ 
@@ -85,13 +84,15 @@ Following the example, the files can be loaded into **BeatLog** from the `/impor
 | :----: | --- |
 | access.log | `/import/log/nginx/access.log` |
 | error.log | `/import/log/nginx/error.log` |
-| unauthorized.log | `/import/log/nginx/unauthorized.log` |
 | fail2ban.log | `/import/log/fail2ban/fail2ban.log` |
 | GeoLite2-City.mmdb | `/import/geoip2db/GeoLite2-City.mmdb` |
 
 ### Log Files
 
-Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all four have not been added.
+*!!! phasing out support for **Unauthorized** log !!!*
+
+Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all four have not been added. 
+Paths shown in pictures may not match the file structure shown above. See the text above pictures for the correct path.
 
 The navigation bar on top provides links to all of the pages shown below. 
 Also note the home IP address is red, indicating it is not being ignored by fail2ban. In this case, the fail2ban **jail.local** file has yet to be [added](#fail2ban-jail).
@@ -201,20 +202,20 @@ Wikipedia has a nice [example](https://en.wikipedia.org/wiki/Common_Log_Format#E
 
 ***home*** *and* ***geo*** *columns are determined after parsing log files*
 
-#### Access / Unauthorized Logs - access / unauthorized
+#### Access Logs - access 
 
 | Column | Data Type | Description |
 | :----: | --- | --- |
 | **date** | datetime | Timestamp of each connection, one second resolution |
 | **IP** | inet | client IP address |
 | **home** | Boolean | *True* if client IP matches home IP |
-| **Method** | text | HTTP request [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) |
+| **Method** | text | HTTP request [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods). *8 character limit prior to alpha-0.1.3, 20 character limit after* |
 | **URL** | text | Component of resource requested by client |
 | **HTTP** | integer | HTTP [network protocol](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2), typically **2** or **1.1**. It is multiplied by 10 to save as an integer. |
 | **Status** | integer | HTTP status [code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), see [here](https://www.httpstatuses.org/) for a handy list of codes and their descriptions. |
 | **Bytes** | integer | Size of object returned to the client |
 | **Referrer** | text | Component of resource requested by client, more info and note on spelling issues [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer) |
-| **Tech** | text | [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) HTTP request header. Useful for identifying Known Devices. |
+| **Tech** | text | [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) HTTP request header. Used to identify Known Devices. |
 | **Geo** | foreign key - Geography | Corresponds to an entry in the Geography table |
 
 Format string for [strptime](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior) on **date**: 
@@ -282,7 +283,8 @@ The default interval for home IP checks is `12` hours, starting 30 seconds after
 
 ### Log Check
 
-Without scheduling, logs are only [parsed](#parsing) by user request. Logs will only be parsed if their *date modified* has changed since the last parsing.
+Without scheduling, logs are only [parsed](#parsing) by user request. Logs will only be parsed if their *date modified* has changed since the last parsing. 
+If [locations](#maxminddb) are added without a name, their locations will be [looked up](#location-lookup).   
 
 The default interval for checking and parsing all available logs is `3` hours, starting 15 minutes after container startup. Set to `0` to disable task.
 
@@ -357,31 +359,7 @@ The image below shows the available **Report Settings**. The only default shown 
 Report settings are on the same page as **Geography Settings**, and can also be accessed from the **Options** drop-down menu.
 
 **Known Devices** can be used to separate some Outside connections from the rest of the pack. 
-These may be particular apps on your mobile phone, or a particular outside visitor (IP) to your server. 
-Provide criteria for a [SQL select](https://www.postgresql.org/docs/current/sql-select.html) statement to tell **BeatLog** how to exclude them; 
-beware that report generation may fail with invalid SQL syntax. 
-If the **Adminer** container was installed, it is a good place to craft selections.
-
-***Current implementation of Known Devices may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution***
-
-<details><summary>usage</summary>
-
-**Report Setting:** `tech NOT IN (...)`
-```sql
---SQL Selects in Report:
---top 10 user-agents (tech) used by outside devices. time selection omitted from example
---if specified, report will exclude known devices from outside connections:
-SELECT COUNT(*), tech FROM access WHERE home=False AND tech NOT IN ('DSub', 'something else') 
-GROUP BY tech ORDER BY count DESC LIMIT 10
-
---report then groups known devices together
-SELECT COUNT(*), tech FROM access WHERE home=False AND tech IN ('DSub', 'something else') 
-GROUP BY tech ORDER BY count DESC LIMIT 10
-```
-
-</details>
-
-In this example, Outside connections with particular user-agents (AKA tech) are separated. 
+They are identified by their [user-agent AKA tech](#processed-data).
 Once **Known Devices** have been identified, they can be separated / excluded from a number of report features.
 
 ![report_set](/docs/pics/Settings_report.png "exclude Known Devices in Report settings")
@@ -393,7 +371,7 @@ If fail2ban ignores are found, they are matched to home request(s) based on time
 
 <details><summary>usage</summary>
 
-**Report Setting:** `(status ...)`
+**Report Setting:** `(status ...)`, see [database querying](#database-explorer) for help determining setting
 ```sql
 --SQL Selects in Report:
 --Home Ignores. time selection omitted from example
@@ -444,6 +422,29 @@ In this example, the **Top 10 Data Transfers** will be referenced to supply an I
 The connection from the table is the only one from `54.226.246.60` in the database. This same connection was Found and Banned by fail2ban.
 
 ![beat2](/docs/pics/beat_2.png "Tables showing connection and fail2ban data matching the IP")
+
+## Database Explorer
+
+While the [Beat Button](#beat-button) may only provide a limited result of the logs (up to 10 rows from each), 
+a log's data can be fully explored through the **Database Query** page. Results are always sorted by time, and 
+a specific start or end time can be specified. They default to `one week before now` and `now` on page load.
+
+![dataview1](/docs/pics/query_1.png "Query options for Database Explorer") 
+
+Each log be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
+
+![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options shown above") 
+
+If the results are larger than the size limit, the result page provides a link to view more data.
+
+![dataview3](/docs/pics/query_3.png "Query result table (entire table not shown).") 
+
+If the **Next** button is used, a **Previous** button is provided on the page. 
+This will only backtrack to the query from the source page. Results can be opened in new tabs/windows to maintain order for large datasets.
+The **SQL** statement used to generate the table can be viewed for each result.
+
+![dataview4](/docs/pics/query_4.png "If Next button used, a Previous button provides a link to one query back") 
+
 
 ## Geography
 

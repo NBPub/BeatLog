@@ -11,7 +11,7 @@ def table_build(data, columns, timerows):
             if val[0].day != last_date:
                 rows.append(f'<tr class="table-primary" height="20px"><th scope="row"> </th>{"<td> </td>"*len(val[1:])}</tr>')
             last_date = val[0].day
-        tds = [f'<td>{td}</td>' for td in val[1:]]
+        tds = [f'<td>{td if td else "&nbsp"}</td>' for td in val[1:]]
         rows.append(f'''
 <tr>
   <th scope="row">{val[0]}</th>{"".join(tds)}
@@ -110,10 +110,10 @@ status, CONCAT(city,', ', country) "location", CONCAT(referrer, URL) "URL", tech
 FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
 ORDER BY bytes DESC LIMIT 10'''  
 
-    if KD_options[2]:
-        cur.execute(SQL.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end})
+    if KD_options[2]: # separate tables for Known / Unknown Devices
+        cur.execute(sql.SQL(SQL.replace('WHERE','WHERE tech!=ALL({}) AND')).format([KD_spec]), {'start':start,'end':end})
         tenDataX = table_build(cur.fetchall(), columns, False)
-        cur.execute(SQL.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end})
+        cur.execute(sql.SQL(SQL.replace('WHERE','WHERE tech = ANY({}) AND')).format([KD_spec]), {'start':start,'end':end})
         tenDataX_kd = table_build(cur.fetchall(), columns, False) 
     else:
         cur.execute(SQL, {'start':start,'end':end})
@@ -130,14 +130,14 @@ GROUP BY "URL" ORDER BY count DESC LIMIT 10'''
 WHERE home=False AND date BETWEEN %(start)s AND %(end)s GROUP BY tech ORDER BY count DESC LIMIT 10'''
 
     if KD_options[3]:
-        cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end})
+        cur.execute(sql.SQL(SQL1.replace('WHERE','WHERE tech!=ALL({}) AND')).format([KD_spec]), {'start':start,'end':end})
         tenRefURL = table_build(cur.fetchall(), ['Hits','RefURL','Avg Data'], False)
-        cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end})
+        cur.execute(sql.SQL(SQL1.replace('WHERE','WHERE tech = ANY({}) AND')).format([KD_spec]), {'start':start,'end':end})
         tenRefURL_kd = table_build(cur.fetchall(), ['Hits','RefURL','Avg Data'], False)
         
-        cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end})
+        cur.execute(sql.SQL(SQL2.replace('WHERE','WHERE tech!=ALL({}) AND')).format([KD_spec]),  {'start':start,'end':end})
         tenTech = table_build(cur.fetchall(), ['Hits','User-Agent','Avg Data'], False) 
-        cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end})
+        cur.execute(sql.SQL(SQL2.replace('WHERE','WHERE tech = ANY({}) AND')).format([KD_spec]), {'start':start,'end':end})
         tenTech_kd = table_build(cur.fetchall(), ['Hits','User-Agent','Avg Data'], False) 
     else:
         cur.execute(SQL1, {'start':start,'end':end})
@@ -174,13 +174,13 @@ date BETWEEN %(start)s AND %(end)s  GROUP BY country, ip,bytes) "tmp" GROUP BY c
 AND date BETWEEN %(start)s AND %(end)s GROUP BY loc,ip,bytes) "tmp" GROUP BY loc ORDER BY count DESC LIMIT 10'''
         
         if KD_options[4]:
-            cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end}) #
-            tenCountry = table_build(cur.fetchall(), [col,'Country','Avg Data'], False) 
-            cur.execute(SQL1.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end}) #
-            tenCountry_kd = table_build(cur.fetchall(), [col,'Country','Avg Data'], False)       
-            cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec}'), {'start':start,'end':end}) #
-            tenCity = table_build(cur.fetchall(), [col,'City','Avg Data'], False) 
-            cur.execute(SQL2.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}'), {'start':start,'end':end}) #
+            cur.execute(sql.SQL(SQL1.replace('WHERE','WHERE tech!=ALL({}) AND')).format([KD_spec]),  {'start':start,'end':end}) #
+            tenCountry = table_build(cur.fetchall(), [col,'Country','Avg Data'], False)          
+            cur.execute(sql.SQL(SQL1.replace('WHERE','WHERE tech = ANY({}) AND')).format([KD_spec]), {'start':start,'end':end}) #     
+            tenCountry_kd = table_build(cur.fetchall(), [col,'Country','Avg Data'], False)               
+            cur.execute(sql.SQL(SQL2.replace('WHERE','WHERE tech!=ALL({}) AND')).format([KD_spec]), {'start':start,'end':end}) #
+            tenCity = table_build(cur.fetchall(), [col,'City','Avg Data'], False)      
+            cur.execute(sql.SQL(SQL2.replace('WHERE','WHERE tech = ANY({}) AND')).format([KD_spec]), {'start':start,'end':end}) #
             tenCity_kd = table_build(cur.fetchall(), [col,'City','Avg Data'], False) 
         else:
             cur.execute(SQL1, {'start':start,'end':end})
@@ -201,12 +201,10 @@ def report_build(cur, start, end, report_days):
     # Read Settings other than duration
     cur.execute('SELECT homeignores,knowndevices,locationtable FROM settings')
     ignorable_spec, KD_spec, LocTabCount = cur.fetchone()    
-    if KD_spec: # Known Device and Home Ignorable, assemble in/out of SQL query for now.
+    if KD_spec: # Known Device and Home Ignorable, latter can be improved
         KD_options = cur.execute('SELECT kd_visit,kd_frequent,kd_data,kd_refURL,kd_loc FROM settings').fetchone()
-        KD_spec = sql.SQL(f'{KD_spec} AND ').as_string(cur)
     else:
-        KD_options = (False,)*5
-        KD_spec = ''       
+        KD_options = (False,)*5     
     ignorable_spec = sql.SQL(f' AND {ignorable_spec}').as_string(cur) if ignorable_spec else ''
         
     # Top Level Summary, total / unique hits
@@ -284,10 +282,10 @@ WHERE access.home=True AND fail2ban.home=True AND fail2ban.action='Ignore'
     # outside Unique IP
     SQL = '''SELECT day, COUNT(*) FROM (SELECT DISTINCT ip, date_trunc('day', date) "day" 
 FROM {} WHERE home=False AND date BETWEEN %(start)s AND %(end)s) "tmp" GROUP BY day'''       
-    if KD_options[0]:         
+    if KD_options[0]: # exclude Known Devices from count        
         raw_visitors = {val[0]:val[1] for val in cur.execute(\
-                        sql.SQL(SQL.replace('WHERE',f'WHERE {KD_spec}'))\
-                       .format(sql.Identifier('access')),{'start':start,'end':end}).fetchall()}
+                        sql.SQL(SQL.replace('WHERE','WHERE tech!= ALL({}) AND'))\
+                       .format(sql.Identifier('access'), [KD_spec]),{'start':start,'end':end}).fetchall()}
     else:      
         raw_visitors = {val[0]:val[1] for val in cur.execute(\
                         sql.SQL(SQL).format(sql.Identifier('access')),{'start':start,'end':end}).fetchall()}     
@@ -390,9 +388,9 @@ GROUP BY ip ORDER BY hits) "tmp" GROUP BY hits ORDER BY hits'''
     else:
         for log in logs:
             if log == 'access':
-                SQL2 = SQL.replace('WHERE',f'WHERE {KD_spec}')
+                SQL2 = SQL.replace('WHERE','WHERE tech!= ALL({}) AND')
                 outHitsIP.append({val[0]: val[1] for val in cur.execute(sql.SQL(SQL2)\
-                                 .format(sql.Identifier(log)),{'start':start,'end':end}).fetchall()})
+                                 .format(sql.Identifier(log), [KD_spec]),{'start':start,'end':end}).fetchall()})
             else:
                 outHitsIP.append({val[0]: val[1] for val in cur.execute(sql.SQL(SQL)\
                                  .format(sql.Identifier(log)),{'start':start,'end':end}).fetchall()})
@@ -420,9 +418,9 @@ FROM {table} INNER JOIN "geoinfo" on {table}.geo = geoinfo.id WHERE home=False A
 GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''     
         cols = ['IP', 'Hits', 'Location', 'Data', 'Duration', 'Start', 'Stop', 'Ban Time(s)<br><em class="fw-normal">max 1 per day</em>']
     if KD_options[1]: 
-        freqIPs_access = cur.execute(sql.SQL(SQL.replace('WHERE',f'WHERE {KD_spec}')).format(table=sql.Identifier('access')),
+        freqIPs_access = cur.execute(sql.SQL(SQL.replace('WHERE','WHERE tech!= ALL({kd}) AND')).format(table=sql.Identifier('access'), kd=[KD_spec]),
                                     {'start':start,'end':end}).fetchall()
-        freqIPs_known = cur.execute(sql.SQL(SQL.replace('WHERE',f'WHERE {KD_spec.replace("NOT","")}')).format(table=sql.Identifier('access')),
+        freqIPs_known = cur.execute(sql.SQL(SQL.replace('WHERE','WHERE tech = ANY({kd}) AND')).format(table=sql.Identifier('access'), kd=[KD_spec]),
                                     {'start':start,'end':end}).fetchall()
     else:
         freqIPs_access = cur.execute(sql.SQL(SQL).format(table=sql.Identifier('access')),
@@ -441,16 +439,24 @@ GROUP BY ip,location HAVING COUNT(ip) > 4 ORDER BY COUNT(ip) DESC'''
     
     # filtrate for access, error
     if geocheck == 0:
-        SQL = f'''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(referrer,URL) "URL", tech 
-FROM "access" WHERE {KD_spec} home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN (SELECT DISTINCT(ip) FROM 
+        SQL = '''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(referrer,URL) "URL", tech 
+FROM "access" <KD_Option> home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN (SELECT DISTINCT(ip) FROM 
 "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s) ORDER BY date'''
+        if KD_spec:
+            SQL = sql.SQL(SQL.replace('<KD_Option>', 'WHERE tech!= ALL({}) AND')).format([KD_spec])
+        else:
+            SQL = SQL.replace('<KD_Option>', 'WHERE')
         AccessFiltrate = table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(), 
                          ['Date','IP','Method','HTTP/x','Status', 'bytes','URL', 'Tech'], True)
     else:
-        SQL = f'''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(city, ', ', country) "location", 
+        SQL = '''SELECT date,ip,method,http/10::float4 "http",status,bytes, CONCAT(city, ', ', country) "location", 
 CONCAT(referrer,URL) "URL", tech  FROM "access" INNER JOIN "geoinfo" ON access.geo=geoinfo.id 
-WHERE {KD_spec} home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN (SELECT DISTINCT(ip) FROM "fail2ban" 
+<KD_Option> home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN (SELECT DISTINCT(ip) FROM "fail2ban" 
 WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s) ORDER BY date'''
+        if KD_spec:
+            SQL = sql.SQL(SQL.replace('<KD_Option>', 'WHERE tech!= ALL({}) AND')).format([KD_spec])
+        else:
+            SQL = SQL.replace('<KD_Option>', 'WHERE')
         AccessFiltrate = table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(), 
                          ['Date','IP','Method','HTTP/x','Status', 'bytes','Location','URL', 'Tech'], True)
     

@@ -18,15 +18,25 @@
 	      <textarea class="form-control" name="HomeIgnore" id="HomeIgnore">{% if old[1] %}{{ old[1]}}{% endif %}</textarea>
 		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
 		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
-		  Use with caution</em><br><br>
+		  Use with caution</em><br>
+		  
 		  <label for="KnownDevices" class="form-label mt-3">Specify 
-		    <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
-		    for excluding <b>Known Devices</b><em class="ms-5 text-muted">tech NOT IN ('DSub', 'something else')</em><br>
+		    <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent">user-agent(s)</a> AKA tech 
+		    for identifying <b>Known Devices.</b> Clear cell to remove existing <b class="bg-success bg-opacity-50 p-1">device</b>
+			<em class="ms-5 text-muted">Mozilla/5.0 . . .</em>
 		  </label>
-		  <textarea class="form-control" name="KnownDevices" id="KnownDevices">{% if old[2] %}{{ old[2]}}{% endif %}</textarea>		  		  		  
-		  <em class="text-danger">Form usage may be susceptible to malicious or inadvertent 
-		  <a class="text-danger" href="https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection">SQL injection</a>.
-		   Use with caution.</em><br><br>
+		  <div class="row row-cols-auto g-2">
+		  {% if old[2] %}
+		    {% for kd in range(kds) %}
+			  <div class="col"><input type="text" name="KnownDevice_{{ kd+1 }}" class="form-control bg-success bg-opacity-50" value="{{ old[2][kd] }}"></div>
+			{% endfor %}
+		  {% endif %}
+		    {% for kd in k %}
+			  <div class="col"><input type="text" name="KnownDevice_{{ kd }}" class="form-control" value="" placeholder="KnownDevice {{kd}}"></div>
+			{% endfor %}
+		  </div>
+		  <em class="text-muted">Save settings to add more available inputs.</em><br><br>
+		  
 			<span class="ms-3 text-decoration-underline">Report options for <b>Known Devices:</b></span>
 			  <div class="form-check form-switch">
 				<input name="KD_1" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_1" {% if old[3] %}checked{% endif %}>
@@ -36,7 +46,7 @@
 				<input name="KD_2" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_2" {% if old[4] %}checked{% endif %}>
 				<label class="form-check-label my-1" for="KD_2">Separate from Outside Frequent Visitors?</label><br>
 			  </div>	
-			  <p class="ms-5 text-muted">Known devices are excluded from Filtrate tables by default</p>			  
+			  <p class="ms-5 text-muted fw-bold">Known Devices are excluded from Filtrate tables by default</p>			  
 		    <span class="fw-semibold text-primary ms-4">Include separate Outside Top 10 tables?</span><br>
 			  <div class="form-check form-switch">
 				<input name="KD_3" class="form-check-input mx-2 my-2" type="checkbox" role="switch" id="KD_3" {% if old[5] %}checked{% endif %}>
@@ -128,16 +138,18 @@
   <h1 class="mt-5">Custom Report or Visitor Map</h1>
 	<div class="row mx-5 mb-5 bg-light border-bottom border-black-50">	
 	  <form method="POST" action="">
-		<div class="input-group my-5">
+		<div class="input-group my-4">
 			<label for="start" class="form-label mx-3 fw-bold fs-5">Start</label>
 			<input type="datetime-local" class="form-control" id="start" name="start" value="" required>		
 			<label for="end" class="form-label mx-3 fw-bold fs-5">End</label>
 			<input type="datetime-local" class="form-control" id="end" name="end" value="" required>		
 		</div>
 		<div id="Custom" class="text-center mb-3">
-		  <button type="submit" class="btn btn-primary mx-5" name="CustomMap" formaction="{{ url_for('geography.geography_map') }}" formtarget="_blank">Generate Map</button>
-		  <button type="submit" class="btn btn-primary mx-5" name="CustomReport" formaction="{{ url_for('home.recent_report') }}" formtarget="_blank">Generate Report</button>
+		  <button type="submit" class="btn btn-primary mx-5 my-1" name="CustomMap" formaction="{{ url_for('geography.geography_map') }}" formtarget="_blank">Generate Map</button>
+		  <button type="submit" class="btn btn-primary mx-5 my-1" name="CustomReport" formaction="{{ url_for('home.recent_report') }}" formtarget="_blank">Generate Report</button>
 		</div>
       </form>
 	</div>
 {% endblock %}
+
+<!-- {% block script_additions %}{% endblock %} -->

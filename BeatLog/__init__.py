@@ -45,7 +45,7 @@ def create_app(test_config=None):
         
     # scheduler tasks
     check_IP = getenv('check_IP',default='12')
-    check_Log = getenv('check_Log',default='3')    
+    check_Log = getenv('check_Log',default='3')
     try:
         check_IP = int(check_IP)
         check_Log = int(check_Log)
@@ -84,11 +84,12 @@ def create_app(test_config=None):
         return render_template('app_error500.html', e=e, message=message), 500     
     
     # register Blueprints
-    from . import home, geography, logs
+    from . import home, geography, logs, db_view
     app.register_blueprint(home.bp)
     app.register_blueprint(geography.bp)
     app.register_blueprint(logs.bp)
-      
+    app.register_blueprint(db_view.bp)
+    
     app.logger.info('. . . starting BeatLog . . .')  
     return app
     

@@ -66,7 +66,7 @@ def make_tables(cur):
     cur.execute("""CREATE TABLE IF NOT EXISTS settings (
                     ReportDays smallint DEFAULT 3,
                     HomeIgnores text,
-                    KnownDevices text,
+                    KnownDevices text[],
                     KD_visit boolean DEFAULT FALSE,
                     KD_frequent boolean DEFAULT FALSE,
                     KD_data boolean DEFAULT FALSE,
@@ -90,7 +90,7 @@ def make_tables(cur):
                     Date timestamp NOT NULL,
                     IP inet,
                     Home boolean,
-                    Method VARCHAR(8),
+                    Method VARCHAR(20),
                     URL text,
                     http smallint,
                     Status smallint,

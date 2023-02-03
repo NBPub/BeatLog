@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}EzQuery Result{% endblock %}
+
+{% block content %}
+  <h1 class="mb-5">Query Result</h1>
+	<a class="mx-5 my-3 fs-5 fw-bold bg-success text-warning border border-warning border-2 p-2 rounded" href="#sqlCollapse" data-bs-toggle="collapse">see SQL</a>
+	<a class="btn btn-primary ms-5 fw-bold" href="{{ url_for('db_view.db_view') }}">New Query</a>
+	  <div class="collapse mb-2" id="sqlCollapse" style="max-width:90vw;overflow:auto;max-height:150px;">
+		<div class="bg-warning mx-5 p-2">{{ SQL_r }}</div>
+	  </div>
+	{% if table %}
+	  <table class="table table-sm table-hover table-bordered table-striped-columns table-dark me-5 mt-5 caption-top">
+		<caption class="mx-5 fw-bold"><div class="input-group">
+		{% if prev_seq %}
+		  <form method="POST" action="{{ url_for('db_view.db_view_result') }}">
+		    <input type="text" name="dateOrder" value="{{ prev_seq['dateOrder'] }}" hidden>
+			<input type="text" name="start" value="{{ prev_seq['start'] }}" hidden>
+			<input type="text" name="end" value="{{ prev_seq['end'] }}" hidden>
+			<input type="text" name="maxRows" value="{{ prev_seq['maxRows'] }}" hidden>
+			<input type="text" name="homeFilter" value="{{ prev_seq['homeFilter'] }}" hidden>
+			<input type="text" name="countryOptions" value="{{ prev_seq['countryOptions'] }}" hidden>
+			<input type="text" name="cityOptions" value="{{ prev_seq['cityOptions'] }}" hidden>
+			<input type="text" name="IP_search" value="{{ prev_seq['IP_search'] }}" hidden>
+			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
+		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ prev_seq['query_log'] }}">⮜ Previous</button>
+		  </form>		
+		{% endif %}		  
+		{% if next_seq %}
+		  <form method="POST" action="{{ url_for('db_view.db_view_result') }}">
+		    <input type="text" name="dateOrder" value="{{ next_seq[2]['dateOrder'] }}" hidden>
+			<input type="text" name="start" value="{{ next_seq[2]['date'] }}" hidden>
+			<input type="text" name="end" value="{{ next_seq[2]['date'] }}" hidden>
+			<input type="text" name="maxRows" value="{{ next_seq[2]['maxRows'] }}" hidden>
+			<input type="text" name="homeFilter" value="{{ next_seq[2]['homeFilter'] }}" hidden>
+			<input type="text" name="countryOptions" value="{{ next_seq[2]['countryOptions'] }}" hidden>
+			<input type="text" name="cityOptions" value="{{ next_seq[2]['cityOptions'] }}" hidden>
+			<input type="text" name="IP_search" value="{{ next_seq[2]['IP_search'] }}" hidden>
+			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
+		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ next_seq[2]['query_log'] }}"> Next ➤</button>
+		  </form>
+		  {{ table[1] }} results out of {{ next_seq[0] }}
+		  </div>  
+		{% else %}
+		  </div>{{ table[1] }} results
+		{% endif %}
+		</caption>
+		{{ table[0]|safe }}
+	  </table>	
+	{% else %}
+	  <h3 class="text-danger m-5">No results returned!</h3>
+	{% endif %}
+	{% if alert %}
+	  <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+		{{ alert[0] }}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	  </div>
+	{% endif %}		
+{% endblock %}

@@ -33,8 +33,9 @@ def init_tasks(check_IP, check_Log, scheduler, conninfo):
                 start_date=(datetime.now()+timedelta(minutes=15)).isoformat(timespec='seconds').replace('T',' '),
             )
             def parse_task():
-                """Parse Existing logs"""
+                """Parse Existing logs, fill geo as needed"""
                 from .ops_parse import parse_all
+                from .ops_geo import location_fill
                 try:
                     with psycopg.connect(conninfo) as conn:
                         cur = conn.cursor()
@@ -44,6 +45,12 @@ def init_tasks(check_IP, check_Log, scheduler, conninfo):
                         else:
                             task_log = "No logs parsed during scheduled task"
                     scheduler.app.logger.info(f'Scheduled Log check complete {task_log}')
+                    # Geo Fill
+                    indicator, result = location_fill(conn,cur)
+                    if indicator[1] != 'warning':
+                        scheduler.app.logger.info(f'\tLocation Fill: {indicator[0]}')
+                    if result != []:
+                        scheduler.app.logger.info('.  '.join(result))   
                 except Exception as e:
                     scheduler.app.logger.info(f'Scheduled Log check error: {str(e)}')
 

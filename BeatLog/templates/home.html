@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 {% block title %}BeatLog - Home{% endblock %}
 {% block content %}
-    <h1>BeatLog</h1>	  
-	  {% if logs|length > 0 %}
-	      <form method="POST" action="{{ url_for('home.home') }}" style="float:right;position:relative;top:-50px;">
-		  <em class="fs-6 text-muted">check all logs</em>
-	      <button type="submit" class="btn btn-sm btn-secondary fw-bold border border-success border-3" name="log_check" value="update_all">&#10004;</button>
-		  </form>
-	  {% endif %}	  
+    <h1>BeatLog
+	  <div class="btn-group" role="group" style="float:right;">
+		<a href="{{ url_for('geography.geography_map') }}" class="fw-bold btn btn-sm btn-success border-light">Visitor Map</a>
+		<a href="{{ url_for('geography.geography_assess') }}" class="fw-bold btn btn-sm btn-success border-light">Geo Data</a>
+		<a href="{{ url_for('home.settings') }}" class="fw-bold btn btn-sm btn-dark border-light">Settings</a>
+		<a href="{{ url_for('home.settings', _anchor='Custom') }}" class="fw-bold btn btn-sm btn-dark border-light">Custom Report/Map</a>
+		<a href="{{ url_for('home.data_clean') }}" class="fw-bold btn btn-sm btn-primary border-light">DB Clean</a>
+		<a href="{{ url_for('db_view.db_view') }}" class="fw-bold btn btn-sm btn-primary border-light">DB Query</a>
+	  </div>
+	</h1>	   
 	  <div class="row ms-5 my-3">
+	    <div class="col">
 	    <p class="fs-5 ms-2 fw-bold">Home IP: 
 		  {% if homeIP %}
 	        {% if homeIP|string in ignoreIPs %}
@@ -26,6 +30,14 @@
 		    <span class="text-danger ms-3"><em>{{ duration }}</em></span>
 		  {% endif %}
 		</p>	
+		</div><div class="col">
+	  {% if logs|length > 0 %}
+	    <form method="POST" action="{{ url_for('home.home') }}" class="ms-5">
+		  <em class="fs-6 text-muted">check all logs</em>
+	      <button type="submit" class="btn btn-sm btn-secondary fw-bold border border-success border-3" name="log_check" value="update_all">&#10004;</button>
+		</form>
+	  {% endif %}
+		</div>
 	  </div>	  
 	  <div class="row mx-5">
 	    {% for name, mod, parsed in logs %}
