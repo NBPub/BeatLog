@@ -26,7 +26,7 @@ Use **BeatLog** to assess server traffic and tailor fail2ban filters.
 ![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white)
-![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=white)
+![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=purple)
 
 ## Features
 
@@ -334,6 +334,7 @@ Get the most information from BeatLog following these steps:
 ### In Progress, alpha-0.1.3
 
 current: **latest, alpha-0.1.3, alpha-0.1.3t**
+
 previous: **alpha-0.1.2, alpha-0.1.2t**
 
 ### Planned Improvements
@@ -344,6 +345,7 @@ previous: **alpha-0.1.2, alpha-0.1.2t**
   - add tests for code
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
+  - solve possible issues with SQL creation: ~~**Known Devices**~~ and [Home Ignores](/docs#known-devices)
 - Features
   - ~~scheduled task for location lookup, or add to scheduled log checks~~
   - visitor maps, pan to location from table entry
@@ -390,7 +392,8 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
   - added sections detailing new DB features
   - fixes for some images and file paths
 - SQL query creation improved **[Known Devices](/docs#known-devices)**
-  - details
+  - devices now input as group of strings, which is stored as text array in database
+  - [psycopg3 sql module](https://www.psycopg.org/psycopg3/docs/api/sql.html) then used to craft specific SQL, `WHERE tech = ANY(<list>)` or `WHERE tech != ALL(<list>)`
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
 

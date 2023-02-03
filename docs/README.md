@@ -209,7 +209,7 @@ Wikipedia has a nice [example](https://en.wikipedia.org/wiki/Common_Log_Format#E
 | **date** | datetime | Timestamp of each connection, one second resolution |
 | **IP** | inet | client IP address |
 | **home** | Boolean | *True* if client IP matches home IP |
-| **Method** | text | HTTP request [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods). *8 character limit prior to alpha-0.1.3, 20 character limit after* |
+| **Method** | text *VARCHAR(20)* | HTTP request [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods). *8 character limit prior to alpha-0.1.3, 20 character limit after* |
 | **URL** | text | Component of resource requested by client |
 | **HTTP** | integer | HTTP [network protocol](https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2), typically **2** or **1.1**. It is multiplied by 10 to save as an integer. |
 | **Status** | integer | HTTP status [code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status), see [here](https://www.httpstatuses.org/) for a handy list of codes and their descriptions. |
@@ -355,7 +355,7 @@ Again, the report settings allow Known Devices to be separated into their own ta
 
 ### Known Devices
 
-The image below shows the available **Report Settings**. The only default shown is the 3 day duration of the Recent Report, everything else was modified. 
+The image below shows the available **Report Settings**. All settings shown below were modified from their defaults. 
 Report settings are on the same page as **Geography Settings**, and can also be accessed from the **Options** drop-down menu.
 
 **Known Devices** can be used to separate some Outside connections from the rest of the pack. 
