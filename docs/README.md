@@ -265,13 +265,18 @@ Each unique coordinate pair is saved in a **Geography** table. As described abov
 Routine home IP checks and log parsing can be scheduled using the `check_IP` and `check_Log` environmental variables.
 
 Example log of scheduled tasks:
-```
-[2022-09-17 12:57:04,665] INFO in scheduler_tasks: Scheduled Home IP check skipped
-[2022-09-17 13:11:37,683] INFO in scheduler_tasks: 
-unauthorized: unauthorized has not changed since last parse.
+```python
+[2022-09-17 12:57:04] [1] [INFO] Scheduled Home IP check complete
+[2022-09-17 13:11:37] [1] [INFO] Scheduled Log check complete 
 access: Parsing completed, 374 lines added in 2s.
 fail2ban: Parsing completed, 11 lines added in 0s.
 error: Parsing completed, 2 lines added in 0s
+# if locations are enabled and unnamed coordinates exist and a nominatim agent is specified
+# attempt location fill
+[2022-09-17 13:11:41] [1] [INFO] 	Location Fill: 3 locations named out of 4 in 5 seconds
+[2022-09-17 13:11:41] [1] [INFO] Error -- 'address' for (-43.0,67.0).  (35.0,33.0) named Kannavia, Cyprus.  (34.0021,-81.0423) named Columbia, United States.  (28.5,-10.0) named caïdat d'Aouint Lahna, Morocco
+# address not found for one location, manual update required
+# see links below
 ```
 
 ### Home IP check
