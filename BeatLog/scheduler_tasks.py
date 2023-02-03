@@ -44,13 +44,13 @@ def init_tasks(check_IP, check_Log, scheduler, conninfo):
                             task_log = ".".join([f'\n{key}: {val[0]}' for key,val in result.items()])
                         else:
                             task_log = "No logs parsed during scheduled task"
-                    scheduler.app.logger.info(f'Scheduled Log check complete {task_log}')
-                    # Geo Fill
-                    indicator, result = location_fill(conn,cur)
-                    if indicator[1] != 'warning':
-                        scheduler.app.logger.info(f'\tLocation Fill: {indicator[0]}')
-                    if result != []:
-                        scheduler.app.logger.info('.  '.join(result))   
+                        scheduler.app.logger.info(f'Scheduled Log check complete {task_log}')
+                        # Geo Fill
+                        indicator, result = location_fill(conn,cur)
+                        if indicator[1] != 'warning':
+                            scheduler.app.logger.info(f'\tLocation Fill: {indicator[0]}')
+                        if result != []:
+                            scheduler.app.logger.info('.  '.join(result))   
                 except Exception as e:
                     scheduler.app.logger.info(f'Scheduled Log check error: {str(e)}')
 
