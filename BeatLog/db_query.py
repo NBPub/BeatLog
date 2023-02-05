@@ -143,7 +143,7 @@ method, status, bytes, CONCAT(referrer, URL) "URL", tech FROM "fail2ban"''')
             sequence.insert(1, sql.SQL('LEFT JOIN {} ON {}.{} = {}.{}').format(sql.Identifier('geoinfo'), 
                         sql.Identifier(log), sql.Identifier('geo'), 
                         sql.Identifier('geoinfo'), sql.Identifier('id')))
-            cols+=['id','coords','city','country']       
+            cols+=['id','coords','city','country']      
     # enable location search if geoinfo exists and it's specified
         if (options[0] or options[1]) and geocheck == []:
             return False, ('❖ No location data to search within query ❖', sequence), None    

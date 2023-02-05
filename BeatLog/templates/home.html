@@ -2,7 +2,7 @@
 {% block title %}BeatLog - Home{% endblock %}
 {% block content %}
     <h1>BeatLog
-	  <div class="btn-group" role="group" style="float:right;">
+	  <div class="btn-group my-1" role="group" style="float:right;">
 	{% if places == 0 %}
 	    <a href="{{ url_for('home.settings', _anchor='Geography') }}" class="fw-bold btn btn-sm btn-success border-light">Enable Locations</a>
 	{% elif noname %}

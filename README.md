@@ -1,7 +1,6 @@
-# <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> BeatLog 
+# <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> BeatLog
 
-
-## Overview
+## Overview | [Documentation](/docs#contents)
 - [Background](#background)
 - [Features](#features)
 - [Installation](#installation)
@@ -9,7 +8,7 @@
 	- [Parameters](#parameters)
 	- [Data Sources](#data-sources)	
 	- [Optional Extras](#extra-options)	
-	- [Updates](#updating-postgresql-container), [Container Interaction](#shell-acess-to-container)
+	- [Updates](#updating-postgresql-container), [Container Interaction](#shell-acess-to-beatlog-container)
 - [Setup](#application-setup)
 - [Development](#development)
 	- [Feedback](#development)
@@ -19,15 +18,16 @@
 	
 ## Background
 
-**BeatLog** parses [NGINX](https://www.nginx.com/) reverse proxy and [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page) logs into readable tables and reports. 
-Use **BeatLog** to assess server traffic and tailor fail2ban filters.
-
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white)
 ![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=purple)
+
+**BeatLog** parses [NGINX](https://www.nginx.com/) reverse proxy and [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page) logs into readable tables and reports. 
+Use **BeatLog** to assess server traffic and tailor fail2ban filters.
+
 
 ## Features
 
@@ -42,7 +42,7 @@ based on [OpenStreetMap](https://www.openstreetmap.org/about) data.
 
 ----
 
-See the [BeatLog Guide](/docs) for a full list of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
+See the [BeatLog Guide](/docs#parsing) for a full list of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
 
 ### Parsed Data
 
@@ -312,7 +312,7 @@ psql -f db.out -U beatlog postgres
  ```
 </details>
 
-### Shell Acess to Container
+### Shell Acess to BeatLog Container
 
 <details><summary>Docker Exec example</summary>
 
@@ -363,7 +363,7 @@ previous: **alpha-0.1.2, alpha-0.1.2t**
   - add tests for code
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
-  - solve possible issues with SQL creation: ~~**Known Devices**~~ and [Home Ignores](/docs#known-devices)
+  - solve possible issues with SQL creation: ~~**[Known Devices](/docs#known-devices)**~~ and [Home Ignores](/docs#home-ignorable)
 - Features
   - ~~scheduled task for location lookup, or add to scheduled log checks~~
   - visitor maps, pan to location from table entry

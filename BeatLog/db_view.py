@@ -117,15 +117,17 @@ def db_view_result():
             # clean for geoinfo
             remove = []
             if 'coords' in cols:
-                remove = [cols.index(val) for val in ['geo','id']]
+                remove = ['geo','id']
+                rm_ind = [cols.index(k) for k in remove]
             elif 'geo' in cols:
-                remove = [cols.index('geo')]            
+                remove = ['geo'] 
+                rm_ind = [cols.index(k) for k in remove]
             if remove != []:
                 olddata = data
                 data = []
                 for i,val in enumerate(olddata):
-                    data.append([olddata[i][k] for k in range(0,len(olddata[i])) if k not in remove])
-                _ = [cols.pop(k) for k in remove]
+                    data.append([olddata[i][k] for k in range(0,len(olddata[i])) if k not in rm_ind])
+                _ = [cols.pop(cols.index(k)) for k in remove]
             table = table_build(data, cols, True)            
             # if result > size limit, provide "next" query, and provide current query for return
             total = cur.execute(' '.join([val.as_string(cur) for val in check_seq])).fetchone()[0] 

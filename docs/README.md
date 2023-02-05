@@ -16,7 +16,8 @@
 - [Report](#report-demo)
 	- [Home](#home-demo)
 	- [Outside](#outside-demo)
-	- [Settings, Known Devices](#known-devices)
+	- [Settings: Known Devices](#known-devices)
+	- [Settings: Home Ignorable](#home-ignorable)	
 	- [fail2ban](#fail2ban-demo)
 - [Beat! Button](#beat-button)
 - [Database Explorer](#database-explorer)
@@ -264,7 +265,7 @@ Each unique coordinate pair is saved in a **Geography** table. As described abov
 
 Routine home IP checks and log parsing can be scheduled using the `check_IP` and `check_Log` environmental variables.
 
-Example log of scheduled tasks:
+Example log of scheduled tasks: *comments added by me, they are not part of the log*
 ```python
 [2022-09-17 12:57:04] [1] [INFO] Scheduled Home IP check complete
 [2022-09-17 13:11:37] [1] [INFO] Scheduled Log check complete 
@@ -273,8 +274,9 @@ fail2ban: Parsing completed, 11 lines added in 0s.
 error: Parsing completed, 2 lines added in 0s
 # if locations are enabled and unnamed coordinates exist and a nominatim agent is specified
 # attempt location fill
-[2022-09-17 13:11:41] [1] [INFO] 	Location Fill: 3 locations named out of 4 in 5 seconds
-[2022-09-17 13:11:41] [1] [INFO] Error -- 'address' for (-43.0,67.0).  (35.0,33.0) named Kannavia, Cyprus.  (34.0021,-81.0423) named Columbia, United States.  (28.5,-10.0) named caïdat d'Aouint Lahna, Morocco
+[2022-09-17 13:11:41] [1] [INFO] Location Fill: 3 locations named out of 4 in 5 seconds
+[2022-09-17 13:11:41] [1] [INFO] (35.0,33.0) named Kannavia, Cyprus. (34.0021,-81.0423) named Columbia, United States. (28.5,-10.0) named caïdat d'Aouint Lahna, Morocco
+[2022-09-17 13:11:41] [1] [INFO] Error -- 'address' for (-43.0,67.0)
 # address not found for one location, manual update required
 # see links below
 ```
@@ -369,6 +371,8 @@ Once **Known Devices** have been identified, they can be separated / excluded fr
 
 ![report_set](/docs/pics/Settings_report.png "exclude Known Devices in Report settings")
 
+### Home Ignorable
+
 The criteria for **fail2ban home ignores** may seem redundant, provided the [discussion](#home) in the home section. 
 If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** table. 
 
@@ -437,6 +441,25 @@ a specific start or end time specified. They default to `Starting : one week bef
 ![dataview1](/docs/pics/query_1.png "Query options for Database Explorer") 
 
 Each log be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
+
+| Log - Query | Description |
+| :----: | --- |
+| **ALL** - Basic | Simply use the options specified at the top of the page. They default to all entries, going back from now, limited to 50 rows per page. |
+| --- | --- | --- |
+| **Access** - Ignorable | Hits matching *Home Ignorable* [specification](#home-ignorable), if set. |
+| **Access** - Known Devices | Hits with user-agents matching *Known Devices* [specification](#known-devices), if set. |
+| **Access** - Filtrate | Outside hits with IPs not banned by fail2ban. Matches limited to one-week blocks. |
+| **Access** - Regex2 | Log data processed by the *default* secondary [regex method](#adding-regex-to-logs). They lack [data](#access-logs---access) for HTTP protocol version and request method. |
+| **Access** - HTTP v X | Hits with the specified HTTP network protocol [version](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Evolution_of_HTTP). One grouping for `2.0` and another for `1.0, 1.1` |
+| **Access** - HTTP Xxx | Hits with the specified HTTP response [status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) grouping. see [Neat Reference](https://www.httpstatuses.org/) |
+| --- | --- | --- |
+| **Error** - IP v X | Internet Protocol address [version](https://en.wikipedia.org/wiki/IP_address#IP_versions). `IPv4` or `IPv6` |
+| **Error** - Filtrate | Outside hits with IPs not banned by fail2ban. Matches limited to one-week blocks. |
+| **Error** - Level | All available Error Log [severity levels](https://en.wikipedia.org/wiki/Syslog#Severity_level) for entries are provided. Parsed data [info](#error-log---error)  |
+| --- | --- | --- |
+| **fail2ban** - Ignores | fail2ban entries with the "Ignore" action. I have fail2ban ignore my local, "Home", IP to allow me to tailor filters.  |
+| **fail2ban** - Match Ignores | Attempt to match fail2ban ignores with home hits on the access log. Home Ignorable [specification](#home-ignorable) may improve matching. Same table as shown in [report](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs). |
+| **fail2ban** - Filter | query for each fail2ban filter |
 
 ![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options shown above") 
 

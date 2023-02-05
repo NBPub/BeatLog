@@ -48,7 +48,7 @@
 		  <a class="btn btn-sm btn-secondary rounded mx-5 fs-5 fw-bold" href="#IPCollapse" data-bs-toggle="collapse">IP Address</a>
 	    </div>
 		<div class="collapse my-2" id="LocationCollapse">
-		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . .</p>
+		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . . <span class="mx-5">check NULL for <a href="{{ url_for('geography.geography') }}">unnamed</a> locations</span></p>
 
 		  <div class="d-flex">
 			  <input class="form-check-input ms-3 px-2 mt-2" type="checkbox" value="" name="countryNULL">
@@ -99,7 +99,7 @@
 		      <button type="submit" class="btn btn-sm btn-dark me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
 			  formtarget="_blank" data-bs-toggle="tooltip" title="{{ log_buttons[log][query] }}" data-bs-html="true">{{ query }}</button>
 			{% endfor %}
-			{% if log == 'fail2ban' %}<em class="mt-1 fw-bold" style="font-size:0.9em"><a href="https://github.com/NBPub/BeatLog/tree/main/docs#known-devices">"Ignorable" docs</a></em>{% endif %}
+			{% if log == 'fail2ban' %}<em class="mt-1 fw-bold" style="font-size:0.9em"><a href="https://github.com/NBPub/BeatLog/tree/main/docs#home-ignorable">"Ignorable" docs</a></em>{% endif %}
 		  </div><br><div class="btn-group my-2" role="group">
 			{% for query in lb2[log] %}
 			  <button type="submit" class="btn btn-sm btn-success me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
