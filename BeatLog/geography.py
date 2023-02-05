@@ -26,14 +26,12 @@ def geography():
                     alert = modify_geo(conn, cur, 'mod', request.form['Update'], new)
                 if 'Delete' in request.form:
                     alert = modify_geo(conn, cur, 'del', request.form['Delete'], None)            
-        # geoinfo table         
-        places = cur.execute('SELECT reltuples AS estimate FROM pg_class WHERE relname = %s', ('geoinfo',)).fetchone()
-        places = places[0] if places else 0
-        if places > 0:
-            blanks, no_country, no_city = null_assessment(cur)
-            geo_table, IPs = geo_table_build(cur, {'no_names':"country IS NULL OR city IS NULL"}, True)
-        else:
-            return render_template('geo.html', places=places)         
+        
+        # geoinfo table, unnamed locaations. if geoinfo populated
+        places, blanks, no_country, no_city, either = null_assessment(cur)
+        if places == 0:  
+            return render_template('geo.html', places=places)
+        geo_table, IPs = geo_table_build(cur, {'no_names':"country IS NULL OR city IS NULL"}, True)         
     return render_template('geo.html', places=places, blanks=blanks, geo_table=geo_table,
                            IPs=IPs, no_country=no_country, no_city=no_city, alert=alert, result=result)   
 
@@ -112,5 +110,7 @@ FROM "geoinfo" GROUP BY country ORDER BY cities DESC) "tmp" WHERE cities < 5 GRO
 ORDER BY cities DESC'''
         littles = cur.execute(SQL) .fetchall()
         no_IP = geo_noIP_check(cur)
+        _, _, _, _, noname = null_assessment(cur)
+        print(noname)
     return render_template('geo_details.html',bigs=bigs, littles=littles, no_IP=no_IP,
-                           geo_table=geo_table, IPs=IPs, alert=alert, chart=chart)
+                           geo_table=geo_table, IPs=IPs, alert=alert, chart=chart, noname=noname)

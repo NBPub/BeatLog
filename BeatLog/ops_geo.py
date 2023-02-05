@@ -8,10 +8,17 @@ import json
 from time import sleep, time
 
 def null_assessment(cur):   
+    # check for data before continuing
+    places = cur.execute('SELECT reltuples AS estimate FROM pg_class WHERE relname = %s', ('geoinfo',)).fetchone()
+    places = places[0] if places else 0  
+    if places == 0:
+        return places, None,None,None,None    
+    # find rowID for coordinates with missing location data
     blanks = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL AND city IS NULL").fetchone()[0]  
     no_country = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE country IS NULL").fetchone()[0]  
     no_city = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE city IS NULL").fetchone()[0]
-    return blanks, no_country, no_city
+    either = cur.execute("SELECT COUNT(id) FROM geoinfo WHERE city IS NULL OR country IS NULL").fetchone()[0]
+    return places, blanks, no_country, no_city, either
 
 def modify_geo(conn, cur, method, geoID, data):
     with conn.transaction(): 

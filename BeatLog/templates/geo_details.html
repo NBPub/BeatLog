@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Assess Geography{% endblock %}
 {% block content %}
-  <h1>Cached Geography Data</h1>
+  <h1>Cached Geography Data
+    {% if noname %}
+	  <a href="{{ url_for('geography.geography') }}"><button type="button" class="btn btn-info btn-sm fw-bold me-3 mt-2 position-relative" style="float:right;">Name Locations
+	    <span class="badge rounded-pill bg-danger px-2 position-absolute top-0 start-100 translate-middle">{{ noname }}</span></button></a>
+	{% else %}
+      <a href="{{ url_for('geography.geography') }}" class="btn btn-outline-info btn-sm fw-bold me-3 mt-2" style="float:right;">Name Locations</a>
+	{% endif %}
+  </h1>
 {% if bigs or littles %}
   <h2 class="mt-4 ms-5">Top 10 Bar Charts</h2>
 	<form method="POST" action="{{ url_for('geography.geography_assess') }}">	
@@ -35,7 +42,7 @@
 	{% endif %}
 	{% if littles %}
 	  <div class="col mx-2"><form method="POST" action="{{ url_for('geography.geography_assess') }}">
-		<b>All countries with X locations</b><br />
+		<b>Countries with less than 5 locations</b><br />
 		  {% for countries, count in littles %}
 		    <button class="btn btn-dark my-2 mx-2 btn-sm" type="submit" value="{{ count }}" name="count-select">{{ countries }} countries with {{ count }} locations [{{countries * count }}]</button>
 		  {% endfor %} 

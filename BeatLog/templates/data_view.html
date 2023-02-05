@@ -51,6 +51,10 @@
 		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . .</p>
 
 		  <div class="d-flex">
+			  <input class="form-check-input ms-3 px-2 mt-2" type="checkbox" value="" name="countryNULL">
+			  <label class="form-check-label ms-1 mt-1" >
+				NULL
+			  </label>		  
 			<input class="form-control mx-5"  class="form-control" list="countryOptions" name="countryOptions"  placeholder="Countries ❖ type to search . . .">
 			  <datalist id="countryOptions">
 			    {% for country in country_list %}<option value="{{ country }}">{% endfor %}
@@ -58,8 +62,15 @@
 			<input class="form-control mx-5"  class="form-control" list="cityOptions" name="cityOptions"  placeholder="Cities ❖ type to search . . .">
 			  <datalist id="cityOptions">
 			    {% for city in city_list %}<option value="{{ city }}">{% endfor %}
-			  </datalist>			
+			  </datalist>	
+			  <input class="form-check-input px-2 mt-2" type="checkbox" value="" name="cityNULL">
+			  <label class="form-check-label ms-1 mt-1 me-3">
+				NULL
+			  </label>			  
 		  </div>
+
+
+		  
 		</div>	  	
 		<div class="collapse my-2" id="IPCollapse">
 		  <p class="text-muted fw-bold ms-5">Specify valid IP address . . .</p>
@@ -88,6 +99,7 @@
 		      <button type="submit" class="btn btn-sm btn-dark me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
 			  formtarget="_blank" data-bs-toggle="tooltip" title="{{ log_buttons[log][query] }}" data-bs-html="true">{{ query }}</button>
 			{% endfor %}
+			{% if log == 'fail2ban' %}<em class="mt-1 fw-bold" style="font-size:0.9em"><a href="https://github.com/NBPub/BeatLog/tree/main/docs#known-devices">"Ignorable" docs</a></em>{% endif %}
 		  </div><br><div class="btn-group my-2" role="group">
 			{% for query in lb2[log] %}
 			  <button type="submit" class="btn btn-sm btn-success me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 

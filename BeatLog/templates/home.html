@@ -3,8 +3,17 @@
 {% block content %}
     <h1>BeatLog
 	  <div class="btn-group" role="group" style="float:right;">
+	{% if places == 0 %}
+	    <a href="{{ url_for('home.settings', _anchor='Geography') }}" class="fw-bold btn btn-sm btn-success border-light">Enable Locations</a>
+	{% elif noname %}
+		<a href="{{ url_for('geography.geography_map') }}" class="fw-bold btn btn-sm btn-success border-light">Visitor Map</a>
+		<a href="{{ url_for('geography.geography') }}" class="fw-bold btn btn-sm btn-success border-light position-relative">Name Locations
+		  <span class="badge rounded-pill bg-danger px-2 position-absolute top-100 start-100 translate-middle" style="z-index:3">{{ noname }}</span>
+		</a>	
+	{% else %}
 		<a href="{{ url_for('geography.geography_map') }}" class="fw-bold btn btn-sm btn-success border-light">Visitor Map</a>
 		<a href="{{ url_for('geography.geography_assess') }}" class="fw-bold btn btn-sm btn-success border-light">Geo Data</a>
+	{% endif %}
 		<a href="{{ url_for('home.settings') }}" class="fw-bold btn btn-sm btn-dark border-light">Settings</a>
 		<a href="{{ url_for('home.settings', _anchor='Custom') }}" class="fw-bold btn btn-sm btn-dark border-light">Custom Report/Map</a>
 		<a href="{{ url_for('home.data_clean') }}" class="fw-bold btn btn-sm btn-primary border-light">DB Clean</a>
@@ -92,7 +101,7 @@
     {% endif %}
 	<footer class="d-flex flex-wrap justify-content-between align-items center border-top fixed-bottom bg-white" style="font-size:10pt;">
 	  <ul class="text-muted fw-bold justify-content-start ms-3 mt-2 list-unstyled">
-	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.2</em></li>
+	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.3</em></li>
 		<li>{{ versions[0] }}<em class="fw-normal ms-2">{{ versions[1] }}</em><span class="mx-4 text-info">║</span> 
 		Python <em class="fw-normal ms-2">{{ versions[2] }}</em></li>
 	  </ul>

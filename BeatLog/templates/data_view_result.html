@@ -20,6 +20,8 @@
 			<input type="text" name="homeFilter" value="{{ prev_seq['homeFilter'] }}" hidden>
 			<input type="text" name="countryOptions" value="{{ prev_seq['countryOptions'] }}" hidden>
 			<input type="text" name="cityOptions" value="{{ prev_seq['cityOptions'] }}" hidden>
+			{% if 'countryNULL' in prev_seq %}<input type="text" name="countryNULL" value="" hidden>{% endif %}
+			{% if 'cityNULL' in prev_seq %}<input type="text" name="cityNULL" value="" hidden>{% endif %}									
 			<input type="text" name="IP_search" value="{{ prev_seq['IP_search'] }}" hidden>
 			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
 		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ prev_seq['query_log'] }}">⮜ Previous</button>
@@ -34,9 +36,11 @@
 			<input type="text" name="homeFilter" value="{{ next_seq[2]['homeFilter'] }}" hidden>
 			<input type="text" name="countryOptions" value="{{ next_seq[2]['countryOptions'] }}" hidden>
 			<input type="text" name="cityOptions" value="{{ next_seq[2]['cityOptions'] }}" hidden>
+			{% if 'countryNULL' in next_seq[2] %}<input type="text" name="countryNULL" value="" hidden>{% endif %}
+			{% if 'cityNULL' in next_seq[2] %}<input type="text" name="cityNULL" value="" hidden>{% endif %}			
 			<input type="text" name="IP_search" value="{{ next_seq[2]['IP_search'] }}" hidden>
 			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
-		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ next_seq[2]['query_log'] }}"> Next ➤</button>
+		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ next_seq[2]['query_log'] }}" formtarget="_blank"> Next ➤</button>
 		  </form>
 		  {{ table[1] }} results out of {{ next_seq[0] }}
 		  </div>  

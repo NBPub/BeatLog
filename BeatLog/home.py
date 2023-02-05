@@ -12,6 +12,7 @@ from .ops_data import log_data_cleaning, log_clean_estimate, log_clean_confirmed
                       geo_noIP_check, vacuum_tables                      
 from .ops_parse import parse_all
 from .ops_report import report_build, beat_analyze
+from .ops_geo import null_assessment
 from sys import version
 
 bp = Blueprint('home', __name__, url_prefix='/')
@@ -39,6 +40,9 @@ def home():
         ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
         ig = ig[0] if ig else []
         
+        # check unnamed locations, if applicable
+        places, _, _, _, noname = null_assessment(cur)
+        
         # Check date modified for log(s), update if changed
         if request.method == 'POST' and 'log_check' in request.form:
             if request.form['log_check'] == 'update_all':
@@ -65,7 +69,8 @@ def home():
                 log_info[log[0]] = f'<b>{rows} records</b><br>Starting <b>{first.strftime("%x")}</b> over \
 <b>{(log[2][0] - first).days} days</b>'
     return render_template('home.html', homeIP=homeIP, duration=duration, logs=logs, versions=versions,
-                            check=datetime(1,1,1), ignoreIPs=ig, alert=alert, log_info=log_info)
+                            check=datetime(1,1,1), ignoreIPs=ig, alert=alert, log_info=log_info,
+                            places=places, noname=noname)
 
 @bp.route("/data_cleaning/", methods = ['GET','POST'])
 def data_clean():

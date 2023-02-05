@@ -9,6 +9,7 @@
 	- [Parameters](#parameters)
 	- [Data Sources](#data-sources)	
 	- [Optional Extras](#extra-options)	
+	- [Updates](#updating-postgresql-container), [Container Interaction](#shell-acess-to-container)
 - [Setup](#application-setup)
 - [Development](#development)
 	- [Feedback](#development)
@@ -311,6 +312,23 @@ psql -f db.out -U beatlog postgres
  ```
 </details>
 
+### Shell Acess to Container
+
+<details><summary>Docker Exec example</summary>
+
+Explore **BeatLog** container using [docker exec](https://docs.docker.com/engine/reference/commandline/exec/), for example, investigate Python environment:
+
+
+```shell
+# 1. enter existing container "beatlog"
+docker exec -it beatlog_db /bin/sh
+
+# 2. pip freeze to view installed packages and versions
+python -m pip freeze
+```
+
+</details>
+
 ## Application Setup
 
 Create the container, monitor logs for proper startup, and then navigate to the WebUI at `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup)**
@@ -356,6 +374,7 @@ previous: **alpha-0.1.2, alpha-0.1.2t**
 	  - Query creation scheme for data viewer page could easily be adapted for API
 - Other
   - consider phasing out `unauthorized.log` *in progress*
+  - consider phasing out `NullConnectionPool` release
 
 ### Local Installation - Python venv
 
@@ -363,6 +382,7 @@ previous: **alpha-0.1.2, alpha-0.1.2t**
 - Add **[BeatLog folder](https://github.com/NBPub/BeatLog/tree/main/BeatLog)** and **[requirements.txt](https://github.com/NBPub/BeatLog/blob/main/requirements.txt)** into a new directory
 - Create and activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html)
 - Install requirements `pip install -r requirements.txt`
+  - *Note:* Docker images are built with each commit and without version specification for the packages. This allows gradual updates, but also means the [requirements.txt](/requirements.txt) may not work for your system. The packages listed below can be installed individually.
   - Packages: [Flask](https://flask.palletsprojects.com/), [Flask-APScheduler](https://github.com/viniciuschiele/flask-apscheduler), [python-dotenv](https://github.com/theskumar/python-dotenv), [psycopg3](https://www.psycopg.org/psycopg3/), [geoip2](https://github.com/maxmind/GeoIP2-python)
   - *[gunicorn](https://gunicorn.org/) used in deployment, Flask's Werkzeug can be used for local use*
 - Create and populate a **.env** file, model after docker-compose [example](#docker-compose)
@@ -380,7 +400,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
-| alpha-0.1.3, alpha-0.1.3t | Added **DB Query** and **View** pages to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing |
+| alpha-0.1.3, alpha-0.1.3t | Added **DB Query** and **View** pages to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 
