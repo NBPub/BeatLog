@@ -77,6 +77,7 @@ def db_view():
 def db_view_result():
     next_seq = None
     prev_seq = None    
+    bounds = None
     
     form_data = {key:request.form[key] for key in request.form}    
     if 'previous' in request.form and request.form['previous'] != '':
@@ -128,7 +129,9 @@ def db_view_result():
                 for i,val in enumerate(olddata):
                     data.append([olddata[i][k] for k in range(0,len(olddata[i])) if k not in rm_ind])
                 _ = [cols.pop(cols.index(k)) for k in remove]
-            table = table_build(data, cols, True)            
+            table = table_build(data, cols, True)
+            bounds = [data[0][0].strftime('%x %X'), data[len(data)-1][0].strftime('%x %X')] if table else bounds
+            
             # if result > size limit, provide "next" query, and provide current query for return
             total = cur.execute(' '.join([val.as_string(cur) for val in check_seq])).fetchone()[0] 
             if total > rows:
@@ -137,4 +140,4 @@ def db_view_result():
                 next_seq = (total, json.dumps(form_data), next_form)
 
     return render_template('data_view_result.html', SQL_r=SQL_r, table=table, alert=alert, 
-                            next_seq=next_seq, prev_seq=prev_seq)
+                            next_seq=next_seq, prev_seq=prev_seq, bounds=bounds)

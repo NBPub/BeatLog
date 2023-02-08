@@ -2,11 +2,17 @@
 {% block title %}EzQuery Result{% endblock %}
 
 {% block content %}
-  <h1 class="mb-5">Query Result</h1>
+  <h1 class="mb-5">Query Result
+    {% if bounds %}<span class="fs-5 text-success ms-5">{{ bounds[0] }} «» {{ bounds[1] }}</span>{% endif %}
+  </h1>
 	<a class="mx-5 my-3 fs-5 fw-bold bg-success text-warning border border-warning border-2 p-2 rounded" href="#sqlCollapse" data-bs-toggle="collapse">see SQL</a>
 	<a class="btn btn-primary ms-5 fw-bold" href="{{ url_for('db_view.db_view') }}">New Query</a>
 	  <div class="collapse mb-2" id="sqlCollapse" style="max-width:90vw;overflow:auto;max-height:150px;">
-		<div class="bg-warning mx-5 p-2">{{ SQL_r }}</div>
+		<div class="bg-warning mx-5 p-2">
+		  <button class="btn btn-sm" id="copybutton" style="float:right;" onclick="myFunction()" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard"
+		   ><img src="/static/clipboard.svg"/></button>
+		  <div id="SQLstring">{{ SQL_r }}</div>
+		</div>
 	  </div>
 	{% if table %}
 	  <table class="table table-sm table-hover table-bordered table-striped-columns table-dark me-5 mt-5 caption-top">
@@ -24,7 +30,8 @@
 			{% if 'cityNULL' in prev_seq %}<input type="text" name="cityNULL" value="" hidden>{% endif %}									
 			<input type="text" name="IP_search" value="{{ prev_seq['IP_search'] }}" hidden>
 			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
-		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ prev_seq['query_log'] }}">⮜ Previous</button>
+		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ prev_seq['query_log'] }}"
+			 data-bs-toggle="tooltip" data-bs-title="Return to last Query">⮜ Previous</button>
 		  </form>		
 		{% endif %}		  
 		{% if next_seq %}
@@ -40,9 +47,10 @@
 			{% if 'cityNULL' in next_seq[2] %}<input type="text" name="cityNULL" value="" hidden>{% endif %}			
 			<input type="text" name="IP_search" value="{{ next_seq[2]['IP_search'] }}" hidden>
 			<input type="text" name="previous" value="{{ next_seq[1] }}" hidden>
-		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ next_seq[2]['query_log'] }}" formtarget="_blank"> Next ➤</button>
+		    <button type="submit" class="btn btn-sm btn-info mx-5 fw-bold rounded" name="query_log" value="{{ next_seq[2]['query_log'] }}"
+			 data-bs-toggle="tooltip" data-bs-title="Next result"> Next ➤</button>
 		  </form>
-		  {{ table[1] }} results out of {{ next_seq[0] }}
+		  {{ table[1] }} results out of {{ next_seq[0] }} 
 		  </div>  
 		{% else %}
 		  </div>{{ table[1] }} results
@@ -59,4 +67,24 @@
 		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	  </div>
 	{% endif %}		
+{% endblock %}
+
+{% block script_additions %}
+  <script>
+  // Copy SQL string to clipboard, change appearance of button on click
+function myFunction() {
+  // Get text within "SQLstring"
+  var copyText = document.getElementById("SQLstring").innerText;
+   // Copy text to clipboard
+  navigator.clipboard.writeText(copyText);
+  // Change tooltip to indicate copied
+  document.getElementById("copybutton").setAttribute('class','btn btn-sm btn-success');
+  document.getElementById("copybutton").innerHTML = '<img src="/static/clipboard2-check.svg"/>';
+}
+  </script>
+  <script>
+  // Bootstrap Tooltips
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  </script>  
 {% endblock %}

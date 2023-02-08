@@ -90,6 +90,7 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 ## Installation
 
 BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
+The `latest` or `arm32v7-latest` tags are recommended, as they are built automatically with each update. I upload other tags manually. 
 
 *current version:* **[alpha-0.1.3](#development)**<br>
 | Architecture | Tag | *NullConnectionPool* |
@@ -331,7 +332,7 @@ python -m pip freeze
 
 ## Application Setup
 
-Create the container, monitor logs for proper startup, and then navigate to the WebUI at `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup)**
+Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup)**
 
 *If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
 
@@ -351,11 +352,23 @@ Get the most information from BeatLog following these steps:
 
 ### In Progress, alpha-0.1.3
 
-current: **latest, alpha-0.1.3, alpha-0.1.3t**
+[ChangeLog](#pre-alpha-014-details)
 
-previous: **alpha-0.1.2, alpha-0.1.2t**
+[Previous Versions](#pre-release-changelog)
 
-### Planned Improvements
+
+#### Planned changes, alpha-0.1.4
+
+- Features
+  - build simple [data query API](/../../issues/1) and associated help page
+	- Query creation scheme for data viewer page could easily be adapted for API
+	- May focus use on dashboard / alert applications
+	- must be enabled via Environmental Variable at startup, will default to disabled
+- Other
+  - Phase out `unauthorized.log` support *removing from Documentation gradually*
+  - Phase out `NullConnectionPool` release
+
+### Possible Improvements
 
 - Development
   - utilize row factories with psycopg to make cleaner database selections
@@ -372,9 +385,8 @@ previous: **alpha-0.1.2, alpha-0.1.2t**
     - ~~data viewer page: forms for guided SQL selects --> present data in tables~~
 	- build simple [data query API](/../../issues/1) and associated help page *. . . deciding if this is worth it*
 	  - Query creation scheme for data viewer page could easily be adapted for API
-- Other
-  - consider phasing out `unauthorized.log` *in progress*
-  - consider phasing out `NullConnectionPool` release
+	  - May focus use on dashboard / alert applications
+
 
 ### Local Installation - Python venv
 
@@ -394,13 +406,13 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 
 ### Pre-Release Changelog
 
-| Version (Docker Hub) | Notes |
+| Version ([Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags)) | Notes |
 | :----: | --- |
 | alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
-| alpha-0.1.3, alpha-0.1.3t | Added **DB Query** and **View** pages to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. |
+| alpha-0.1.3, alpha-0.1.3t | Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. |
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 
@@ -408,6 +420,9 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 
 <details><summary>═════════</summary>
 
+- DB Features
+  - page to query database (access, error, fail2ban logs) and page to view time-ordered results as table
+  - various filter options and pre-assembled queries
 - Documentation
   - added sections detailing new DB features
   - fixes for some images and file paths

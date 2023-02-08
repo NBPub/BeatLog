@@ -272,11 +272,13 @@ Example log of scheduled tasks: *comments added by me, they are not part of the 
 access: Parsing completed, 374 lines added in 2s.
 fail2ban: Parsing completed, 11 lines added in 0s.
 error: Parsing completed, 2 lines added in 0s
+
 # if locations are enabled and unnamed coordinates exist and a nominatim agent is specified
-# attempt location fill
+# --> attempt location fill
 [2022-09-17 13:11:41] [1] [INFO] Location Fill: 3 locations named out of 4 in 5 seconds
 [2022-09-17 13:11:41] [1] [INFO] (35.0,33.0) named Kannavia, Cyprus. (34.0021,-81.0423) named Columbia, United States. (28.5,-10.0) named caïdat d'Aouint Lahna, Morocco
 [2022-09-17 13:11:41] [1] [INFO] Error -- 'address' for (-43.0,67.0)
+
 # address not found for one location, manual update required
 # see links below
 ```
@@ -442,6 +444,8 @@ a specific start or end time specified. They default to `Starting : one week bef
 
 Each log be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
 
+<details><summary>Query Descriptions</summary>
+
 | Log - Query | Description |
 | :----: | --- |
 | **ALL** - Basic | Simply use the options specified at the top of the page. They default to all entries, going back from now, limited to 50 rows per page. |
@@ -461,6 +465,8 @@ Each log be explored, and a variety of filters, settings, and log-specific pre-a
 | **fail2ban** - Match Ignores | Attempt to match fail2ban ignores with home hits on the access log. Home Ignorable [specification](#home-ignorable) may improve matching. Same table as shown in [report](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs). |
 | **fail2ban** - Filter | query for each fail2ban filter |
 
+</details>
+
 ![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options shown above") 
 
 Coordinates, Cities, and Counties are added if any of the results have [geoinfo](#maxminddb). 
@@ -474,9 +480,15 @@ If the results are larger than the size limit, the result page provides a link t
 
 If the **Next** button is used, a **Previous** button is provided on the page. 
 This will only backtrack to the query from the source page. For this reason, **Next** results are automatically opened in a new tab.
-The **SQL** statement used to generate the table can be viewed for each result.
+
+The **SQL** statement used to generate the table can be viewed for each result. 
 
 ![dataview4](/docs/pics/query_4.png "If Next button used, a Previous button provides a link to one query back") 
+
+Conveninetly, it can be copied to the clipboard with a click.
+
+![dataview5](/docs/pics/query_5.png "Copy SQL statement to clipboard") 
+![dataview6](/docs/pics/query_6.png "Paste SQL statement somewhere") 
 
 
 ## Geography

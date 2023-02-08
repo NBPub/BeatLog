@@ -8,7 +8,7 @@ from .db_pool import pool
 
 SQL_statements = { 'basic': 'SELECT * FROM {}', 'geocheck': 'SELECT geo FROM {}',
                     'access':{
-'httpv2': 'AND http==20',
+'httpv2': 'AND http=20',
 'httpv1': 'AND http<20',
 'ignorable': 'AND (status BETWEEN 400 AND 499 OR http<20)',
 'regex2': 'AND (http IS NULL AND method IS NULL)'
@@ -61,8 +61,6 @@ def db_query(log, query_type, dateOrder, date, rows, homeFilter, options, cur, c
     d_seq, d_geo_seq, later = add_date(dateOrder, date, query_type)
     sequence.append(d_seq)
     geo_seq.append(d_geo_seq)
-    
-    
     
 # fail2ban - Ignore Match ~!~ build special query ~!~          
     if log == 'fail2ban' and query_type == 'match ignores': #   

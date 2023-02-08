@@ -48,7 +48,8 @@
 		  <a class="btn btn-sm btn-secondary rounded mx-5 fs-5 fw-bold" href="#IPCollapse" data-bs-toggle="collapse">IP Address</a>
 	    </div>
 		<div class="collapse my-2" id="LocationCollapse">
-		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . . <span class="mx-5">check NULL for <a href="{{ url_for('geography.geography') }}">unnamed</a> locations</span></p>
+		  <p class="text-muted fw-bold ms-5">Specify Country and/or City . . . <span class="mx-5">check NULL for <a href="{{ url_for('geography.geography') }}">unnamed</a> locations.</span>
+		  <span class="mx-5 fw-normal">See <a href="{{ url_for('geography.geography_map') }}">Visitor Map</a> for recent locations.</span></p>
 
 		  <div class="d-flex">
 			  <input class="form-check-input ms-3 px-2 mt-2" type="checkbox" value="" name="countryNULL">
