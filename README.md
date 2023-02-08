@@ -352,10 +352,7 @@ Get the most information from BeatLog following these steps:
 
 ### In Progress, alpha-0.1.3
 
-[ChangeLog](#pre-alpha-014-details)
-
-[Previous Versions](#pre-release-changelog)
-
+[Details](#pre-alpha-014-details), [Previous Versions](#pre-release-changelog)
 
 #### Planned changes, alpha-0.1.4
 
@@ -383,9 +380,6 @@ Get the most information from BeatLog following these steps:
   - fail2ban filter testing
   - serve log data per user selection
     - ~~data viewer page: forms for guided SQL selects --> present data in tables~~
-	- build simple [data query API](/../../issues/1) and associated help page *. . . deciding if this is worth it*
-	  - Query creation scheme for data viewer page could easily be adapted for API
-	  - May focus use on dashboard / alert applications
 
 
 ### Local Installation - Python venv
