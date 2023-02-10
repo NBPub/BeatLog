@@ -24,7 +24,7 @@
 	    <div class="col">
 	    <p class="fs-5 ms-2 fw-bold">Home IP: 
 		  {% if homeIP %}
-	        {% if homeIP|string in ignoreIPs %}
+	        {% if homeIP in ignoreIPs %}
 	          <span class="text-muted fw-normal ms-3">{{ homeIP }}</span>
 		    {% else %}
 		      <span class="text-danger ms-3">{{ homeIP }}</span>

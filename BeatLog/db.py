@@ -60,7 +60,9 @@ def make_tables(cur):
                     Date timestamp NOT NULL,
                     lastcheck timestamp NOT NULL,
                     filters jsonb,
-                    ignoreIPs text[])
+                    ignoreIPs inet[],
+                    findtime interval,
+                    bantime interval)
                 """)      
     # Report and Geography Settings
     cur.execute("""CREATE TABLE IF NOT EXISTS settings (

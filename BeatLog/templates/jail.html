@@ -43,10 +43,14 @@
 		<p class="ms-5">
 		  <b>Modified:</b> {{ jail[1].strftime('%x %X') }}<br>
 		  <b>Checked:&nbsp;</b> {{ jail[2].strftime('%x %X') }}<br>
+		  <b>Findtime:&nbsp;</b> {% if jail[4].days > 0 %} {{ jail[4].days }} days {% else %} {{ jail[4] }} {% endif %}&nbsp;&nbsp;&nbsp;
+		  <b>Bantime:&nbsp;</b> {% if jail[5].days > 0 %} {{ jail[5].days }} days {% else %} {{ jail[5] }} {% endif %}<br>
 		  <b>Ignored IPs:</b>
 		  {% for IP in ignoreIPs %}
-		    {% if IP == homeIP|string %}
+		    {% if IP == homeIP %}
 		      <span class="text-success fw-bold fs-6">{{ IP }}</span> •
+			{% elif IP|string == '192.168.0.0/16' %}
+			  <span class="fs-6 text-muted fw-bold">{{ IP }}</span> •			  
 			{% else %}
 			  <span class="fs-6 text-danger"><em>{{ IP }}</em></span> •
 			{% endif %}

@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 from configparser import ConfigParser
 
@@ -27,8 +27,11 @@ class Jail:
         config = ConfigParser()
         config.read(self.location)       
         # ignoreIP(s)
-        self.ignoreIP = config.get('DEFAULT','ignoreip').split(',')
+        self.ignoreIP = config.get('DEFAULT','ignoreip').split('\n')
         self.ignoreIP = [val.replace(' ','') for val in self.ignoreIP]
+        # bantime, findtime
+        self.bantime = timedelta(seconds=int(config.get('DEFAULT','bantime')))
+        self.findtime = timedelta(seconds=int(config.get('DEFAULT','findtime')))
         # store enabled filters as dictionary[], json will be dumped into db
         filters = []     
         for jail in config.sections():

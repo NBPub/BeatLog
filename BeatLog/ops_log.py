@@ -15,23 +15,25 @@ def update_Jail(conn, cur, mod, location, lastcheck):
     
     # check for no modifications or recent check (last half-hour)
     if datetime.fromtimestamp(time()) - lastcheck < timedelta(minutes=30):
-        return False, None
+        return False, None # don't check
     elif datetime.fromtimestamp(Path(location).stat().st_mtime) == mod:
         with conn.transaction(): # no modification, update check time
             cur.execute("UPDATE jail SET lastcheck = %s WHERE location = %s", 
             (datetime.fromtimestamp(time()), location))
         return True, None
     else:
-        try:
+        try: # modification, update database
             new_jail = Jail(location)
             SQL = """UPDATE jail SET date = %s, lastcheck = %s, filters = %s,
-                     ignoreIPs = %s WHERE location = %s"""
+                     ignoreIPs = {}, findtime = %s, bantime = %s WHERE location = %s"""
             with conn.transaction():  # modification detected, update everything
-                cur.execute(SQL, (new_jail.modified, datetime.fromtimestamp(time()),
-                        dumps(new_jail.enabled_filters), new_jail.ignoreIP, location))
+                cur.execute(sql.SQL(SQL).format(new_jail.ignoreIP), (new_jail.modified, 
+                            datetime.fromtimestamp(time()), dumps(new_jail.enabled_filters), 
+                            new_jail.findtime, new_jail.bantime, location))
             return True, ('Jail updated', 'info')
         except Exception as e:
             return False, (f'Failed to update jail:\n{str(e)}', 'warning')        
+
 def make_Jail(conn, cur, location, old_jail):
     if not location:
         return False, None
@@ -49,13 +51,15 @@ def make_Jail(conn, cur, location, old_jail):
                 return False, (f'Error deleting old jail:\n{str(e)}', 'danger')
         try:
             new_jail = Jail(location)
-            SQL = """INSERT INTO jail (date, lastcheck, filters, ignoreIPs, location) 
-                     VALUES (%s, %s, %s, %s, %s)"""
-            cur.execute(SQL, (new_jail.modified, datetime.fromtimestamp(time()),
-                        dumps(new_jail.enabled_filters), new_jail.ignoreIP, location))
+            SQL = """INSERT INTO jail (date, lastcheck, filters, ignoreIPs, findtime, bantime, location) 
+                     VALUES (%s, %s, %s, {}, %s, %s, %s)"""
+            cur.execute(sql.SQL(SQL).format(new_jail.ignoreIP), (new_jail.modified, 
+                        datetime.fromtimestamp(time()), dumps(new_jail.enabled_filters), 
+                        new_jail.findtime, new_jail.bantime, location))
             return True, ('Jail established', 'success')
         except Exception as e:
             return False, (f'Failed to create jail:\n{str(e)}', 'danger')        
+
 def delete_Jail(conn,cur, location): 
     try:
         with conn.transaction():
@@ -63,6 +67,7 @@ def delete_Jail(conn,cur, location):
             return True, ('Jail deleted!', 'success')
     except Exception as e:
         return False, (str(e), 'danger')            
+
 def filter_info(cur, name):
     try:
     # Home Ignores

@@ -479,13 +479,14 @@ If the results are larger than the size limit, the result page provides a link t
 ![dataview3](/docs/pics/query_3.png "Query result table (entire table not shown).") 
 
 If the **Next** button is used, a **Previous** button is provided on the page. 
-This will only backtrack to the query from the source page. For this reason, **Next** results are automatically opened in a new tab.
+This will only backtrack to the query from the source page. 
+For this reason, it may be beneficial to open **Next** results in a new tab or window.
 
 The **SQL** statement used to generate the table can be viewed for each result. 
 
 ![dataview4](/docs/pics/query_4.png "If Next button used, a Previous button provides a link to one query back") 
 
-Conveninetly, it can be copied to the clipboard with a click.
+Conveniently, it can be copied to the clipboard with a click. *Action may be disabled by web browser, SSL [certificate](https://github.com/FiloSottile/mkcert) may be required.*
 
 ![dataview5](/docs/pics/query_5.png "Copy SQL statement to clipboard") 
 ![dataview6](/docs/pics/query_6.png "Paste SQL statement somewhere") 

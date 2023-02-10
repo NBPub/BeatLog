@@ -37,8 +37,8 @@ def home():
         
         # check home IP, gather ignoreIPs from f2b jail
         homeIP, duration = home_ip(conn, cur)
-        ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
-        ig = ig[0] if ig else []
+        ig = cur.execute('SELECT ignoreips FROM jail').fetchone()[0]
+        ig = [] if ig == None else ig
         
         # check unnamed locations, if applicable
         places, _, _, _, noname = null_assessment(cur)
@@ -233,11 +233,12 @@ def configure_jail():
     made = False
     with pool.connection() as conn:
         cur = conn.cursor()  
-        jail = cur.execute('SELECT * FROM jail').fetchone() # location, date modified, last check, filters, ignoredIPs
+         # location, date modified, last check, filters
+        jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()
         homeIP,_ = home_ip(conn, cur)
-        if jail:
-            location = jail[0]
-            made, message = update_Jail(conn, cur, jail[1], location, jail[2]) # returns up to date, updated, or failure message
+        if jail_loc:
+            location = jail_loc
+            made, message = update_Jail(conn, cur, mod, location, lastcheck) # returns up to date, updated, or failure message
             if message and len(message) == 3: # file not found
                 jail = None
         if request.method == 'POST':
@@ -257,14 +258,14 @@ def configure_jail():
                     log['stats'] = stats
             del stats        
         if made:
-            jail = cur.execute('SELECT * FROM jail').fetchone()    
+            jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()  
+        jail = (jail_loc, mod, lastcheck, filters, findtime, bantime)
         if jail and len(jail[3]['enabled']) > 0:
             watch_logs = [val['log'] for val in jail[3]['enabled']]
             watch_logs = set(watch_logs)
         else:
-            watch_logs = None              
-        ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
-        ig = ig[0] if ig else []       
+            watch_logs = None
+        ig = ig if ig else []         
     return render_template('jail.html', jail=jail, message=message, homeIP=homeIP,
                             ignoreIPs=ig, watch_logs=watch_logs)
 
