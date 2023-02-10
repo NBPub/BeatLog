@@ -57,3 +57,19 @@ def pool_check(): # function should not be used for NullConnectionPool
     pool.check() # check to clean pool     
 ```
 
+## Connection Pool Logging
+
+Add to top of [create_app](/BeatLog/__init__.py) function.
+
+```python
+# pool logging for development
+try: 
+    pool_logger = logging.getLogger("psycopg.pool")
+    pool_logger.setLevel(logging.INFO)
+    pool_logger.handlers = app.logger.handlers
+    app.logger = pool_logger
+except Exception as e:
+    app.logger.info(f'Error with pool logging, may have to move to pool_check function, {e}')
+```
+
+See [ConnectionPool class](https://github.com/psycopg/psycopg/blob/master/psycopg_pool/psycopg_pool/pool.py) for details.

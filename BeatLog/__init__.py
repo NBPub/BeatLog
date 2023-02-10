@@ -94,13 +94,3 @@ def create_app(test_config=None):
     
     app.logger.info('. . . starting BeatLog . . .')  
     return app
-    
-    
-# pool logging for development
-# try: 
-    # pool_logger = logging.getLogger("psycopg.pool")
-    # pool_logger.setLevel(logging.INFO)
-    # pool_logger.handlers = app.logger.handlers
-    # app.logger = pool_logger
-# except Exception as e:
-    # app.logger.info(f'Error with pool logging, may have to move to pool_check function, {e}')

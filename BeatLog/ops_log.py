@@ -1,6 +1,5 @@
 from pathlib import Path
 from datetime import datetime, timedelta
-from time import time
 from urllib.request import Request
 from urllib.request import urlopen
 from json import dumps
@@ -14,12 +13,12 @@ def update_Jail(conn, cur, mod, location, lastcheck):
         return False, (f'Specified jail file not found! Update or delete file location.', 'danger', location)
     
     # check for no modifications or recent check (last half-hour)
-    if datetime.fromtimestamp(time()) - lastcheck < timedelta(minutes=30):
+    if datetime.now() - lastcheck < timedelta(minutes=30):
         return False, None # don't check
     elif datetime.fromtimestamp(Path(location).stat().st_mtime) == mod:
         with conn.transaction(): # no modification, update check time
             cur.execute("UPDATE jail SET lastcheck = %s WHERE location = %s", 
-            (datetime.fromtimestamp(time()), location))
+            (datetime.now() , location))
         return True, None
     else:
         try: # modification, update database
@@ -28,7 +27,7 @@ def update_Jail(conn, cur, mod, location, lastcheck):
                      ignoreIPs = {}, findtime = %s, bantime = %s WHERE location = %s"""
             with conn.transaction():  # modification detected, update everything
                 cur.execute(sql.SQL(SQL).format(new_jail.ignoreIP), (new_jail.modified, 
-                            datetime.fromtimestamp(time()), dumps(new_jail.enabled_filters), 
+                            datetime.now(), dumps(new_jail.enabled_filters), 
                             new_jail.findtime, new_jail.bantime, location))
             return True, ('Jail updated', 'info')
         except Exception as e:
@@ -54,7 +53,7 @@ def make_Jail(conn, cur, location, old_jail):
             SQL = """INSERT INTO jail (date, lastcheck, filters, ignoreIPs, findtime, bantime, location) 
                      VALUES (%s, %s, %s, {}, %s, %s, %s)"""
             cur.execute(sql.SQL(SQL).format(new_jail.ignoreIP), (new_jail.modified, 
-                        datetime.fromtimestamp(time()), dumps(new_jail.enabled_filters), 
+                        datetime.now(), dumps(new_jail.enabled_filters), 
                         new_jail.findtime, new_jail.bantime, location))
             return True, ('Jail established', 'success')
         except Exception as e:
@@ -91,7 +90,7 @@ def home_ip(conn, cur):
     try:
         # select last 2
         record = cur.execute("SELECT * FROM homeip ORDER BY date DESC LIMIT 2").fetchall()
-        now = datetime.fromtimestamp(time())
+        now = datetime.now()
         # first time
         if record == []:
             ip = urlopen(Request('https://ident.me')).read().decode('utf8')
@@ -109,7 +108,7 @@ def home_ip(conn, cur):
                 cur.execute(SQL, (now, duration, row))   
                 
                 if ip != str(last_IP): # if IP has changed, make a new row
-                    new_now = datetime.fromtimestamp(time())
+                    new_now = datetime.now()
                     duration = new_now-now
                     SQL = "INSERT INTO homeip (IP, date, duration) VALUES (%s, %s, %s)"   
                     cur.execute(SQL, (ip, new_now, duration))

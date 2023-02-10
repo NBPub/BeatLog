@@ -81,7 +81,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
-Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and OpenStreetMap [tiles](https://operations.osmfoundation.org/policies/tiles/). 
+Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
 **[Documentation](/docs#visitor-map-demo)**
  - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
  - Location marker sizes are scaled by total connections or unique visitors
@@ -90,14 +90,15 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 ## Installation
 
 BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
-The `latest` or `arm32v7-latest` tags are recommended, as they are built automatically with each update. I upload other tags manually. 
+The `latest` or `arm32v7-latest` tags are recommended, as they are built via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with each update. 
+I build and push other tags manually. 
 
 *current version:* **[alpha-0.1.3](#development)**<br>
-| Architecture | Tag | *NullConnectionPool* |
-| :----: | --- | --- |
-| x86-64 | *latest* | *alpha-0.1.3t* |
-| arm64 | *latest*  | *alpha-0.1.3t* |
-| armhf | *arm32v7-latest* | *arm32v7-alpha-0.1.3t* |
+| Architecture | Tags |
+| :----: | --- |
+| x86-64 | *latest*, *alpha-0.1.3* |
+| arm64 | *latest* , *alpha-0.1.3* |
+| armhf | *arm32v7-latest*, *arm32v7-alpha-0.1.3* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -363,7 +364,7 @@ Get the most information from BeatLog following these steps:
 	- must be enabled via Environmental Variable at startup, will default to disabled
 - Other
   - Phase out `unauthorized.log` support *removing from Documentation gradually*
-  - Phase out `NullConnectionPool` release
+  - Phase out `NullConnectionPool` release *added notes to [docs](/docs/NullConnectionPool.md)*
 
 ### Possible Improvements
 
@@ -404,16 +405,19 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | :----: | --- |
 | alpha-0.1.0 | Initial release, testing docker deployment. Flask App environmental variables must be used with this image, similar to Local Installation. Internal port is `5000` for this container. |
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
-| alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. |
+| alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
-| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](/releases/tag/alpha-0.1.2).** Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. |
+| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 
-***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 
 ### pre alpha-0.1.4 details
 
 <details><summary>═════════</summary>
 
+- Database Schema
+  - changed datatypes for Settings > **KnownDevices** and Jail > **IgnoreIPs**
+  - Added time interval columns, **Findtime** and **Bantime** to Jail.
+  - detailed in [alpha-0.1.2 tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**), manual migrations required prior to update
 - DB Features
   - page to query database (access, error, fail2ban logs) and page to view time-ordered results as table
   - various filter options and pre-assembled queries
@@ -425,11 +429,13 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
   - [psycopg3 sql module](https://www.psycopg.org/psycopg3/docs/api/sql.html) then used to craft specific SQL, `WHERE tech = ANY(<list>)` or `WHERE tech != ALL(<list>)`
 - Expanded fail2ban jail.local page
   - can now read more than one *ignore* IP address, if present
-  - reads and present fail and ban times
+  - reads and present find and ban times
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
 
 </details>
+
+Last NullConnectionPool releases! [Notes]/docs/NullConnectionPool.md)
 
 ### pre alpha-0.1.3 details
 
