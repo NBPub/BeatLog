@@ -71,18 +71,15 @@ def create_app(test_config=None):
         return render_template('app_error404.html', e=e), 404    
     @app.errorhandler(500)
     def error_page(e):
-        # pool checks not performed for NullConnectionPool, simple message below
-        # message = ['Probable database connection error. Apologies for the convenience, retry attempt or restart container.', 'danger']
-        
-        from .db_pool import pool # check status of pool
+        # check status of pool
+        from .db_pool import pool
         pool.check()
         sleep(3)
         check = pool.get_stats()               
         if check['pool_available'] == 0:
             message=['Database connection lost, restart container to access web interface. Scheduled tasks should continue (check logs)', 'danger']
         else:
-            message = ['Probable database connection error. Apologies for the convenience, retry attempt.', 'info']
-            
+            message = ['Probable database connection error. Apologies for the convenience, retry attempt.', 'info']           
         return render_template('app_error500.html', e=e, message=message), 500     
     
     # register Blueprints

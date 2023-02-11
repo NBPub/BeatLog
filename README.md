@@ -93,7 +93,7 @@ BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/t
 The `latest` or `arm32v7-latest` tags are recommended, as they are built via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with each update. 
 I build and push other tags manually. 
 
-*current version:* **[alpha-0.1.3](#development)**<br>
+*stable version:* **[alpha-0.1.3](#development)**<br>
 | Architecture | Tags |
 | :----: | --- |
 | x86-64 | *latest*, *alpha-0.1.3* |
@@ -196,7 +196,6 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 - **NGINX reverse proxy**
 	- access.log - *client requests to the server*
 	- error.log - *client request errors and associated severity levels*
-	- ~~unauthorized.log - *redundant to **access.log**, captures requests with [401 HTTP status codes](https://www.httpstatuses.org/401)*~~ ***Support to be removed***
 - **fail2ban**
 	- fail2ban.log - *all activity of fail2ban service, relevant information is parsed and the rest ignored*
 	- jail.local - *fail2ban settings and activated filters, checks ignored IPs*
@@ -351,11 +350,9 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.3
+### In Progress, alpha-0.1.4
 
-[Details](#pre-alpha-014-details), [Previous Versions](#pre-release-changelog)
-
-#### Planned changes, alpha-0.1.4
+[Details](#pre-alpha-015-details), [Previous Versions](#pre-release-changelog)
 
 - Features
   - build simple [data query API](/../../issues/1) and associated help page
@@ -363,8 +360,9 @@ Get the most information from BeatLog following these steps:
 	- May focus use on dashboard / alert applications
 	- must be enabled via Environmental Variable at startup, will default to disabled
 - Other
-  - Phase out `unauthorized.log` support *removing from Documentation gradually*
-  - Phase out `NullConnectionPool` release *added notes to [docs](/docs/NullConnectionPool.md)*
+  - Phase out `unauthorized.log` support
+  - Phase out `NullConnectionPool` release, code documented [here](/docs/NullConnectionPool.md)
+  - allow for SSL in deployment
 
 ### Possible Improvements
 
@@ -374,13 +372,10 @@ Get the most information from BeatLog following these steps:
   - add tests for code
   - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
-  - solve possible issues with SQL creation: ~~**[Known Devices](/docs#known-devices)**~~ and [Home Ignores](/docs#home-ignorable)
+  - solve possible issues with SQL creation: [Home Ignores](/docs#home-ignorable)
 - Features
-  - ~~scheduled task for location lookup, or add to scheduled log checks~~
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
-  - serve log data per user selection
-    - ~~data viewer page: forms for guided SQL selects --> present data in tables~~
 
 
 ### Local Installation - Python venv
@@ -408,6 +403,19 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
+| alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3).**). Building simple API. |
+
+### pre alpha-0.1.5 details
+
+<details><summary>═════════</summary>
+
+- Code Cleaning
+  - removed unauthorized.log support. removed comment blocks for NullConnectionPool versions.
+- API v1
+  - JSON API to retrieve basic stats (hits / IPs / f2b / data)
+
+</details>
+
 
 
 ### pre alpha-0.1.4 details
@@ -435,7 +443,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 
 </details>
 
-Last NullConnectionPool releases! [Notes]/docs/NullConnectionPool.md)
+Last NullConnectionPool releases! [Notes](/docs/NullConnectionPool.md)
 
 ### pre alpha-0.1.3 details
 

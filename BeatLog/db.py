@@ -117,8 +117,6 @@ def make_tables(cur):
                     Action VARCHAR(10),
                     geo smallint REFERENCES geoinfo ON DELETE SET NULL)
                 """)
-    cur.execute("""CREATE TABLE IF NOT EXISTS unauthorized (LIKE access)
-                """)  
     cur.execute("""CREATE TABLE IF NOT EXISTS failedregex (
                     line text,
                     log VARCHAR(12) REFERENCES logfiles ON DELETE CASCADE)
