@@ -210,7 +210,7 @@ def report_build(cur, start, end, report_days):
     # Top Level Summary, total / unique hits
     home_summary = []
     out_summary = []
-    logs = ['access', 'error', 'unauthorized']
+    logs = ['access', 'error']
     SQL_list = ['SELECT COUNT(date) FROM {} WHERE home=%(inside)s AND date BETWEEN %(start)s AND %(end)s',
         'SELECT COUNT(DISTINCT ip) FROM {} WHERE home=%(inside)s AND date BETWEEN %(start)s AND %(end)s']   
     for SQL in SQL_list:
@@ -240,7 +240,10 @@ FROM {} WHERE home=True AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDE
 AND status BETWEEN 400 AND 499 AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDER BY day'''        
     home_table['4xx'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()} 
     SQL = SQL.replace('AND status BETWEEN 400 AND 499', 'AND http<20')  
-    home_table['HTTP/1.x'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()}    
+    home_table['HTTP/1.x'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()}        
+    SQL = '''SELECT date_trunc('day', date) "day", COUNT(*) AS count FROM fail2ban WHERE action='Ignore' 
+AND date BETWEEN %(start)s AND %(end)s GROUP BY day ORDER BY day'''    
+    home_table['ignores'] = {val[0]:val[1] for val in cur.execute(SQL,{'start':start,'end':end}).fetchall()}   
     for key in home_table: # fill in 0's
         for day in report_days:
             if day not in home_table[key]:
@@ -289,12 +292,11 @@ FROM {} WHERE home=False AND date BETWEEN %(start)s AND %(end)s) "tmp" GROUP BY 
     else:      
         raw_visitors = {val[0]:val[1] for val in cur.execute(\
                         sql.SQL(SQL).format(sql.Identifier('access')),{'start':start,'end':end}).fetchall()}     
-    # add in unique IPs from error and unauthorized log. could use JOIN within SQL
-    for log in logs[1:]:
-        cur.execute(sql.SQL(SQL).format(sql.Identifier(log)),{'start':start,'end':end})
-        for val in cur.fetchall():
-            if val[0] in raw_visitors:
-                raw_visitors[val[0]] += val[1]
+    # add in unique IPs from error. could use JOIN within SQL
+    cur.execute(sql.SQL(SQL).format(sql.Identifier('error')),{'start':start,'end':end})
+    for val in cur.fetchall():
+        if val[0] in raw_visitors:
+            raw_visitors[val[0]] += val[1]
     visitors = {f'new Date({key.year},{key.month-1},{key.day})':val for key,val in raw_visitors.items()}               
     # fail2ban Found / Ban / Ignore
     SQL = '''SELECT date_trunc('day', date) "day", action,  COUNT(*) FROM "fail2ban" WHERE 
@@ -335,35 +337,28 @@ GROUP BY day, ip ORDER BY day) "tmp" GROUP BY day'''
                      .format(sql.Identifier('access')),{'start':start,'end':end}).fetchall()}
     OutLine_error = {val[0]: val[1] for val in cur.execute(sql.SQL(SQL)\
                      .format(sql.Identifier('error')),{'start':start,'end':end}).fetchall()}
-    OutLine_unauth = {val[0]: val[1] for val in cur.execute(sql.SQL(SQL)\
-                     .format(sql.Identifier('unauthorized')),{'start':start,'end':end}).fetchall()}
     
     for val in report_days:
         OutLine_unique[val] = 0 if val not in OutLine_unique.keys() else OutLine_unique[val]
         OutLine_total[val] = 0 if val not in OutLine_total.keys() else OutLine_total[val]
         if OutLine_error != {}:
             OutLine_error[val] = 0 if val not in OutLine_error.keys() else OutLine_error[val]
-        if  OutLine_unauth != {}:
-            OutLine_unauth[val] = 0 if val not in OutLine_unauth.keys() else OutLine_unauth[val]
 
     OutLine_unique = {f'new Date({val[0].year},{val[0].month-1},{val[0].day})': val[1] for val in sorted(OutLine_unique.items())}
     OutLine_total = {f'new Date({val[0].year},{val[0].month-1},{val[0].day})': val[1] for val in sorted(OutLine_total.items())}
     OutLine_error = {f'new Date({val[0].year},{val[0].month-1},{val[0].day})': val[1] for val in sorted(OutLine_error.items())}
-    OutLine_unauth = {f'new Date({val[0].year},{val[0].month-1},{val[0].day})': val[1] for val in sorted(OutLine_unauth.items())}
 
     chart_options = [\
 {'type': '"stepLine"', 'showInLegend': 'true','name':'"Access - Total"', 'markerSize':20, 'lineThickness': 5},
 {'type': '"stepLine"', 'showInLegend': 'true','name':'"Access - Unique"', 'markerSize':20, 'color':'"BlueViolet"', 'lineThickness': 5},
-{'type': '"line"', 'showInLegend': 'true','name':'"Error"', 'markerSize':20, 'color':'"Tomato"', 'lineThickness': 3},
-{'type': '"line"', 'showInLegend': 'true','name':'"Unauthorized"', 'markerSize':20, 'color':'"YellowGreen"', 'lineThickness': 3}]
+{'type': '"line"', 'showInLegend': 'true','name':'"Error"', 'markerSize':20, 'color':'"Tomato"', 'lineThickness': 3}]
     y_axis = {'title':'"Outside Hits"', 'gridThickness':1}
     x_axis = {'title':'"Date"', 'gridThickness':1, 'valueFormatString': '"MMM DD"',\
               'intervalType':'"day"', 'interval':1, 'lineThickness':1}    
     outDaily = chart_build('outsideDailyChart', 'Daily Visits', chart_options,\
-                                   [OutLine_total, OutLine_unique, 
-                                    OutLine_error, OutLine_unauth],
+                                   [OutLine_total, OutLine_unique, OutLine_error],
                                     y_axis, x_axis, 'x')  
-    del OutLine_total, OutLine_unique, OutLine_error, OutLine_unauth   
+    del OutLine_total, OutLine_unique, OutLine_error   
     
     # Bar Charts, data gathered above
     y_axis = {'title':'"Outside Hits"'}

@@ -77,7 +77,7 @@ def data_clean():
     alert = estimate = existing = None
     disable = False
     if request.method == 'POST' and 'vacuum' in request.form:
-        alert = vacuum_tables(['access','error','fail2ban','unauthorized'])    
+        alert = vacuum_tables(['access','error','fail2ban'])    
     with pool.connection() as conn:
         cur = conn.cursor()
         logs, table = log_data_cleaning(cur) # logs with > 0 rows, table of data
@@ -235,6 +235,7 @@ def configure_jail():
         cur = conn.cursor()  
          # location, date modified, last check, filters
         jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()
+        jail = (jail_loc, mod, lastcheck, filters, findtime, bantime)
         homeIP,_ = home_ip(conn, cur)
         if jail_loc:
             location = jail_loc
@@ -247,13 +248,13 @@ def configure_jail():
             elif 'delete_jail' in request.form and location:
                 made,message = delete_Jail(conn,cur,location)                
         if request.method == 'POST' and 'all_activity' in request.form:
-            for log in jail[3]['enabled']:
+            for log in filters['enabled']:
                 stats = filter_info(cur, log['name'])
                 log['stats'] = stats
             del stats
         elif request.method == 'POST' and 'activity' in request.form:
             stats = filter_info(cur, request.form['activity'])
-            for log in jail[3]['enabled']:
+            for log in filters['enabled']:
                 if log['name'] == request.form['activity']:
                     log['stats'] = stats
             del stats        

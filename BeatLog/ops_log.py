@@ -157,8 +157,8 @@ def validate_LogFile(path, old_log):
         return False, ('File not found', 'danger')
     elif path.suffix != '.log':
         return False, ('Invalid filetype. Must be ".log"', 'danger')
-    elif path.stem not in ['access','error','unauthorized','fail2ban']:
-        return False, ('Unknown log specified: must be NGINX access,error,unauthorized OR fail2ban', 'danger')
+    elif path.stem not in ['access','error','fail2ban']:
+        return False, ('Unknown log specified: must be NGINX access,error OR fail2ban', 'danger')
     elif old_log and path.stem != old_log:
         return False, (f'Invalid log type, cannot update {old_log} with {path.stem}', 'danger')
     else:

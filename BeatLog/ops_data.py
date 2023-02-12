@@ -17,7 +17,7 @@ def vacuum_tables(tables):
 
 def log_data_cleaning(cur):
     SQL = '''SELECT relname, reltuples::int FROM pg_class WHERE relname IN 
-    ('access','error', 'unauthorized', 'fail2ban') AND reltuples > 0 ORDER BY relname'''
+    ('access','error', 'fail2ban') AND reltuples > 0 ORDER BY relname'''
     logs = {val[0]:"{:,}".format(val[1]) for val in cur.execute(SQL).fetchall()} # log:#rows for log's with records 
     if logs == {}:
         return None, None

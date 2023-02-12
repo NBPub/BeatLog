@@ -95,7 +95,7 @@
 		<div class="col">
 		  <div class="btn-group my-2" role="group">
 		      <button type="submit" class="btn btn-sm btn-warning me-3 fw-bold rounded" name="query_log" value="{{ log}},basic"  
-			  formtarget="_blank" data-bs-toggle="tooltip" title="Above Options only">Basic</a>
+			  formtarget="_blank" data-bs-toggle="tooltip" title="Above Options only">Basic</button>
 		    {% for query in log_buttons[log].keys() %}
 		      <button type="submit" class="btn btn-sm btn-dark me-3 fw-bold rounded" name="query_log" value="{{ log }},{{ query|lower }}" 
 			  formtarget="_blank" data-bs-toggle="tooltip" title="{{ log_buttons[log][query] }}" data-bs-html="true">{{ query }}</button>

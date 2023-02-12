@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}API v1 Help{% endblock %}
+{% block content %}
+  <h1>API v1 Information</h1>
+  	{% if not log_columns %}
+	  <h3 class="text-danger m-3">No records in the database!</h3>
+	{% else %}
+	    <h3 class="text-center mt-3">Available Logs</h3>
+		  <center><form class="mt-3" method="POST" action="{{ url_for('api_v1.api_help') }}" style="display:inline-block;">
+		  {% for name in log_columns.keys() %}
+			<button type="submit" class="btn btn-outline-dark rounded ms-3 p-2" value="{{ name }}" name="log_table">{{ name }}</button>
+		  {% endfor %}
+	      </form>
+		  <p class="text-muted mt-2">click log for help building query</p></center>
+		  <hr><br>
+	  {% if model %}
+	  <div class="row">
+		<div class="col">
+		  <h3 class="ms-3">{{ model.name|capitalize }} Table
+		    <a class="mx-2 fs-5" href="https://github.com/NBPub/BeatLog/tree/main/docs#processed-data">BeatLog Documentation</a>
+		  </h3>	  
+	      <table class="table table-sm table-responsive table-hover table-bordered table-striped table-dark mx-3 my-2">
+		    {{ col_table|safe }}
+	      </table>
+		  
+		</div>
+		<div class="col ms-2">
+		  <h3 class="ms-3">{{ model.name }} Query <span class="fs-4 text-primary">*/api/v1/{parameter}?...</span></h3>		    
+		    <p class="fs-5 fw-normal">Available Parameters: <b>{{ ", ".join(model.targets) }}</b><br>
+			example: <u class="fs-6 bg-dark text-info px-1">{{ model.example|safe }}</u>
+			</p>
+		</div>
+	  </div>
+	  {% endif %}
+	
+	
+	{% endif %}
+{% endblock %}

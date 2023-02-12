@@ -69,6 +69,9 @@ def create_app(test_config=None):
     @app.errorhandler(404)
     def error_page(e):
         return render_template('app_error404.html', e=e), 404    
+    @app.errorhandler(422)
+    def error_page(e):
+        return render_template('app_error422.html', e=e), 422        
     @app.errorhandler(500)
     def error_page(e):
         # check status of pool
@@ -83,11 +86,12 @@ def create_app(test_config=None):
         return render_template('app_error500.html', e=e, message=message), 500     
     
     # register Blueprints
-    from . import home, geography, logs, db_view
+    from . import home, geography, logs, db_view, api_v1
     app.register_blueprint(home.bp)
     app.register_blueprint(geography.bp)
     app.register_blueprint(logs.bp)
     app.register_blueprint(db_view.bp)
+    app.register_blueprint(api_v1.bp)
     
     app.logger.info('. . . starting BeatLog . . .')  
     return app

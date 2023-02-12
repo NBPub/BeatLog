@@ -89,7 +89,7 @@
 		  </div>
 	    {% endfor %}
 	  </div>		  
-	{% if 4 > logs|length %}
+	{% if 3 > logs|length %}
 	  <div class="row mx-5">
 	    <div class="col-xl-4 col-lg-5 col-md-5 border border-dark bg-secondary m-1">
 		  <a href="{{ url_for('logs.add_log_file') }}" class="text-decoration-none">      
@@ -101,7 +101,7 @@
     {% endif %}
 	<footer class="d-flex flex-wrap justify-content-between align-items center border-top fixed-bottom bg-white" style="font-size:10pt;">
 	  <ul class="text-muted fw-bold justify-content-start ms-3 mt-2 list-unstyled">
-	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.3</em></li>
+	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.4</em></li>
 		<li>{{ versions[0] }}<em class="fw-normal ms-2">{{ versions[1] }}</em><span class="mx-4 text-info">║</span> 
 		Python <em class="fw-normal ms-2">{{ versions[2] }}</em></li>
 	  </ul>

@@ -50,17 +50,19 @@
 				Options
 			  </a>
 			  <ul class="dropdown-menu">
-			    <li class="dropdown-item fw-bold text-center">Settings</li>
+			    <li class="dropdown-item fw-bold text-center text-decoration-underline" style="font-size:0.95em;">Settings</li>
 				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Report') }}">Recent Report</a></li>
 				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Geography') }}">Geography</a></li>
 				<li><hr class="dropdown-divider"></li>
-				<li class="dropdown-item fw-bold text-center">Custom Dates</li>
+				<li class="dropdown-item fw-bold text-center text-decoration-underline" style="font-size:0.95em;">Custom Dates</li>
 				<li><a class="dropdown-item" href="{{ url_for('home.settings', _anchor='Custom') }}">Report &#9946; Map</a></li>				
 				<li><hr class="dropdown-divider"></li>
-				<li class="dropdown-item fw-bold text-center">Database</li>
+				<li class="dropdown-item fw-bold text-center text-decoration-underline" style="font-size:0.95em;">Database</li>
 				<li><a class="dropdown-item" href="{{ url_for('db_view.db_view') }}">Query Log Data</a></li>
 				<li><a class="dropdown-item" href="{{ url_for('home.data_clean') }}">Clean Log Data</a></li>
 				<li><a class="dropdown-item" href="{{ url_for('home.failed_regex') }}">Failed Regex</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item fw-bold text-center" href="{{ url_for('api_v1.api_help') }}">API Help</a></li>
 				<li><hr class="dropdown-divider"></li>
 				<li><a class="dropdown-item text-primary fw-bold text-center" href="https://github.com/NBPub/BeatLog/tree/main/docs#beatlog-guide-" target="_blank">BeatLog Docs</a></li>
 			  </ul>

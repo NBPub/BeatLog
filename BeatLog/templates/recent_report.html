@@ -27,21 +27,18 @@
 		    <th scope="col" class="text-muted fs-6 text-end"> Total Hits (Unique IP)</th>
 		    <th scope="col" class="table-primary">Access Log</th>
 		    <th scope="col" class="table-danger">Error Log</th>
-		    <th scope="col" class="table-warning">Unauthorized</th>
 		  </tr>
 	    </thead>
 		<tbody>
 		  <tr class="text-center fw-bold">
 		    <th scope="row" class="text-center">Home</th>
-		    <td class="table-primary">{{ home_summary[0] }}  ({{ home_summary [3] }})</td>
-		    <td class="table-danger">{{ home_summary[1] }}  ({{ home_summary [4] }})</td>
-		    <td class="table-warning">{{ home_summary[2] }}  ({{ home_summary [5] }})</td>
+		    <td class="table-primary">{{ home_summary[0] }}  ({{ home_summary [2] }})</td>
+		    <td class="table-danger">{{ home_summary[1] }}  ({{ home_summary [3] }})</td>
 		  </tr>
 		  <tr class="text-center fw-bold">
 		    <th scope="row" class="text-center">Outside</th>
-		    <td class="table-primary">{{ out_summary[0] }}   ({{ out_summary [3] }})</td>
-		    <td class="table-danger">{{ out_summary[1] }}   ({{ out_summary [4] }})</td>
-		    <td class="table-warning">{{ out_summary[2] }}   ({{ out_summary [5] }})</td>
+		    <td class="table-primary">{{ out_summary[0] }}   ({{ out_summary [2] }})</td>
+		    <td class="table-danger">{{ out_summary[1] }}   ({{ out_summary [3] }})</td>
 		  </tr>
 		</tbody>
 	  </table>
@@ -87,10 +84,10 @@
 		    {% endfor %}
 		  </tr>
 		  <tr>
-		    <th scope="row" class="text-center">Error &nbsp;&#10568;&nbsp; Unauthorized</th>
-		    <td class="table-dark text-center">{{ home_summary[1] }} &nbsp;&#10571;&nbsp; {{ home_summary[2] }}</td>
+		    <th scope="row" class="text-center">Error &nbsp;&#10568;&nbsp; Ignores</th>
+		    <td class="table-dark text-center">{{ home_summary[1] }} &nbsp;&#10571;&nbsp; {{ home_table['ignores'].values()|sum  }}</td>
 			{% for day in report_days %}
-		      <td class="text-center">{{ home_table['error'][day] }} &nbsp;&#10571;&nbsp; {{ home_table['unauthorized'][day] }}</td>
+		      <td class="text-center">{{ home_table['error'][day] }} &nbsp;&#10571;&nbsp; {{ home_table['ignores'][day] }}</td>
 		    {% endfor %}
 		  </tr>
 		  <tr>

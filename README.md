@@ -403,7 +403,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
-| alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3).**). Building simple API. |
+| alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Building simple API. |
 
 ### pre alpha-0.1.5 details
 

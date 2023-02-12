@@ -219,11 +219,11 @@ def parse(conn, cur, log):
                 if parsed: # primary regex
                     data = {item: parsed.group(item) for item in primary.groups}
                     data["date"] = datetime.strptime(data["date"], time_format)
-                    if 'IP' in data.keys() and data["IP"].find('[') + data["IP"].find(']') != -2:
+                    if 'IP' in data.keys() and data["IP"].find('[') + data["IP"].find(']') != -2: # adjust ipv6
                         data["IP"] = data["IP"].replace('[','').replace(']','')
-                    if 'http' in data.keys():
+                    if 'http' in data.keys(): # change HTTP version to integer
                         data["http"] = round(float(data["http"])*10) if data["http"] else data["http"]
-                    if 'level' in data.keys():
+                    if 'level' in data.keys(): # keep only text for error log level
                         data["level"] = data["level"].replace('[','').replace(']','')
                     cur.execute(SQL_1, tuple(data.values()))
                     record[1]+=1               

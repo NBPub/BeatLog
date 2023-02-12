@@ -1,14 +1,16 @@
 {% extends "base.html" %}
-{% block title %}BeatLog - 404{% endblock %}
+{% block title %}BeatLog - 422{% endblock %}
 
 {% block content %}
-<h1 class="mt-3 text-danger">&#127812; &#128018; Invalid URL</h1>
+<h1 class="mt-3 text-danger">&#127812; &#128018; Invalid API specification
+  <a class="ms-4" href="{{ url_for('api_v1.api_help') }}">API Help</a>
+</h1>
   <div class="d-flex justify-content-center">
-	<img class="rounded" src="https://i.giphy.com/media/UHAYP0FxJOmFBuOiC2/giphy.webp" alt="404">		
+	<img class="rounded" src="https://i.giphy.com/media/3o7aCTfyhYawdOXcFW/giphy.webp" alt="422">		
   </div>
-  <p class=" text-center"><a href="https://jijidraws.shop/" class="fst-italic text-muted">Artist Page</a></p>	  
+  <p class="text-muted text-center"><b>Glen Faught</b><a href="https://www.gfaught.com/" class="fst-italic ms-3">Artist Page</a></p>	  
   <div class="bg-dark p-3 rounded my-3">
-	<p class="fs-5 ms-3 text-info">{{ e.description }}</p>
+	<p class="fs-5 ms-3 text-info">{{ e.description }}<br></p>
   </div>
   <footer class="d-flex flex-wrap justify-content-between align-items center border-top mt-5" style="font-size:10pt;position:relative;float:bottom;">
 	<p class="text-muted fw-bold justify-content-start ms-3 mt-2">BeatLog <em class="fw-normal ms-2">alpha-0.1.4</em></p>

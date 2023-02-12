@@ -51,7 +51,7 @@ def add_regex_method():
 
 @bp.route("/add", methods = ['GET', 'POST'])
 def add_log_file():
-    available = ['access','error','unauthorized','fail2ban']
+    available = ['access','error','fail2ban']
     alert = None  
     with pool.connection() as conn:
         cur = conn.cursor()  
