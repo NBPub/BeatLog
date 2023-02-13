@@ -1,5 +1,10 @@
 # BeatLog Guide <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> 
 
+**See Also**
+
+- [API Help Page](/docs/API.md#motivation)
+- [Null Connection Pool](/docs/NullConnectionPool.md#background)
+
 ## Contents
 
 - [Setup](#setup)

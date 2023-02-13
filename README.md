@@ -3,6 +3,9 @@
 ## Overview | [Documentation](/docs#contents)
 - [Background](#background)
 - [Features](#features)
+	- [Database](#database)
+	- [Data Report](#report-demo)
+	- [Visitor Map](#visitor-map-demo)	
 - [Installation](#installation)
 	- [Docker](#docker-compose)
 	- [Parameters](#parameters)
@@ -44,11 +47,13 @@ based on [OpenStreetMap](https://www.openstreetmap.org/about) data.
 
 See the [BeatLog Guide](/docs#parsing) for a full list of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
 
-### Parsed Data
+### Database
 
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
 See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
-and [Database Explorer](/docs#database-explorer) to see how data can be queried and viewed within **BeatLog**.
+and [Database Explorer](/docs#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
+A simple [JSON API](/docs/API.md) can return summaries for various categories in the past day. 
+
 
 <details><summary>Database Query - fail2ban Log</summary>
 
@@ -355,13 +360,15 @@ Get the most information from BeatLog following these steps:
 [Details](#pre-alpha-015-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - build simple [data query API](/../../issues/1) and associated help page
-	- Query creation scheme for data viewer page could easily be adapted for API
-	- May focus use on dashboard / alert applications
-	- must be enabled via Environmental Variable at startup, will default to disabled
+  - ~~build simple [data query API](/../../issues/1) and associated help page~~
+	- ~~Focus use case on dashboard / alert applications~~
+	- Added [documentation](/docs/API.md#motivation) and API help page within **BeatLog**
+- Version Control
+  - Create new workflow for "stable" docker image to be built with each repository [tag/release](https://github.com/NBPub/BeatLog/releases).
+  - Then, let "latest" remain as the unstable image, built with each commit. Update [installation](#installation) section.
 - Other
-  - Phase out `unauthorized.log` support
-  - Phase out `NullConnectionPool` release, code documented [here](/docs/NullConnectionPool.md)
+  - ~~Phase out `unauthorized.log` support~~, notes to remove from database [here](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)
+  - ~~Phase out `NullConnectionPool` release~~, code documented [here](/docs/NullConnectionPool.md)
   - allow for SSL in deployment
 
 ### Possible Improvements

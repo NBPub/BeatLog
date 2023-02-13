@@ -1,22 +1,55 @@
+# Simple JSON API
+
+- [Motivation](#Motivation)
+- [API Help Page](#api-help-page)
+- [Data Summary Options](#data-options)
+	- [home](#home)
+	- [outside](#outside)
+	- [fail2ban](#fail2ban)
+	- [geo](#geo)
+	- [*all*](#all)
+- [More to come?](#more)
+
 ## Motivation
 
-Simple retrieval of summary data
+*Tackle [Issue 1](/issues/1)!*
 
-not meant to be a replacement/method for running custom SQL queries to database, should just do that instead
+Over the course of developing an API for easy data retrieval, I decided I didn't want it to be a tool for crafting SQL queries. 
+I think **BeatLog** is mostly meant to parse log data into a database to make it easily accessible. 
+The **[Report](/docs#report-demo)** and **[Database Explorer](/docs#database-explorer)** cover presentations of the data in ways I like to see. 
 
-(that being said, db_query code is good start for that vision)
+All this to say, I designed the API to return simple data summaries from the past 24 hours. 
+In this way, it can be easily used in dashboard or alert systems. 
+I'll probably keep tabs of [home ignores](#home) and [filtrate](#outside) on my homepage, for example.
 
 ## API Help Page
 
-`<your-base-URL>/api/help/
+`<your-base-URL>/api/help/`
+
+**BeatLog** provides an API help page which provides links to all available options and the ability to preview returns. 
+The various options will be detailed on this page, with example returns provided. 
 
 ![API_1](/docs/pics/API_1.png "The API help page shows current options for the JSON API.")
 
+The following datatypes are returned:
+
+- `string` - most items are strings, noted by quotation marks. `"212 MB` All keys are strings. Times may vary from the example, depending on your locale.
+- `number` - simple integer, not encased in quotation markes. `3`
+- `array` - IP lists, and the [geo]() returns provide arrays (mix of above). They are encased in brackets and items are comma separated. `["Zhengzhou, China", 10]
+
+Note the structure of the various returns shown below. `"time_bounds"` are included with every return.
+
 ## Data Options
 
-stuff about options, invalid spec will give 422 return
+As shown in the image, the [API Help Page]() will provide links to the various options, which follow the scheme: `<your-base-URL>/api/v1/<OPTION>`. 
+Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 
 ### home
+
+**Notes:**
+
+ - "IP" will return array even if one entry
+ - "IP_duration" will return "All of time" if only one homeIP in database, as shown on the [home page](/docs#parsing)
 
 ```JSON
 {
@@ -39,6 +72,14 @@ stuff about options, invalid spec will give 422 return
 
 ### outside
 
+**Notes:**
+
+ - The following are unique IPs, not total
+   - "banned"
+   - "filtrate" *outside IPs from access log that aren't banned*
+   - "known_visitors" *outside IPs from access log that are [known devices](/docs#known-devices)*
+   - "visitors" *outside IPs from access and error logs*
+
 ```JSON
 {
   "outside": {
@@ -59,6 +100,10 @@ stuff about options, invalid spec will give 422 return
 
 
 ### fail2ban
+
+**Notes:**
+
+ - "ignored_IPs" will return array even if one entry
 
 ```JSON
 {
@@ -90,6 +135,10 @@ stuff about options, invalid spec will give 422 return
 
 ### geo
 
+**Notes:**
+
+ - "top_hits" and "top_visitors" provide an array of `["<location>", <integer>]`
+
 ```JSON
 {
   "geo": {
@@ -112,19 +161,23 @@ stuff about options, invalid spec will give 422 return
 
 ### all
 
+**Notes:**
+
+ - All above options combined
+
 ```JSON
 {
   "fail2ban": {
-...
+...see above...
   },
   "geo": {
-...
+...see above...
   },
   "home": {
-...
+...see above...
   },
   "outside": {
-...
+...see above...
   },
   "time_bounds": {
     "end": "02/12/23 23:29:17",
