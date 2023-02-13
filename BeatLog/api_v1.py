@@ -35,7 +35,10 @@ def api_v1(api_spec):
             home = {}  
             home['total'] = cur.execute('SELECT COUNT(date) FROM "access" WHERE home=True AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
             home['IP'] = [str(val[0]) for val in cur.execute('SELECT ip FROM "homeip" WHERE date BETWEEN %s AND %s', (start,end)).fetchall()]
+            home['IP_duration'] = cur.execute('SELECT duration FROM "homeip" WHERE date BETWEEN %s AND %s', (start,end)).fetchone()[0]
+            home['IP_duration'] = 'All of time' if home['IP_duration'] == None else str(home['IP_duration']).split('.')[0]
             home['ignores'] = cur.execute('''SELECT COUNT(date) FROM "fail2ban" WHERE home=True AND action='ignore' AND date BETWEEN %s AND %s''', (start,end)).fetchone()[0]
+            home['error'] = cur.execute('''SELECT COUNT(date) FROM "error" WHERE home=True AND date BETWEEN %s AND %s''', (start,end)).fetchone()[0]
             home['data'] = cur.execute('SELECT pg_size_pretty(sum(bytes)) FROM "access" WHERE home=True AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
             data['home'] = home
             
@@ -43,9 +46,11 @@ def api_v1(api_spec):
             # Outside: Total Hits, Unique IP, Banned IPs, Filtrate IPs, Data Transfer
             out = {}  
             out['total'] = cur.execute('SELECT COUNT(date) FROM "access" WHERE home=False AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
-            out['total'] += cur.execute('SELECT COUNT(date) FROM "error" WHERE home=False AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
+            out['error'] = cur.execute('SELECT COUNT(date) FROM "error" WHERE home=False AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
+            out['total'] += out['error']
 # COULD MAKE ADD ERROR LOG IPs to this
-            out['visitors'] = cur.execute('SELECT COUNT(DISTINCT ip) FROM "access" WHERE home=False AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]
+            out['visitors'] = cur.execute('''SELECT COUNT(ip) FROM (SELECT DISTINCT ip FROM "access" WHERE home=False AND date BETWEEN %(start)s AND %(end)s  UNION 
+SELECT DISTINCT ip FROM "error" WHERE home=False AND date BETWEEN %(start)s AND %(end)s) "tmp"''', {'start':start,'end':end}).fetchone()[0]
             out['banned'] = cur.execute('''SELECT COUNT(DISTINCT ip) FROM "fail2ban" WHERE home=False AND action='Ban' AND date BETWEEN %s AND %s''', (start,end)).fetchone()[0]
             # check for Known Devices in settings, exclude from filtrate
             KD = cur.execute('SELECT knowndevices FROM settings').fetchall()[0][0]
@@ -53,6 +58,8 @@ def api_v1(api_spec):
                 out['filtrate'] = cur.execute('''SELECT COUNT(DISTINCT ip) FROM "access" WHERE home=False AND date BETWEEN %(start)s AND %(end)s 
  AND ip NOT IN (SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s)''', {'start':start,'end':end}).fetchone()[0]
             else:
+                out['known_visitors'] = cur.execute(sql.SQL('SELECT COUNT(DISTINCT ip) FROM "access" WHERE tech=ANY({}) AND home=False AND date BETWEEN %(start)s AND %(end)s')\
+                                                    .format([KD]), {'start':start,'end':end}).fetchone()[0]
                 out['filtrate'] = cur.execute(sql.SQL('''SELECT COUNT(DISTINCT ip) FROM "access" WHERE tech!=ALL({}) AND home=False AND date BETWEEN %(start)s AND %(end)s 
  AND ip NOT IN (SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s)''').format([KD]), {'start':start,'end':end}).fetchone()[0]                
             out['data'] = cur.execute('SELECT pg_size_pretty(sum(bytes)) FROM "access" WHERE home=False AND date BETWEEN %s AND %s', (start,end)).fetchone()[0]

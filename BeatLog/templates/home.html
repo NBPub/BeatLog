@@ -16,6 +16,7 @@
 	{% endif %}
 		<a href="{{ url_for('home.settings') }}" class="fw-bold btn btn-sm btn-dark border-light">Settings</a>
 		<a href="{{ url_for('home.settings', _anchor='Custom') }}" class="fw-bold btn btn-sm btn-dark border-light">Custom Report/Map</a>
+		<a href="{{ url_for('api_v1.api_help') }}" class="fw-bold btn btn-sm border-light" style="background-color:indigo;color:white;">API Help</a>
 		<a href="{{ url_for('home.data_clean') }}" class="fw-bold btn btn-sm btn-primary border-light">DB Clean</a>
 		<a href="{{ url_for('db_view.db_view') }}" class="fw-bold btn btn-sm btn-primary border-light">DB Query</a>
 	  </div>

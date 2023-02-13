@@ -5,7 +5,7 @@
     <div class="row">
 	  <div class="ms-3 fs-5 my-4">
 	    BeatLog has an JSON API endpoint for various stats from the past 24 hours: 
-		<p class="text-center fs-5 mt-3"><span class="bg-info ps-2">{{ url_for('api_v1.api_v1', api_spec='', _external=True) }}<b class="text-primary">[OPTION]</b></span></p>
+		<p class="text-center fs-5 mt-3"><span class="bg-info p-2">{{ url_for('api_v1.api_v1', api_spec='', _external=True) }}<b class="text-primary">[OPTION]</b></span></p>
 	    The available options are listed and linked below. The returned data can be previewed on this page by clicking the buttons. <b class="bg-info rounded px-2 pb-1 fs-6">+</b>
 	  </div>
 	</div>
@@ -13,20 +13,20 @@
   <div class="row row-cols-md-2 row-cols-xl-3">
 	{% for spec in specs.keys() %}
 	<div class="col">
-	  <h3 class="ms-5 my-2">/<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1', api_spec=spec)}}">{{spec}}</a>	    
+	  <h3 class="ms-5 my-2">.../<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1', api_spec=spec)}}">{{spec}}</a>	    
 	  </h3>
 	    <div class="bg-dark text-warning p-3"><pre><code>		  
 		    <button type="submit" class="btn btn-sm btn-info me-5 fw-bold rounded" name="load_example" value="{{spec}}" title="Load Example" style="float:right"
 			data-bs-toggle="tooltip">+</button>
-		  <p class="text-info text-center">{{url_for('api_v1.api_v1',_external=True, api_spec=spec)}}</p>
+		  <span class="text-info text-center">{{url_for('api_v1.api_v1',_external=True, api_spec=spec)}}</span>
 		  {% if specs[spec] %}<br>{{ specs[spec] }}{% endif %}
 		</code></pre></div>
 	</div>
     {% endfor %}
 	<div class="col">
-	  <h3 class="ms-5 my-2">/<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1',_external=True,api_spec=all)}}">all</a></h3>
+	  <h3 class="ms-5 my-2">.../<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1',api_spec='all')}}">all</a></h3>
 	    <div class="bg-dark text-warning p-3"><pre><code>
-		  <p class="text-info text-center">{{url_for('api_v1.api_v1',_external=True, api_spec='all')}}</p>
+		  <span class="text-info text-center">{{url_for('api_v1.api_v1',_external=True, api_spec='all')}}</span>
 		  <br>All results combined into one.<br>All data is gathered with the same start and stop times.
 		</code></pre></div>
 	</div>
