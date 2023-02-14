@@ -12,15 +12,20 @@
 
 ## Motivation
 
-*Tackle [Issue 1](/issues/1)!*
+*Tackle [Issue 1](https://github.com/NBPub/BeatLog/issues/1)*!
 
-Over the course of developing an API for easy data retrieval, I decided I didn't want it to be a tool for crafting SQL queries. 
-I think **BeatLog** is mostly meant to parse log data into a database to make it easily accessible. 
-The **[Report](/docs#report-demo)** and **[Database Explorer](/docs#database-explorer)** cover presentations of the data in ways I like to see. 
+Over the course of developing an API for easy data retrieval, I decided I didn't want it to be a tool or replacement for crafting SQL queries. 
+I think **BeatLog** is mostly meant\* to parse log data into a database to make it easily accessible. 
+The **[Report](/docs#report-demo)** and **[Database Explorer](/docs#database-explorer)**\*\* cover presentations of the data in ways I like to see.
 
 All this to say, I designed the API to return simple data summaries from the past 24 hours. 
 In this way, it can be easily used in dashboard or alert systems. 
 I'll probably keep tabs of [home ignores](#home) and [filtrate](#outside) on my homepage, for example.
+
+\**As noted in the [installation options](/README.md#extra-options), Adminer can provide a nice interface for running SQL commands against the database.*
+
+\*\**The code, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), for Database Explorer query creation provides a good start for building SQL queries based on user inputs.*
+
 
 ## API Help Page
 
@@ -164,6 +169,7 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 **Notes:**
 
  - All above options combined
+ - `"time_bounds"` are the same for each group
 
 ```JSON
 {
@@ -180,8 +186,7 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 ...see above...
   },
   "time_bounds": {
-    "end": "02/12/23 23:29:17",
-    "start": "02/11/23 23:29:17"
+...see above...
   }
 }
 ```

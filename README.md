@@ -52,7 +52,7 @@ See the [BeatLog Guide](/docs#parsing) for a full list of features. The **Databa
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
 See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
 and [Database Explorer](/docs#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
-A simple [JSON API](/docs/API.md) can return summaries for various categories in the past day. 
+A simple [JSON API](/docs/API.md#simple-json-api) can return summaries for various categories in the past day. 
 
 
 <details><summary>Database Query - fail2ban Log</summary>
@@ -94,16 +94,16 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 
 ## Installation
 
-BeatLog is available as [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) in the following architectures. 
-The `latest` or `arm32v7-latest` tags are recommended, as they are built via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with each update. 
-I build and push other tags manually. 
+BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** in the following architectures. 
+"Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
+Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
 
-*stable version:* **[alpha-0.1.3](#development)**<br>
-| Architecture | Tags |
-| :----: | --- |
-| x86-64 | *latest*, *alpha-0.1.3* |
-| arm64 | *latest* , *alpha-0.1.3* |
-| armhf | *arm32v7-latest*, *arm32v7-alpha-0.1.3* |
+in development: **[alpha-0.1.4](#development)**, current release: **[alpha-0.1.3](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)**,<br>
+| Architecture | Latest Tags | Stable Tags |
+| :----: | --- | --- |
+| x86-64 | *latest* | *stable*, *alpha-0.1.3* |
+| arm64 | *latest*  | *stable*, *alpha-0.1.3* |
+| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.3* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -125,7 +125,7 @@ The [compose parameters](#parameters) are detailed in the next section. Optional
 version: "2.1"
 services:
   beatlog:
-    image: nbpub/beatlog:latest
+    image: nbpub/beatlog:stable
     container_name: beatlog
     user: 1000:1000 # optional	
     ports:
@@ -216,14 +216,8 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 *The port number,* `8000` *should match the container's internal port.*
 
 ```yaml
-version: "2.1"
-services:
   beatlog:
-    image: nbpub/beatlog:latest
-    container_name: beatlog
-    .
-    .
-    .
+    image: nbpub/beatlog:stable
     healthcheck:
       test: curl -I --fail http://localhost:8000 || exit 1
       interval: 300s
@@ -240,21 +234,12 @@ services:
 *The user,* `beatlog` *should match the* `POSTGRES_USER` *specified.*
 
 ```yaml
-    .
-    .
-    .
   db:
     image: postgres
-    .
-    .
-    .
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "beatlog"]
       interval: 300s
       start_period: 30s
-    .
-    .
-    .
 ```
 </details>
 
@@ -265,9 +250,6 @@ services:
 *Visit* `<server>:8080` *and login to the postgresql database to view tables and data.*
 
 ```yaml
-    .
-    .
-    .
   adminer:
     image: adminer
     container_name: beatlog_mgmt	

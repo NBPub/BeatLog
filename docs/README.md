@@ -2,7 +2,7 @@
 
 **See Also**
 
-- [API Help Page](/docs/API.md#motivation)
+- [API Help Page](/docs/API.md#simple-json-api)
 - [Null Connection Pool](/docs/NullConnectionPool.md#background)
 
 ## Contents
@@ -95,7 +95,7 @@ Following the example, the files can be loaded into **BeatLog** from the `/impor
 
 ### Log Files
 
-*!!! phasing out support for **Unauthorized** log !!!*
+*!!! **Unauthorized Log** no longer supported !!!*
 
 Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all four have not been added. 
 Paths shown in pictures may not match the file structure shown above. See the text above pictures for the correct path.
@@ -157,7 +157,6 @@ If any of the default methods are deleted, they can be reloaded again with the b
 
 ![regex_loaded](/docs/pics/loaded_regex_methods.png "Default regex methods")
 
-*Note:* **unauthorized.log** *follows the same patterns as* **access.log**
 
 #### ✱Adding Regex to Logs✱
 
