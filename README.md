@@ -98,12 +98,12 @@ BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created
 "Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
 Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
 
-in development: **[alpha-0.1.4](#development)**, current release: **[alpha-0.1.3](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)**,<br>
+in development: **[alpha-0.1.5](#development)**, current release: **[alpha-0.1.4](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)**,<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
-| x86-64 | *latest* | *stable*, *alpha-0.1.3* |
-| arm64 | *latest*  | *stable*, *alpha-0.1.3* |
-| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.3* |
+| x86-64 | *latest* | *stable*, *alpha-0.1.4* |
+| arm64 | *latest*  | *stable*, *alpha-0.1.4* |
+| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.4* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -144,7 +144,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres
+    image: postgres:15
     container_name: beatlog_db
     ports:
       - 5432:5432
@@ -235,7 +235,7 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 
 ```yaml
   db:
-    image: postgres
+    image: postgres:15
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "beatlog"]
       interval: 300s
@@ -337,21 +337,15 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.4
+### In Progress, alpha-0.1.5
 
 [Details](#pre-alpha-015-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - ~~build simple [data query API](/../../issues/1) and associated help page~~
-	- ~~Focus use case on dashboard / alert applications~~
-	- Added [documentation](/docs/API.md#motivation) and API help page within **BeatLog**
-- Version Control
-  - Create new workflow for "stable" docker image to be built with each repository [tag/release](https://github.com/NBPub/BeatLog/releases).
-  - Then, let "latest" remain as the unstable image, built with each commit. Update [installation](#installation) section.
-- Other
-  - ~~Phase out `unauthorized.log` support~~, notes to remove from database [here](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)
-  - ~~Phase out `NullConnectionPool` release~~, code documented [here](/docs/NullConnectionPool.md)
-  - allow for SSL in deployment
+  - allow for SSL in deployment. 
+    - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
+- Bugfixes
+  - Do better to ensure that this release is "stable", now that I'm using "stable" tags.
 
 ### Possible Improvements
 
@@ -359,7 +353,6 @@ Get the most information from BeatLog following these steps:
   - utilize row factories with psycopg to make cleaner database selections
   - use template file for SQL commands to clean up code
   - add tests for code
-  - asyncio for scheduled tasks and/or other routines
   - consider smarter way to gather regex methods across functions
   - solve possible issues with SQL creation: [Home Ignores](/docs#home-ignorable)
 - Features
@@ -392,16 +385,35 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
-| alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Building simple API. |
+| alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Building simple API.<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
+| alpha-0.1.5 | *No releases yet* |
 
 ### pre alpha-0.1.5 details
 
 <details><summary>═════════</summary>
 
+- Bugfixes to make a more "stable" release
+  - Nothing found yet . . .
+
+</details>
+
+### pre alpha-0.1.5 details
+
+<details><summary>═════════</summary>
+
+- Version Control, Image management
+  - renamed existing workflow to build+push docker images with each commit. Tags still same name, `latest`.
+  - created additional workflow to build+push docker images with each release. Tags will be version `alpha-0.1.4` and `stable`.  
+  - No more docker images built+pushed by me, all from within Github.
 - Code Cleaning
-  - removed unauthorized.log support. removed comment blocks for NullConnectionPool versions.
+  - removed unauthorized.log support. removed comment blocks for NullConnectionPool versions (see [changes](/docs/NullConnectionPool.md)).
 - API v1
-  - JSON API to retrieve basic stats (hits / IPs / f2b / data)
+  - JSON API to retrieve basic stats, [help page](/docs/API.md)
+- Bug Fixes / Minor Improvements
+  - fixed issues with changed code for fail2ban jail page, Known Device settings
+  - added check for existing data before API calls
+  - various aesthetic / navigation improvements
+
 
 </details>
 

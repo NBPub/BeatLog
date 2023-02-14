@@ -10,7 +10,7 @@
 		  {% endif %}
 		</div>
 	  {% endif %}  
-	  {% if not jail %}
+	  {% if not jail_loc %}
 	    <form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3 mt-3">	
 	      <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
 	      <input class="form-control" type="text" id="jailLocation" name="Location" {% if message and message|length == 3 %} value="{{ message[2] }}" {% endif %}>
@@ -30,7 +30,7 @@
 		  <div class="collapse" id="hiddenForm">
 			<form method="POST" action="{{ url_for('home.configure_jail') }}" id="configure_jail" class="ms-3">	
 			  <label for="jailLocation" class="form-label fs-5 fw-bold">Specify location of jail.local</label>
-			  <input class="form-control" type="text" id="jailLocation" name="Location" value="{{ jail[0] }}">
+			  <input class="form-control" type="text" id="jailLocation" name="Location" value="{{ jail_loc }}">
 			  <div id="HelpBlock" class="form-text">
 				File will be read to determine fail2ban settings.
 			  </div>		
@@ -41,10 +41,10 @@
 		  </div>
 		<p class="fs-3 ms-3 fw-bold">Status</p>
 		<p class="ms-5">
-		  <b>Modified:</b> {{ jail[1].strftime('%x %X') }}<br>
-		  <b>Checked:&nbsp;</b> {{ jail[2].strftime('%x %X') }}<br>
-		  <b>Findtime:&nbsp;</b> {% if jail[4].days > 0 %} {{ jail[4].days }} days {% else %} {{ jail[4] }} {% endif %}&nbsp;&nbsp;&nbsp;
-		  <b>Bantime:&nbsp;</b> {% if jail[5].days > 0 %} {{ jail[5].days }} days {% else %} {{ jail[5] }} {% endif %}<br>
+		  <b>Modified:</b> {{ mod.strftime('%x %X') }}<br>
+		  <b>Checked:&nbsp;</b> {{ lastcheck.strftime('%x %X') }}<br>
+		  <b>Findtime:&nbsp;</b> {% if findtime.days > 0 %} {{ findtime.days }} days {% else %} {{ findtime }} {% endif %}&nbsp;&nbsp;&nbsp;
+		  <b>Bantime:&nbsp;</b> {% if bantime.days > 0 %} {{ bantime.days }} days {% else %} {{ bantime }} {% endif %}<br>
 		  <b>Ignored IPs:</b>
 		  {% for IP in ignoreIPs %}
 		    {% if IP == homeIP %}
@@ -64,7 +64,7 @@
 		<div class="row row-cols-auto">	  
 	    {% for log in watch_logs %}
 		  <div class="col"><p class="fw-bold text-center fs-4">{{ log|capitalize }} Log</p>
-			{% for filter in jail[3]['enabled'] %}
+			{% for filter in filters['enabled'] %}
 		      {% if filter['log'] == log %}
 		        <div class="card my-2 border border-primary border-3" style="width: 18rem;"><div class="card-body">
 		          <h5 class="card-title text-center">{{ filter['name'] }}

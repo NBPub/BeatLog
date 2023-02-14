@@ -271,6 +271,8 @@ def parse(conn, cur, log):
 
 def parse_all(conn, cur):
         log_files = [name[0] for name in cur.execute('SELECT name FROM logfiles').fetchall()]
+        if log_files == []:
+            return None
         alerts = {}    
         for log_file in log_files:
             try:

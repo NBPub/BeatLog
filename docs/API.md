@@ -55,6 +55,7 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 
  - "IP" will return array even if one entry
  - "IP_duration" will return "All of time" if only one homeIP in database, as shown on the [home page](/docs#parsing)
+ - `"data"` will be `null` *(note, not string)*, if log data does not exist. Numbers will be `0`. IP information should still be returned.
 
 ```JSON
 {
@@ -82,8 +83,9 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
  - The following are unique IPs, not total
    - "banned"
    - "filtrate" *outside IPs from access log that aren't banned*
-   - "known_visitors" *outside IPs from access log that are [known devices](/docs#known-devices)*
+   - "known_visitors" *outside IPs from access log that are [known devices](/docs#known-devices)*, ***only present if Known Devices specified in settings***
    - "visitors" *outside IPs from access and error logs*
+ - `"data"` will be `null` *(note, not string)*, if log data does not exist. Numbers will be `0`
 
 ```JSON
 {
@@ -109,6 +111,7 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 **Notes:**
 
  - "ignored_IPs" will return array even if one entry
+ - empty return `"fail2ban":{}` provided if [jail.local](/docs#fail2ban-jail) is not established.
 
 ```JSON
 {
@@ -143,6 +146,8 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
 **Notes:**
 
  - "top_hits" and "top_visitors" provide an array of `["<location>", <integer>]`
+ - empty return `"geo":{}` provided if no locations exist 
+   - Enable [MaxMind](/docs#maxminddb) to add locations to IP addresses.
 
 ```JSON
 {

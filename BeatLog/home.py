@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, current_app#, redirect, url_for, json
+    Blueprint, render_template, request, current_app, redirect, url_for#, json
 )
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -37,8 +37,8 @@ def home():
         
         # check home IP, gather ignoreIPs from f2b jail
         homeIP, duration = home_ip(conn, cur)
-        ig = cur.execute('SELECT ignoreips FROM jail').fetchone()[0]
-        ig = [] if ig == None else ig
+        ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
+        ig = [] if ig == None else ig[0]
         
         # check unnamed locations, if applicable
         places, _, _, _, noname = null_assessment(cur)
@@ -53,6 +53,8 @@ def home():
         elif request.method == 'POST' and 'parse_all' in request.form:
             current_app.logger.info('parsing logs . . .')
             alert = parse_all(conn, cur)
+            if not alert:
+                return redirect(url_for('logs.add_log_file'))
     
         # LogFile information: modified, last parsed, first record, # lines, duration
         logs = cur.execute('SELECT Name,Modified,lastParsed FROM logfiles ORDER BY name').fetchall()            
@@ -146,9 +148,9 @@ def settings():
                           True if 'KD_5' in request.form else False, True if request.form['LocTab']=='IP' else False)       
                 if newRep != oldRep:
                     with conn.transaction():
-                        cur.execute('UPDATE settings SET reportdays=%s,homeignores=%s,knowndevices=%s,\
+                        cur.execute(sql.SQL('UPDATE settings SET reportdays=%s,homeignores=%s,knowndevices={},\
                                       KD_visit=%s,KD_frequent=%s,KD_data=%s,KD_refurl=%s,KD_loc=%s,\
-                                      LocationTable=%s WHERE mapdays=%s', (newRep[0], newRep[1], newRep[2],
+                                      LocationTable=%s WHERE mapdays=%s').format(KnownDevices), (newRep[0], newRep[1],
                                       newRep[3], newRep[4], newRep[5],newRep[6], newRep[7], newRep[8], old[10]))
                     alert = ('Report settings updated', 'success')            
                 else:
@@ -233,20 +235,26 @@ def configure_jail():
     made = False
     with pool.connection() as conn:
         cur = conn.cursor()  
-         # location, date modified, last check, filters
-        jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()
-        jail = (jail_loc, mod, lastcheck, filters, findtime, bantime)
+        # check for existing jail
+        check = cur.execute('SELECT date FROM jail').fetchone()
+        if check:
+            jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()
+        else:
+            jail_loc = mod = lastcheck = filters = findtime = bantime = ig = None
         homeIP,_ = home_ip(conn, cur)
         if jail_loc:
             location = jail_loc
             made, message = update_Jail(conn, cur, mod, location, lastcheck) # returns up to date, updated, or failure message
             if message and len(message) == 3: # file not found
-                jail = None
+                jail_loc = None
         if request.method == 'POST':
             if 'set_jail' in request.form and 'Location' in request.form:              
                 made, message = make_Jail(conn, cur, request.form['Location'], location)  # new location, old location          
             elif 'delete_jail' in request.form and location:
-                made,message = delete_Jail(conn,cur,location)                
+                made,message = delete_Jail(conn,cur,location) 
+                if made:
+                    jail_loc = None
+                    made = False
         if request.method == 'POST' and 'all_activity' in request.form:
             for log in filters['enabled']:
                 stats = filter_info(cur, log['name'])
@@ -260,13 +268,13 @@ def configure_jail():
             del stats        
         if made:
             jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()  
-        jail = (jail_loc, mod, lastcheck, filters, findtime, bantime)
-        if jail and len(jail[3]['enabled']) > 0:
-            watch_logs = [val['log'] for val in jail[3]['enabled']]
+        if jail_loc and len(filters['enabled']) > 0:
+            watch_logs = [val['log'] for val in filters['enabled']]
             watch_logs = set(watch_logs)
         else:
             watch_logs = None
         ig = ig if ig else []         
-    return render_template('jail.html', jail=jail, message=message, homeIP=homeIP,
+    return render_template('jail.html', message=message, homeIP=homeIP, jail_loc=jail_loc, mod=mod,
+                            lastcheck=lastcheck, filters=filters, findtime=findtime, bantime=bantime,
                             ignoreIPs=ig, watch_logs=watch_logs)
 

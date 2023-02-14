@@ -66,26 +66,30 @@ SELECT DISTINCT ip FROM "error" WHERE home=False AND date BETWEEN %(start)s AND 
             data['outside'] = out
         if api_spec == 'fail2ban' or api_spec == 'all':
             # fail2ban: IgnoredIPs, Enabled Filters, Ban count by filter, Found count by filter
-            f2b = {}    
-            filters,ig = cur.execute('SELECT filters, ignoreips FROM jail').fetchone()
-            f2b['enabled_filters'] = [f['name'] for f in filters['enabled']]
-            f2b['ignored_IPs'] = [str(ip) for ip in ig]
-            f2b['Finds'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Found' GROUP BY filter", (start,end)).fetchall()}
-            f2b['Bans'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Ban' GROUP BY filter", (start,end)).fetchall()}
-            f2b['Ignores'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Ignore' GROUP BY filter", (start,end)).fetchall()}
+            f2b = {}   
+            check = cur.execute('SELECT date FROM jail').fetchone()
+            if check:    
+                filters,ig = cur.execute('SELECT filters, ignoreips FROM jail').fetchone()
+                f2b['enabled_filters'] = [f['name'] for f in filters['enabled']]
+                f2b['ignored_IPs'] = [str(ip) for ip in ig]
+                f2b['Finds'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Found' GROUP BY filter", (start,end)).fetchall()}
+                f2b['Bans'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Ban' GROUP BY filter", (start,end)).fetchall()}
+                f2b['Ignores'] = {val[0]:val[1] for val in cur.execute("SELECT filter, count(filter) FROM fail2ban WHERE date BETWEEN %s AND %s AND action='Ignore' GROUP BY filter", (start,end)).fetchall()}
             data['fail2ban'] = f2b
         if api_spec == 'geo' or api_spec == 'all':
             # Geo: Top location hits/visitors, Number of locations
             geo = {}
-            cur.execute('''SELECT CONCAT(city,', ', country) "loc", COUNT(city) FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id WHERE home=False 
-AND date BETWEEN %s AND %s GROUP BY city, country ORDER BY count DESC LIMIT 1''', (start,end))
-            geo['top hits'] = cur.fetchall()[0]
-            cur.execute('''SELECT loc, COUNT(loc) FROM (SELECT CONCAT(city,', ', country) "loc",ip FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id 
+            check = cur.execute("SELECT COUNT(geo) from access WHERE geo IS NOT NULL AND date BETWEEN %s AND %s", (start,end)).fetchone()
+            if check and check[0]>0:   
+                cur.execute('''SELECT CONCAT(city,', ', country) "loc", COUNT(city) FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id 
+WHERE home=False AND date BETWEEN %s AND %s GROUP BY city, country ORDER BY count DESC LIMIT 1''', (start,end))
+                geo['top hits'] = cur.fetchall()[0]
+                cur.execute('''SELECT loc, COUNT(loc) FROM (SELECT CONCAT(city,', ', country) "loc",ip FROM "access" INNER JOIN "geoinfo" on access.geo = geoinfo.id 
 WHERE home=False AND date BETWEEN %s AND %s GROUP BY loc,ip) "tmp" GROUP BY loc ORDER BY count DESC LIMIT 1''', (start,end))  
-            geo['top visitors'] = cur.fetchall()[0]
-            cur.execute('''SELECT COUNT(geo) FROM (SELECT DISTINCT geo FROM error WHERE geo IS NOT NULL AND date BETWEEN %(start)s AND %(end)s UNION
+                geo['top visitors'] = cur.fetchall()[0]
+                cur.execute('''SELECT COUNT(geo) FROM (SELECT DISTINCT geo FROM error WHERE geo IS NOT NULL AND date BETWEEN %(start)s AND %(end)s UNION
 SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL AND date BETWEEN %(start)s AND %(end)s) "tmp"''', {'start':start,'end':end})
-            geo['locations'] = cur.fetchone()[0]
+                geo['locations'] = cur.fetchone()[0]
             data['geo'] = geo
             
     return data
