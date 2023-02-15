@@ -21,11 +21,16 @@
 	
 ## Background
 
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white)
+<img src="https://camo.githubusercontent.com/efe5825f7b954f1bdfea52541875c2d3c05da61c645a59d4b08c03e1ff6fbc4c/68747470733a2f2f7261776769742e636f6d2f4c6561666c65742f4c6561666c65742f6d61696e2f7372632f696d616765732f6c6f676f2e737667" 
+title="Leaflet.js" style="height:30px;width:auto;">
+<img src="https://static.maxmind.com/d2007b9fb8c2a6f15a54/images/maxmind-header-logo-compact-alt.svg" 
+title="Leaflet.js" style="height:30px;width:auto;">
 ![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=purple)
 
 **BeatLog** parses [NGINX](https://www.nginx.com/) reverse proxy and [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page) logs into readable tables and reports. 
@@ -98,7 +103,7 @@ BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created
 "Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
 Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
 
-in development: **[alpha-0.1.5](#development)**, current release: **[alpha-0.1.4](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)**,<br>
+Current release: **[alpha-0.1.4](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)**, In development: **[alpha-0.1.5](#development)**<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
 | x86-64 | *latest* | *stable*, *alpha-0.1.4* |
@@ -339,11 +344,12 @@ Get the most information from BeatLog following these steps:
 
 ### In Progress, alpha-0.1.5
 
-[Details](#pre-alpha-015-details), [Previous Versions](#pre-release-changelog)
+[Details](#pre-alpha-016-details), [Previous Versions](#pre-release-changelog)
 
 - Features
   - allow for SSL in deployment. 
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
+	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
 - Bugfixes
   - Do better to ensure that this release is "stable", now that I'm using "stable" tags.
 
@@ -386,9 +392,9 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removing unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Building simple API.<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
-| alpha-0.1.5 | *No releases yet* |
+| alpha-0.1.5 | *No releases yet, updates to Docs only* |
 
-### pre alpha-0.1.5 details
+### pre alpha-0.1.6 details
 
 <details><summary>═════════</summary>
 

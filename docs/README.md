@@ -1,10 +1,5 @@
 # BeatLog Guide <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> 
 
-**See Also**
-
-- [API Help Page](/docs/API.md#simple-json-api)
-- [Null Connection Pool](/docs/NullConnectionPool.md#background)
-
 ## Contents
 
 - [Setup](#setup)
@@ -33,6 +28,10 @@
 - [Custom Reports or Maps](#custom-reports-and-maps)
 - [Database Cleanup](#database-cleanup)
 - [Failed Regex](#failed-regex)
+
+**See Also**
+- [API Help Page](/docs/API.md#simple-json-api)
+- [Null Connection Pool](/docs/NullConnectionPool.md#background)
 
 ## Setup
 
