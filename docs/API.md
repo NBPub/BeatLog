@@ -12,6 +12,8 @@
 
 ## Motivation
 
+***PAGE UPDATES IN PROGRESS, information may not be current with "latest" tag***
+
 *Tackle [Issue 1](https://github.com/NBPub/BeatLog/issues/1)*!
 
 Over the course of developing an API for easy data retrieval, I decided I didn't want it to be a tool or replacement for crafting SQL queries. 

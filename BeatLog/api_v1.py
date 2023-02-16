@@ -94,11 +94,24 @@ SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL AND date BETWEEN %(start)s
             
     return data
     
+@bp.route("/v2/bandwidth/<path:api_spec>", methods = ['GET'])
+def api_v2_bandwidth(api_spec):
+    # Might need to handle URLs more thorughly, see werkzeug source code for "urls"
+    # https://github.com/pallets/werkzeug/blob/main/src/werkzeug/urls.py
+    # from werkzeug.urls import url_decode, iri_to_uri
+    api_spec = api_spec.split('=')   
+    with pool.connection() as conn:
+        cur = conn.cursor()
+        cols = [col[0] for col in \
+        cur.execute("SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name = %s", ('access',))] 
+        if len(api_spec) != 2: 
+            abort(422, description = f'Invalid specification for api/v2/bandwidth.<br><span class="text-danger">{"=".join(api_spec)}</span>')
+        if api_spec[0] not in cols:
+            abort(422, description = f'Invalid specification for api/v2/bandwidth. Specified field is not valid.<br><span class="text-danger">{"=".join(api_spec)}</span>')
+        b, p = cur.execute(sql.SQL('SELECT SUM(bytes), pg_size_pretty(SUM(bytes)) FROM access WHERE {}=%s').format(sql.Identifier(api_spec[0])), 
+             (api_spec[1],)).fetchone()
     
-    
-    
-    
-    
+    return {'bandwidth':{'bytes':b,'pretty':p,'query':{'field':api_spec[0],'value':api_spec[1]}}}
     
     
     
