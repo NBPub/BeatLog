@@ -1,18 +1,23 @@
 # Simple JSON API
 
-- [Motivation](#Motivation)
+- [Motivation](#motivation)
 - [API Help Page](#api-help-page)
-- [Data Summary Options](#data-options)
+- [Query Parameters](#data-options)
+  - [Data Summary](#summary)
 	- [home](#home)
 	- [outside](#outside)
 	- [fail2ban](#fail2ban)
 	- [geo](#geo)
 	- [*all*](#all)
+  - [Bandwidth](#bandwidth)
+	- [examples](#bandwidth-examples)
 - [More to come?](#more)
 
 ## Motivation
 
-***PAGE UPDATES IN PROGRESS, information may not be current with "latest" tag***
+***PAGE UPDATES IN PROGRESS, information may not match either "current" or "latest" tag***
+
+<details><summary>Initial</summary>
 
 *Tackle [Issue 1](https://github.com/NBPub/BeatLog/issues/1)*!
 
@@ -27,7 +32,7 @@ I'll probably keep tabs of [home ignores](#home) and [filtrate](#outside) on my 
 \**As noted in the [installation options](/README.md#extra-options), Adminer can provide a nice interface for running SQL commands against the database.*
 
 \*\**The code, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), for Database Explorer query creation provides a good start for building SQL queries based on user inputs.*
-
+</details>
 
 ## API Help Page
 
@@ -38,6 +43,25 @@ The various options will be detailed on this page, with example returns provided
 
 ![API_1](/docs/pics/API_1.png "The API help page shows current options for the JSON API.")
 
+
+
+# Query Parameters
+
+As shown in the image, the [API Help Page](#api-help-page) will provide links to the various options, which follow the scheme: `<your-base-URL>/api/v1/<QUERY>/<OPTION>`. 
+Invalid queries will return a [422](https://www.httpstatuses.org/422) response.
+
+## Data Summary
+
+intro, data summary for past 24 hours
+
+```
+I designed the API to return simple data summaries from the past 24 hours. 
+In this way, it can be easily used in dashboard or alert systems. 
+I'll probably keep tabs of [home ignores](#home) and [filtrate](#outside) on my homepage, for example.
+```
+
+![API_2](/docs/pics/API_2.png "...")
+
 The following datatypes are returned:
 
 - `string` - most items are strings, noted by quotation marks. `"212 MB` All keys are strings. Times may vary from the example, depending on your locale.
@@ -46,12 +70,8 @@ The following datatypes are returned:
 
 Note the structure of the various returns shown below. `"time_bounds"` are included with every return.
 
-## Data Options
 
-As shown in the image, the [API Help Page]() will provide links to the various options, which follow the scheme: `<your-base-URL>/api/v1/<OPTION>`. 
-Invalid options will return a [422](https://www.httpstatuses.org/422) response.
-
-### home
+<details><summary id="home"><b>home</b></summary>
 
 **Notes:**
 
@@ -77,8 +97,9 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
   }
 }
 ```
+</details>
 
-### outside
+<details><summary id="outside"><b>outside</b></summary>
 
 **Notes:**
 
@@ -106,9 +127,9 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
   }
 }
 ```
+</details>
 
-
-### fail2ban
+<details><summary id="fail2ban"><b>fail2ban</b></summary>
 
 **Notes:**
 
@@ -142,8 +163,9 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
   }
 }
 ```
+</details>
 
-### geo
+<details><summary id="geo"><b>geo</b></summary>
 
 **Notes:**
 
@@ -170,8 +192,9 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
   }
 }
 ```
+</details>
 
-### all
+<details><summary id="all"><b>all</b></summary>
 
 **Notes:**
 
@@ -197,6 +220,47 @@ Invalid options will return a [422](https://www.httpstatuses.org/422) response.
   }
 }
 ```
+</details>
+
+## Bandwidth
+
+intro, discuss options
+
+![API_3](/docs/pics/API_3.png "...")
+
+Describe data
+
+- `string` - most items are strings, noted by quotation marks. `"212 MB` Everything but `bytes`
+- `number` - simple integer, not encased in quotation markes. `3`
+- `array` - IP lists, and the [geo]() returns provide arrays (mix of above). They are encased in brackets and items are comma separated. `["Zhengzhou, China", 10]
+
+example return
+```JSON
+{
+  "bandwidth": {
+    "bytes": 251967,
+    "hits": 829,
+    "data_per_hit": "303 bytes",
+    "data": "246 kB",
+    "query": {
+      "field": "http",
+      "value": "10"
+    }
+  }
+}
+```
+
+### Examples
+
+List some examples
+
+<details><summary>═════════</summary>
+
+Stuff
+
+</details>
+
+
 
 ## More?
 

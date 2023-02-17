@@ -15,7 +15,7 @@
 - [Setup](#application-setup)
 - [Development](#development)
 	- [Feedback](#development)
-	- [Upcoming](#planned-improvements)	
+	- [In Progress](#submit-bugs-or-feedback)	
 	- [Local Installation](#local-installation---python-venv)
 	- [Pre-Release Notes](#pre-release-changelog)
 	
@@ -347,8 +347,10 @@ Get the most information from BeatLog following these steps:
 [Details](#pre-alpha-016-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - API v2, additional features to simple JSON API
-    - total bandwidth from access log, specify column and value. ex: `/api/v2/bandwidth/url=/robots.txt`
+  - Add features to simple JSON API
+    - total bandwidth from access log, specify column and value. ex: `/api/v1/bandwidth/url=/robots.txt`
+	- organizing code for API section, more ready to add features. adjusted URL scheme
+	- [documentation](/docs/API.md) in progress
   - allow for SSL in deployment. 
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
@@ -356,6 +358,8 @@ Get the most information from BeatLog following these steps:
   - Do better to ensure that this release is "stable", now that I'm using "stable" tags.
 
 ### Possible Improvements
+
+<details><summary>show/hide</summary>
 
 - Development
   - utilize row factories with psycopg to make cleaner database selections
@@ -366,7 +370,7 @@ Get the most information from BeatLog following these steps:
 - Features
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
-
+</details>
 
 ### Local Installation - Python venv
 
@@ -394,15 +398,18 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
-| alpha-0.1.5 | API v2, currently cobbling onto v1 code. Should organize before release. |
+| alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 
 ### pre alpha-0.1.6 details
 
 <details><summary>═════════</summary>
 
-- API v2 - additional features to simple JSON API
-  - **bandwidth** - returns total bandwidth from access log, currently filter data by specifying one column's value.
-- Bugfixes to make a more "stable" release
+- JSON API
+  - new feature: **bandwidth** - returns total bandwidth from access log, currently filter data by specifying one column's value
+  - named only previous feature **summary**. each "feature" on separate URLs.
+  - separated code into two files. Additional features can be added to existing blueprint.
+    - *future development:* can copy blueprint and establish `API v2` to maintain existing features through unstable releases
+- Bugfixes to make a more "stable" release. Various aesthetic / navigation improvements 
   - .
   - .
 
