@@ -252,7 +252,7 @@ example return
 
 ### Examples
 
-List some examples
+List some examples. Give example SQL to get top values of various fields.
 
 <details><summary>═════════</summary>
 

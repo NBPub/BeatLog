@@ -111,6 +111,5 @@ ORDER BY cities DESC'''
         littles = cur.execute(SQL) .fetchall()
         no_IP = geo_noIP_check(cur)
         _, _, _, _, noname = null_assessment(cur)
-        print(noname)
     return render_template('geo_details.html',bigs=bigs, littles=littles, no_IP=no_IP,
                            geo_table=geo_table, IPs=IPs, alert=alert, chart=chart, noname=noname)

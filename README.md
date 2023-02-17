@@ -350,7 +350,7 @@ Get the most information from BeatLog following these steps:
   - Add features to simple JSON API
     - total bandwidth from access log, specify column and value. ex: `/api/v1/bandwidth/url=/robots.txt`
 	- organizing code for API section, more ready to add features. adjusted URL scheme
-	- [documentation](/docs/API.md) in progress
+	- [documentation](/docs/API.md#simple-json-api) in progress
   - allow for SSL in deployment. 
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.

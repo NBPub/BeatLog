@@ -23,7 +23,6 @@ def api_help():
 @bp.route("/v1/summary/<api_spec>", methods = ['GET'])
 def api_v1(api_spec):
     api_spec = api_spec.lower()
-    print(api_spec)
     if api_spec not in ['all','home','outside','fail2ban', 'geo']:
         abort(422, description = f'''Invalid specification for api/v2/summary/<span class="text-danger">{api_spec}</span>
         <br>Valid Options: <span class="text-success">"home", "outside", "fail2ban", "geo", "all".</span>''')
