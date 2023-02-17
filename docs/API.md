@@ -254,6 +254,17 @@ example return
 
 List some examples. Give example SQL to get top values of various fields.
 
+
+	
+```sql
+SELECT <FIELD>, COUNT(*) FROM access 
+WHERE home=False # optional, only "outside" connections
+GROUP BY <FIELD>
+ORDER BY COUNT DESC 
+LIMIT 10
+```
+
+
 <details><summary>═════════</summary>
 
 Stuff
@@ -271,3 +282,4 @@ submit issue link
  * **geo Check** - count of unnamed locations and locations without an associated IP address
  * **Log Parse** - parse log if modified since last parse
  * **geo Fill** - attempt to name unnamed locations, if present
+ * **geo list** - provide list of all geo data `SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL ORDER BY geo`

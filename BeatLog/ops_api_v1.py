@@ -63,21 +63,62 @@ SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL AND date BETWEEN %(start)s
     return summary_data
     
     
-def bandwidth(api_spec, cur):    
-    
-    if len(api_spec) != 2: 
-        return f'Invalid specification for api/v2/bandwidth/. . . <span class="text-success mx-3">FIELD=VALUE</span><br><span class="text-danger">{"=".join(api_spec)}</span>'
-    
+def bandwidth(api_spec, date_spec, cur):    
+ 
     cols = [col[0] for col in \
-    cur.execute("SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name = %s", ('access',))] 
-
-    if api_spec[0] not in cols:
-        return f'Invalid specification for api/v2/bandwidth/. . . &nbsp;&nbsp;&nbsp; Specified field is not valid.<br><span class="text-danger">{"=".join(api_spec)}</span>'
+    cur.execute("SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name = %s", ('access',))]
+    cols.remove('date')
     
-    byte, pretty, count, pph = cur.execute(sql.SQL('SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {}=%s').format(sql.Identifier(api_spec[0])), 
-         (api_spec[1],)).fetchone()  
-             
-    return {'bandwidth':{'bytes':byte,'data':pretty,'hits':count, 'data_per_hit': pph, 'query':{'field':api_spec[0],'value':api_spec[1]}}}
+    # Invalid FIELD specification
+    if api_spec[0] not in cols:
+        return f'Invalid specification for api/v2/bandwidth/. . .<span class="text-success mx-3">FIELD=VALUE</span>\
+                 <br>Specified field is not valid: <span class="text-danger mx-3 fw-bold">{api_spec[0]}</span>'
+    
+    # Allow LIKE matches for strings, https://www.postgresql.org/docs/current/functions-matching.html
+    if api_spec[0] in ['url','tech','referrer'] and api_spec[1].find('%') != -1:
+        joiner = 'LIKE'
+        if api_spec[1] == '%': # don't allow "match everything"
+            return f'Invalid specification for api/v2/bandwidth/. . . <br>LIKE expression for <span class="text-warning fw-bold">{api_spec[0]}</span>\
+                     must contain at least one specific character, not only "<span class="text-danger fw-bold">%</span>"'
+    else:
+        joiner = '='
+    # Capitalize HTTP method (GET/POST/REPORT . . .)
+    api_spec[1] = api_spec[1].upper() if api_spec[0].lower() == 'method' else api_spec[1]
+    
+    # Perform query with/without date bounds
+    if not date_spec:        
+        # Adjust statement for NULL values
+        if api_spec[1].lower() == 'none':
+            joiner= 'IS NULL'
+            api_spec[1] = None
+            byte, pretty, count, pph = cur.execute(sql.SQL(f'''
+SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {{}} {joiner}''')\
+                                       .format(sql.Identifier(api_spec[0]))).fetchone()              
+        else:           
+            byte, pretty, count, pph = cur.execute(sql.SQL(f'''
+SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {{}} {joiner} %s''')\
+                                       .format(sql.Identifier(api_spec[0])),(api_spec[1],)).fetchone()  
+        # query information for return
+        query = {'field':api_spec[0],'value':api_spec[1]}
+    
+    else:
+        # Adjust statement for NULL values
+        if api_spec[1].lower() == 'none':
+            joiner= 'IS NULL'
+            api_spec[1] = None
+            byte, pretty, count, pph = cur.execute(sql.SQL(f'''
+SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {{}} {joiner} AND date BETWEEN %s AND %s''')\
+                                       .format(sql.Identifier(api_spec[0])), (date_spec[0],date_spec[1])).fetchone()  
+        else:
+            byte, pretty, count, pph = cur.execute(sql.SQL(f'''
+SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {{}} {joiner} %s AND date BETWEEN %s AND %s''')\
+                                       .format(sql.Identifier(api_spec[0])), (api_spec[1],date_spec[0],date_spec[1])).fetchone()   
+        
+        query =  {'field':api_spec[0],'value':api_spec[1], 'time_bounds':dict(start=date_spec[0].strftime('%x'), end=date_spec[1].strftime('%x'))} 
+    
+    
+    
+    return {'bandwidth':{'bytes':byte,'data':pretty,'hits':count, 'data_per_hit': pph, 'query':query}}
     
     
     

@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, render_template, request, current_app, abort, url_for, json#, redirect, 
 )
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from psycopg import sql
 from .db_pool import pool
 from .ops_report import table_build
@@ -40,10 +40,38 @@ def api_v1(api_spec):
     
 @bp.route("/v1/bandwidth/<path:api_spec>", methods = ['GET'])
 def api_v1_bandwidth(api_spec):
-    api_spec = api_spec.split('=')   
+    # FIELD=VALUE or DATE=UNIX-UNIX,FIELD=VALUE    
+    # date=1676341741-1676600941, use these times to test if timezone works properly within container
+    
+    # if date specified, extract values and assemble query parameters
+    if api_spec.split('=')[0].lower() != 'date':
+        # Manually split query at first '=' to allow for '=' use in VALUE 
+        split_ind = api_spec.find('=')
+        api_spec = [api_spec[0:split_ind],api_spec[split_ind+1:]]
+        date_spec = None
+    else:
+        date_spec = api_spec[0:26]
+        try:
+            date_spec = date_spec.split('=')[1].split('-')
+            date_spec = [date.fromtimestamp(int(val)) for val in date_spec]
+            api_spec = api_spec[27:]               
+            split_ind = api_spec.find('=')
+            api_spec = [api_spec[0:split_ind],api_spec[split_ind+1:]]
+        except Exception as e:
+            ex_date = round(datetime.now().timestamp())
+            ex_date = (ex_date-86400, ex_date)
+            abort(422, f'Invalid timestamp specification for api/v2/bandwidth/<span class="text-success">date={ex_date[0]}-{ex_date[1]},</span> . . .\
+                       <br><span class="text-danger">{e}</span>')
+    
+    # no "=" to split FIELD=VALUE, return NO VALUE error
+    if split_ind == -1:
+        abort(422, f'Invalid specification for api/v2/bandwidth/. . . <span class="text-success mx-3">FIELD=VALUE</span>\
+                   <br>No VALUE! <span class="text-danger mx-3">{api_spec[1]}</span>') # &nbsp;                    
+    # Perform SQL, return data + query information
     with pool.connection() as conn:
         cur = conn.cursor()
-        data = bandwidth(api_spec,cur)
+        data = bandwidth(api_spec,date_spec,cur)
+    # Invalid API query, error running SQL
     if type(data) == str:
         abort(422, data)
     return data
