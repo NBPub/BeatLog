@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}API v1 Help{% endblock %}
 {% block content %}
-<h1>API Information <span class="mx-5 fs-4 bg-info px-2">/api/v1/</span></h1>
+<h1>API Information <span class="mx-5 fs-4 bg-info-subtle border border-info-subtle rounded text-primary px-2">/api/v1/</span></h1>
     <div class="row my-5 ms-5">
 	  <div class="col fs-5">
         <p class="me-5">BeatLog contains a simple JSON API. This page describes the available query parameters. More options may be in development.
@@ -9,22 +9,24 @@
 	  </div>
 	  <div class="col fs-5 fw-bold"><ul>Page Contents
 	    <li><a href="#summary">Data Summary</a></li>
-		<li><a href="#summary">Bandwidth</a></li>
-		<li><a href="#summary">Up Next?</a></li>
+		<li><a href="#bandwidth">Bandwidth</a></li>
+		<li><a href="#ideas">Up Next?</a></li>
 	  </ul></div>
 	</div>
 	
 <hr class="my-3">
 <!-- SUMMARY -->
   <h3 class="ms-5" id="summary">Data Summary
-	<span class="bg-info px-2 ms-5 fs-5">{{ url_for('api_v1.api_v1', api_spec='', _external=True) }}<b class="text-primary">[OPTION]</b></span>
+	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
+	  {{ url_for('api_v1.api_v1', api_spec='', _external=True) }}<b>&lt;OPTION&gt;</b>
+	</span>
   </h3>	  
-    <div class="fs-5 my-4">
-	  <b>"Summary"</b> provides various stats from the past 24 hours.		
+    <div class="fs-5 my-4 mx-2">
+	  <b>"Summary"</b> provides various statistics from the past 24 hours.		
 	  The available options are listed and linked below. The returned data can be previewed on this page by clicking the buttons. 
 	  <b class="bg-info rounded px-2 pb-1 fs-6">+</b>
     </div>
-    <form method="POST" action="{{ url_for('api_v1.api_help') }}" class="container-fluid"> 
+    <form method="POST" action="{{ url_for('api_v1.api_help') }}"> 
 	  <div class="row row-cols-md-2 row-cols-xl-3">
 		{% for spec in specs.keys() %}
 		<div class="col">
@@ -52,29 +54,46 @@
 <hr class="my-3">
 <!-- BANDWIDTH -->  
   <h3 class="ms-5" id="bandwidth">Bandwidth
-	<span class="bg-info px-2 ms-5 fs-5">{{ url_for('api_v1.api_v1_bandwidth', api_spec='', _external=True) }}<b class="text-primary">[OPTION]</b></span>
+	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
+	  {{ url_for('api_v1.api_v1_bandwidth', api_spec='', _external=True) }}<b class="text-primary">&lt;OPTION&gt;</b>
+	</span>
   </h3>	  
-    <div class="fs-5 my-4">
-	  <b>"Bandwidth"</b> returns the total data transfered from <b>Access Log</b> hits.		
-	  An option must be specified to filter the data. Specify a valid "field" and a "value" to match for the field.
-	  <br>See the <a href="{{url_for('api_v1.api_v1_bandwidth', api_spec='http=10')}}">example</a> below for a valid 
-	  <b class="text-primary">[OPTION]</b> and to see the structure of returned data.
+    <div class="fs-5 my-4 mx-2">
+	  <b>"Bandwidth"</b> returns data transfer statistics from the <b>Access Log</b>.		
+	  A date range can be specified to limit results, and one FIELD / VALUE pair must be specified.
+	  <br><br>A call is linked below the syntax guide to provide an example of a valid option.
+	  <b class="bg-info rounded px-2 pb-1 fs-6">+</b> will load the return on this page.	  
+	  <p class="fs-6 mx-4 my-5"> 
+	    • <b>Date syntax:</b> <span class="bg-success-subtle px-1 fw-bold">date=&lt;START&gt;-&lt;END&gt;,</span> where 
+		&lt;START&gt; and &lt;END&gt; are <a href="https://unixtime.org/">UNIX timestamps</a>, separated by a dash 
+		<span class="bg-success-subtle px-1 fw-bold">-</span>. They are rounded to the day.
+		If date is specified, a comma <span class="bg-success-subtle px-1 fw-bold">,</span> is used to 
+		separate it from field specification and date specification must come first.<br>
+	    <br>
+		• <b>Field / Value syntax:</b> <span class="bg-success-subtle px-1 fw-bold">&lt;FIELD&gt;=&lt;VALUE&gt;</span>, 
+		where &lt;FIELD&gt; is a valid column in the Access Log database table. &lt;VALUE&gt; can be anything to match to the field.
+		For certain text fields, pattern matching can be utilized with a <span class="bg-success-subtle px-1 fw-bold">%</span>
+		as shown in the example call. See the <a href="https://github.com/NBPub/BeatLog/blob/main/docs/API.md#simple-json-api">API Documentation</a>  
+		for help using <a href="https://www.postgresql.org/docs/current/functions-matching.html">PostgreSQL</a> pattern matching and more guidance.
+	  </p>
     </div>  
+  <form method="POST" action="{{ url_for('api_v1.api_help', _anchor='bandwidth') }}"> 
+	<span class="ms-5 my-2">...<a class="fs-5 fw-bold" href="{{url_for('api_v1.api_v1_bandwidth',api_spec=ex_bandwidth)}}">/{{ex_bandwidth}}</a></span>
 	<div class="bg-dark text-warning p-3"><pre><code>
-	  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1_bandwidth',_external=True, api_spec='')}}http=10</span>
-{
-  "bandwidth": {
-    "bytes": 251967,
-    "hits": 829,
-    "data_per_hit": "303 bytes",
-    "data": "246 kB",
-    "query": {
-      "field": "http",
-      "value": "10"
-    }
-  }
-}
-	</code></pre></div>  
+	  <button type="submit" class="btn btn-sm btn-info me-5 fw-bold rounded" name="load_example" value="bandwidth" 
+	  title="Load Example" style="float:right" data-bs-toggle="tooltip">+</button>	
+	  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1_bandwidth',_external=True, api_spec='')}}{{ex_bandwidth}}</span>	  
+	  {% if ex_return %}<br>{{ ex_return }}{% endif %}	  
+	</code></pre></div>
+  </form>
+  <div class="my-4 mx-1">
+    <em>Note:</em> The following <b>Data Summary API</b> and <b>Bandwidth API</b> calls were equivalent when this page was loaded</em>
+	<div class="text-muted row mt-3 fw-bold"><div class="col ms-5">
+	  .../summary/home<br><br>.../summary/outside
+	</div><div class="col me-5">
+	  .../{{ ex_bandwidth[0:27] }}home=True<br><br>.../{{ ex_bandwidth[0:27] }}home=False
+	</div></div>
+  </div>
 <hr>
 <!-- Other Ideas -->  
   <h3 class="ms-5" id="ideas">Up Next?</h3>

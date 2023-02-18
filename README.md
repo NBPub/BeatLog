@@ -348,7 +348,7 @@ Get the most information from BeatLog following these steps:
 
 - Features
   - Add features to simple JSON API
-    - total bandwidth from access log, specify column and value. ex: `/api/v1/bandwidth/url=/robots.txt`
+    - total bandwidth from access log with filters
 	- organizing code for API section, more ready to add features. adjusted URL scheme
 	- [documentation](/docs/API.md#simple-json-api) in progress
   - allow for SSL in deployment. 
@@ -356,6 +356,7 @@ Get the most information from BeatLog following these steps:
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
 - Bugfixes
   - Do better to ensure that this release is "stable", now that I'm using "stable" tags.
+- No longer building **arm32v7** image with each commit, will only build for stable releases
 
 ### Possible Improvements
 
@@ -405,12 +406,19 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 <details><summary>═════════</summary>
 
 - JSON API
-  - new feature: **bandwidth** - returns total bandwidth from access log, currently filter data by specifying one column's value
-  - named only previous feature **summary**. each "feature" on separate URLs.
+  - new feature: **[bandwidth](/docs/API.md#bandwidth)** - returns total bandwidth from access log.
+    - filter return by specifying FIELD and VALUE. String matching provided for `tech`,`URL`, and `referrer`
+	- optional filter by date with start/stop inputs. only supporting UNIX format for now
+	- see documentation (linked above) for more details, ***in progress***
+  - named only previous feature **[summary](/docs/API.md#data-summary)**. each "feature" on separate URLs.
   - separated code into two files. Additional features can be added to existing blueprint.
     - *future development:* can copy blueprint and establish `API v2` to maintain existing features through unstable releases
+- Docker Image Workflows
+  - no longer building "latest" image automatically with each commit for `armhf` AKA `arm32v7` architectures, can build on request
+  - will continue building "stable" images with each release
 - Bugfixes to make a more "stable" release. Various aesthetic / navigation improvements 
-  - .
+  - API bugfixes
+  - Updated [Bootstrap](https://getbootstrap.com/docs/) from to 5.3 from 5.2
   - .
 
 </details>

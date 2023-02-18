@@ -14,11 +14,21 @@ bp = Blueprint('api_v1', __name__, url_prefix='/api')
 @bp.route("/help/", methods = ['GET', 'POST'])
 def api_help():
     specs = {val:None for val in ['home','outside','fail2ban', 'geo']}
+    ex_bandwidth = round(datetime.now().timestamp())
+    ex_bandwidth = f'date={ex_bandwidth-86400}-{ex_bandwidth},referrer=%http://%'
+    ex_return = None
+    
     if request.method == 'POST' and 'load_example' in request.form:
         spec = request.form['load_example']
-        data = json.dumps(json.loads(urlopen(Request(url_for('api_v1.api_v1',_external=True,api_spec=spec))).read().decode('utf-8')),indent=1)
-        specs[spec] = data
-    return render_template('api_help.html', specs=specs)
+        if spec != 'bandwidth':
+            data = json.dumps(json.loads(urlopen(Request(url_for('api_v1.api_v1',_external=True,api_spec=spec)))\
+                              .read().decode('utf-8')),indent=1)
+            specs[spec] = data
+        else:
+            ex_return = json.dumps(json.loads(urlopen(Request(url_for('api_v1.api_v1_bandwidth',_external=True,
+                        api_spec=ex_bandwidth))).read().decode('utf-8')),indent=1)
+    
+    return render_template('api_help.html', specs=specs, ex_bandwidth=ex_bandwidth, ex_return=ex_return)
                                                   
 @bp.route("/v1/summary/<api_spec>", methods = ['GET'])
 def api_v1(api_spec):
@@ -68,6 +78,7 @@ def api_v1_bandwidth(api_spec):
         abort(422, f'Invalid specification for api/v2/bandwidth/. . . <span class="text-success mx-3">FIELD=VALUE</span>\
                    <br>No VALUE! <span class="text-danger mx-3">{api_spec[1]}</span>') # &nbsp;                    
     # Perform SQL, return data + query information
+    api_spec[0] = api_spec[0].lower()
     with pool.connection() as conn:
         cur = conn.cursor()
         data = bandwidth(api_spec,date_spec,cur)
