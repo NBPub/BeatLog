@@ -18,7 +18,7 @@
 <!-- SUMMARY -->
   <h3 class="ms-5" id="summary">Data Summary
 	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
-	  {{ url_for('api_v1.api_v1', api_spec='', _external=True) }}<b>&lt;OPTION&gt;</b>
+	  {{ url_for('api_v1.api_v1_summary', api_spec='', _external=True) }}<b>&lt;OPTION&gt;</b>
 	</span>
   </h3>	  
     <div class="fs-5 my-4 mx-2">
@@ -30,21 +30,21 @@
 	  <div class="row row-cols-md-2 row-cols-xl-3">
 		{% for spec in specs.keys() %}
 		<div class="col">
-		  <h3 class="my-2">&nbsp;&nbsp;...<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1', api_spec=spec)}}">/summary/{{spec}}</a>	    
+		  <h3 class="my-2">&nbsp;&nbsp;...<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1_summary', api_spec=spec)}}">/summary/{{spec}}</a>	    
 		  </h3>
 			<div class="bg-dark text-warning p-3"><pre><code>		  
 				<button type="submit" class="btn btn-sm btn-info me-5 fw-bold rounded" name="load_example" value="{{spec}}" title="Load Example" style="float:right"
 				data-bs-toggle="tooltip">+</button>
-			  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1',_external=True, api_spec=spec)}}</span>
+			  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1_summary',_external=True, api_spec=spec)}}</span>
 			  {% if specs[spec] %}<br>{{ specs[spec] }}{% endif %}
 			</code></pre></div>
 		</div>
 		{% endfor %}
 
 		<div class="col">
-		  <h3 class="ms-5 my-2">...<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1',api_spec='all')}}">/summary/all</a></h3>
+		  <h3 class="ms-5 my-2">...<a class="fs-3 fw-bold" href="{{url_for('api_v1.api_v1_summary',api_spec='all')}}">/summary/all</a></h3>
 			<div class="bg-dark text-warning p-3"><pre><code>
-			  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1',_external=True, api_spec='all')}}</span>
+			  <span class="text-info" style="float:left;">{{url_for('api_v1.api_v1_summary',_external=True, api_spec='all')}}</span>
 			  <br>All results combined into one.<br>All data is gathered with the same start and stop times.
 			</code></pre></div>
 		</div>

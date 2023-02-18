@@ -103,7 +103,7 @@ BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created
 "Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
 Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
 
-Current release: **[alpha-0.1.4](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)**, In development: **[alpha-0.1.5](#development)**<br>
+Current release: **[alpha-0.1.5](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)**, In development: **[alpha-0.1.6](#development)**<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
 | x86-64 | *latest* | *stable*, *alpha-0.1.4* |
@@ -342,21 +342,24 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.5
+### In Progress, alpha-0.1.7
 
-[Details](#pre-alpha-016-details), [Previous Versions](#pre-release-changelog)
+[Details](#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - Add features to simple JSON API
-    - total bandwidth from access log with filters
-	- organizing code for API section, more ready to add features. adjusted URL scheme
-	- [documentation](/docs/API.md#simple-json-api) in progress
-  - allow for SSL in deployment. 
+  - allow for SSL in deployment
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
+	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
+  - API v1 fixes/improvements
+    - handle geography data better / provide calls to retrieve geography data
+	- other ideas [listed](/docs/API.md#more) on page?
+- Documentation
+  - planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now
+  - will update Contents sections to include external links
+  - will likely break a lot of existing links in the process
 - Bugfixes
-  - Do better to ensure that this release is "stable", now that I'm using "stable" tags.
-- No longer building **arm32v7** image with each commit, will only build for stable releases
+  - 
 
 ### Possible Improvements
 
@@ -400,6 +403,17 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
+| alpha-0.1.6 | *No releases* |
+
+### pre alpha-0.1.7 details
+
+<details><summary>═════════</summary>
+
+- Nothing
+  - Yet!
+
+</details>
+
 
 ### pre alpha-0.1.6 details
 
@@ -409,7 +423,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
   - new feature: **[bandwidth](/docs/API.md#bandwidth)** - returns total bandwidth from access log.
     - filter return by specifying FIELD and VALUE. String matching provided for `tech`,`URL`, and `referrer`
 	- optional filter by date with start/stop inputs. only supporting UNIX format for now
-	- see documentation (linked above) for more details, ***in progress***
+	- see documentation (linked above) for more details
   - named only previous feature **[summary](/docs/API.md#data-summary)**. each "feature" on separate URLs.
   - separated code into two files. Additional features can be added to existing blueprint.
     - *future development:* can copy blueprint and establish `API v2` to maintain existing features through unstable releases
@@ -419,7 +433,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 - Bugfixes to make a more "stable" release. Various aesthetic / navigation improvements 
   - API bugfixes
   - Updated [Bootstrap](https://getbootstrap.com/docs/) from to 5.3 from 5.2
-  - .
+  - minor fixes
 
 </details>
 

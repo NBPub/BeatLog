@@ -1,6 +1,6 @@
 # Simple JSON API
 
-***API DEVELOPMENT IN PROGRESS, information may not match either "stable" or "latest" tag***
+***Page updated as of [alpha-0.1.5](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)**), new changes will be called out separately***
 
 - [Motivation](#motivation)
 - [API Help Page](#api-help-page)
@@ -31,7 +31,7 @@ more complex data retrievals I like to reference often.
 `<your-base-URL>/api/help/`
 
 **BeatLog** provides an API help page which provides links to all available options and the ability to preview returns on the page itself. 
-The available options will be detailed on this page, with example returns provided and datatypes discussed. 
+The available options will be detailed on this page, with example returns provided and data types discussed. 
 
 ![API_1](/docs/pics/API_1.png "The API help page shows current options for the JSON API.")
 
@@ -59,11 +59,11 @@ You could also create an alert if the current home IP address is not being ignor
 
 ![API_2](/docs/pics/API_2.png "BeatLog API help page - Data Summary")
 
-The following datatypes are returned for the **Data Summary** options:
+The following data types are returned for the **Data Summary** options:
 
 - `string` - most items are strings, noted by quotation marks. `"<some-value>"` All keys are strings. Time format may vary from the examples, depending on your locale.
 - `number` - simple integer, not encased in quotation markes. `3` OR `<some-integer>`
-- `array` - "IP" and "ignored_IPs" keys are lists strings, and the [geo option](#geo) returns arrays of mixed datatypes. The values within arrays are encased in brackets and comma separated. `["Zhengzhou, China", 10]`
+- `array` - "IP" and "ignored_IPs" keys are lists strings, and the [geo option](#geo) returns arrays of mixed data types. The values within arrays are encased in brackets and comma separated. `["Zhengzhou, China", 10]`
 
 Note the structure of the various example returns shown below. 
 `"time_bounds"` are included with every return.
@@ -234,7 +234,7 @@ Note the structure of the various example returns shown below.
 `<your-base-URL>/api/v1/bandwidth/<OPTION>`
 
 The **Bandwidth** query returns data transfer statistics from the [Access Log table](/docs#access-logs---access) in the database. 
-The keys and their datatypes are listed below. If a valid query returns 0 hits, data values will be <em>`null`</em> instead of their listed *type*.
+The keys and their data types are listed below. If a valid query returns 0 hits, data values will be <em>`null`</em> instead of their listed *type*.
  
 - `"bytes"` - sum of raw bytes, as stored in the database. *number*
 - `"hits"` - number of connections (rows) returned by the query. *number*
@@ -247,17 +247,18 @@ The keys and their datatypes are listed below. If a valid query returns 0 hits, 
 ### Bandwidth Option Syntax
 
   - **Required filter:** `<FIELD>=<VALUE>`<br>`<FIELD>` must be a valid column (capitalization is ignored). `<VALUE>` may be anything to match to the field. Values for some fields must be a specific data type.
-    - Review the [documentation](/docs#access-logs---access) for valid fields and and their datatypes. Valid datatypes are also listed in the [query guide](#bandwidth-query-guide) below.
+    - Review the [documentation](/docs#access-logs---access) for valid fields and and their data types. Valid data types are also listed in the [query guide](#bandwidth-query-guide) below.
+	- If `<VALUE>` is `None`, it will be interpreted as `NULL` for the SQL query. 
+	  - `geo=None` as a query option would translate to `WHERE geo IS NULL`
     - For the **URL**, **referrer**, and **tech** fields, pattern matching can be employed. The SQL query will use `<FIELD> LIKE <VALLUE>` instead of `<FIELD> = <VALLUE>`
-	  - To enable, include at least one `%` in the `<VALUE>`. The value cannot only be `%`
-	  - Escapse `%`'s meant to be taken literally by adding a backslash before it `\%`
-	  - refer to [PostgreSQL documentation](https://www.postgresql.org/docs/current/functions-matching.html)
+	  - To enable, include at least one `%` in the `<VALUE>`. A value cannot contain `%`
+	  - Escapse a `%` meant to be taken literally by adding a backslash before it  for more information
  <br>
  
- - **Optional date filter:** `date=<START>-<END>,``<FIELD>=<VALUE>`<br>`<START>` and `<END>` must be [UNIX timestamps](https://unixtime.org/) with one second resolution (10 digit integer).
+ - **Optional date filter:** `date=<START>-<END>, . . . `<br>`<START>` and `<END>` must be [UNIX timestamps](https://unixtime.org/) with one second resolution (10 digit integer).
     - `<START>` and `<END>` must be separated by a dash. Date specification and field/value pairs must be comma separated. *as shown above*
     - If date is specified, it must come before the field/value pair.
-    - times are rounded to the nearst days for the SQL query. They will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
+    - Times are rounded to the nearst day for the SQL query. They will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
 	- Specifying `<START>` greater than or equal to `<END>` ensures an empty result
 
 <details><summary id="example-bandwidth-return"><b>example call and return</b></summary>
@@ -312,6 +313,17 @@ Links to PostgreSQL documentation are provided, when applicable.
 | **Referrer** | `referrer=https://www.google.com/` OR `referrer=%google%` | pattern matching available. 2nd example:<br>*contains "google"*  |
 | **Tech** | `tech=Mozilla/5.0 zgrab/0.x` OR `tech=%iOS%` | pattern matching available. 2nd example:<br>*contains "iOS"*  |
 | **Geo** | `geo=22` | must be an integer. Currently matches the rowid on the [geography table](/docs#geography-table---geoinfo). May be further developed to make matching more human friendly. |
+
+Still not sure about Field/Value pairs? The **Top 10 Tables** in the [BeatLog report](/docs#outside-demo) are a good place to start. 
+You can query the most popular values for a `<FIELD>` from the entire database with the following SQL:
+
+```sql
+SELECT <FIELD>, COUNT(*) FROM access 
+WHERE home=False # optional, only outside connections
+GROUP BY <FIELD>
+ORDER BY COUNT DESC 
+LIMIT 10
+```
 
 
 ## More?

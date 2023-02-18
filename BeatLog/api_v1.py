@@ -18,10 +18,10 @@ def api_help():
     ex_bandwidth = f'date={ex_bandwidth-86400}-{ex_bandwidth},referrer=%http://%'
     ex_return = None
     
-    if request.method == 'POST' and 'load_example' in request.form:
+    if request.method == 'POST' and 'load_example' in request.form: # API data return preview
         spec = request.form['load_example']
         if spec != 'bandwidth':
-            data = json.dumps(json.loads(urlopen(Request(url_for('api_v1.api_v1',_external=True,api_spec=spec)))\
+            data = json.dumps(json.loads(urlopen(Request(url_for('api_v1.api_v1_summary',_external=True,api_spec=spec)))\
                               .read().decode('utf-8')),indent=1)
             specs[spec] = data
         else:
@@ -31,7 +31,7 @@ def api_help():
     return render_template('api_help.html', specs=specs, ex_bandwidth=ex_bandwidth, ex_return=ex_return)
                                                   
 @bp.route("/v1/summary/<api_spec>", methods = ['GET'])
-def api_v1(api_spec):
+def api_v1_summary(api_spec): # validate option, establish time bounds, return data
     api_spec = api_spec.lower()
     if api_spec not in ['all','home','outside','fail2ban', 'geo']:
         abort(422, description = f'''Invalid specification for api/v2/summary/<span class="text-danger">{api_spec}</span>
@@ -49,10 +49,7 @@ def api_v1(api_spec):
     return data
     
 @bp.route("/v1/bandwidth/<path:api_spec>", methods = ['GET'])
-def api_v1_bandwidth(api_spec):
-    # FIELD=VALUE or DATE=UNIX-UNIX,FIELD=VALUE    
-    # date=1676341741-1676600941, use these times to test if timezone works properly within container
-    
+def api_v1_bandwidth(api_spec): # FIELD=VALUE or DATE=UNIX-UNIX,FIELD=VALUE        
     # if date specified, extract values and assemble query parameters
     if api_spec.split('=')[0].lower() != 'date':
         # Manually split query at first '=' to allow for '=' use in VALUE 
@@ -86,27 +83,3 @@ def api_v1_bandwidth(api_spec):
     if type(data) == str:
         abort(422, data)
     return data
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
