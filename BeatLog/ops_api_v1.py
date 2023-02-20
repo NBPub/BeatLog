@@ -113,7 +113,7 @@ def bandwidth(api_spec, date_spec, cur):
     SELECT SUM(bytes), pg_size_pretty(SUM(bytes)),COUNT(bytes), pg_size_pretty(SUM(bytes)/COUNT(bytes)) FROM access WHERE {{}} {joiner} %s AND date BETWEEN %s AND %s''')\
                                            .format(sql.Identifier(api_spec[0])), (api_spec[1],date_spec[0],date_spec[1])).fetchone()   
             
-            query =  {'field':api_spec[0],'value':api_spec[1], 'time_bounds':dict(start=date_spec[0].strftime('%x'), end=date_spec[1].strftime('%x'))} 
+            query =  {'field':api_spec[0],'value':api_spec[1], 'time_bounds':dict(start=date_spec[0].strftime('%x %X'), end=date_spec[1].strftime('%x %X'))} 
     except Exception as e:
         e = str(e).split('\n')[0]
         return f'Invalid specification for api/v2/bandwidth/. . .<br><span class="text-danger">{e}</span>'

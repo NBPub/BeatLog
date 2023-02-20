@@ -60,7 +60,7 @@ def api_v1_bandwidth(api_spec): # FIELD=VALUE or DATE=UNIX-UNIX,FIELD=VALUE
         date_spec = api_spec[0:26]
         try:
             date_spec = date_spec.split('=')[1].split('-')
-            date_spec = [date.fromtimestamp(int(val)) for val in date_spec]
+            date_spec = [datetime.fromtimestamp(int(val)) for val in date_spec] # change to date.fromtimestamp() to round to nearest day
             api_spec = api_spec[27:]               
             split_ind = api_spec.find('=')
             api_spec = [api_spec[0:split_ind],api_spec[split_ind+1:]]

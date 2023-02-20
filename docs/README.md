@@ -1,6 +1,23 @@
-# BeatLog Guide <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> 
+# BeatLog Documentation <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> 
 
-## Contents
+
+## Documentation Pages
+
+- **Installation**
+  - [Docker Compose](/README.md#installation)
+    - [Parameter Details](/README.md#parameters)
+  - [Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) 
+- ***[Setup Guide](#setup-guide-contents)*** *this page*
+- **Features**
+  - [Report](/docs/Features/Report.md#contents)
+  - [Geography](/docs/Features/Geography#contents)
+  - [Database](/docs/Features/Database_Explorer.md#contents)
+  - [JSON API](/docs/Features/API.md#simple-json-api)
+- **BeatLog History**
+  - [Detailed Changelog](/docs/Installation/Changelog.md#contents)
+  - [NullConnectionPool](/docs/Installation/NullConnectionPool.md#background)  
+
+## Setup Guide Contents
 
 - [Setup](#setup)
 	- [Data Sources](#data-sources)
@@ -13,25 +30,6 @@
 - [Scheduled Tasks](#scheduled-tasks)
 	- [Home IP](#home-ip-check)
 	- [Log Check](#log-check)
-- [Report](#report-demo)
-	- [Home](#home-demo)
-	- [Outside](#outside-demo)
-	- [Settings: Known Devices](#known-devices)
-	- [Settings: Home Ignorable](#home-ignorable)	
-	- [fail2ban](#fail2ban-demo)
-- [Beat! Button](#beat-button)
-- [Database Explorer](#database-explorer)
-- [Geography](#geography)
-	- [Fill Unnamed Locations](#location-lookup)
-	- [Visitor Map](#visitor-map-demo)
-	- [Data Assessment](#tables-charts)
-- [Custom Reports or Maps](#custom-reports-and-maps)
-- [Database Cleanup](#database-cleanup)
-- [Failed Regex](#failed-regex)
-
-**See Also**
-- [API Help Page](/docs/API.md#simple-json-api)
-- [Null Connection Pool](/docs/NullConnectionPool.md#background)
 
 ## Setup
 
@@ -142,7 +140,7 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 
 ![geo_set2](/docs/pics/Settings_geography.png "Geography settings, MaxMindDB")
 
-While here, a user-agent header may be specified for reverse geocoding. This is required to [look-up](#location-lookup) unnamed locations. 
+While here, a user-agent header may be specified for reverse geocoding. This is required to [look-up](/docs/Features/Geography#location-lookup) unnamed locations. 
 Refer to the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/).
 
 ### Regex Methods
@@ -296,271 +294,6 @@ The default interval for home IP checks is `12` hours, starting 30 seconds after
 ### Log Check
 
 Without scheduling, logs are only [parsed](#parsing) by user request. Logs will only be parsed if their *date modified* has changed since the last parsing. 
-If [locations](#maxminddb) are added without a name, their locations will be [looked up](#location-lookup).   
+If [locations](#maxminddb) are added without a name, their locations will be [looked up](/docs/Features/Geography#location-lookup).   
 
 The default interval for checking and parsing all available logs is `3` hours, starting 15 minutes after container startup. Set to `0` to disable task.
-
-## Report [|demo|](https://nbpub.github.io/BeatLog/#scrollspyTop)
-
-The report provides valaubale information from your processed data. The duration of a "recent report", **Known Devices**, and other options can be set in the **[Report Settings](#known-devices)**. 
-See [custom reports](#custom-reports-and-maps) for report generation over a chosen time range.
-
-Below is the overall summary shown at the top of the report. The **Daily Action Counts** chart summarizes key connection counts. 
-
-![report_top](/docs/pics/Report_Top_summary.png "Start of report, action count table")
-*hover over any chart for detailed data*
-
-**Daily Action Counts**
-- fail2ban **Finds** (unique IP/filter), overlap of filters possible `... [filter] Found <IP> ...`
-- fail2ban **Bans** (unique IP/filter), overlap of filters possible  `... [filter] Ban <IP>`
-- outside **Visitors** (unique IP), from error and access logs
-- fail2ban **Ignores** (total) `... [filter] Ignore <IP> ...`
-- home **Ignorable** (total) - *see bottom row of [home summary](#home) below*
-
-### Home [|demo|](https://nbpub.github.io/BeatLog/#scrollspyHome)
-
-The home connections are summarized in a few tables and bar charts. I have strict fail2ban filters setup for connections that:
-1. do not use `HTTP/2`, i.e. `HTTP/1.0` or `HTTP/1.1` connections
-2. return 4xx [status codes](https://www.httpstatuses.org/), client errors
-
-Therefore, I flag these connections as **home ignorable**, indicated in the bottom row of the summary table and the action count chart above. 
-**Daily Action Counts** above shows a fortunate situation. Despite a number of **home ignorable** connections, no fail2ban filters registered **ignores**.
-This suggests that the exceptions I have in my strict filters are allowing what I want them to.
-
-![report_home](/docs/pics/Report_Home_summary.png "Home Summary, daily table and graphs")
-![report_home2](/docs/pics/Report_Home_summary2.png "Home Summary, devices")
-
-Note **DSub** and the blurred user-agents in the **Home Devices** table. These are used in the **Known Devices** [setting](#known-devices), to separate certain Outside connections.
-
-As discussed above, no fail2ban home ignores were found in the report duration. If they were, they would be presented in the Home Summary, as shown below.
-
-<details><summary>Home Ignores</summary>
-
-![Report_Home_ignore](/docs/pics/Report_Home_ignore.png "Home Ignores button to show/hide table appears below home devices")
-![Report_Home_ignored](/docs/pics/Report_Home_ignored.png "Home Ignores table")
-
-The `404` status returns were caught by the **nginx-http** filter. These requests would have resulted in a ban if the IP were not ignored, as set in [jail.local](#fail2ban-jail).
-
-</details>
-
-### Outside [|demo|](https://nbpub.github.io/BeatLog/#scrollspyOutside)
-
-The outside section provides more detail than the home section. 
-The **Hit Counts by Log** chart (top-right) lists the amount of IPs that visited a certain amount of times. For unwanted visitors, the amount of hits should be low. 
-The graph below indicates that most visitors (>100) only visited one time. 
-
-Note the one address that had 5 requests. It is also shown in the **Frequent Visitors** table. The table indicates that the IP's 5 hits occured within one second, and it was promptly banned.
-
-![report_outside1](/docs/pics/Report_Outside_summary.png "Report's summary of Outside connections")
-![report_outside1](/docs/pics/Report_Outside_frequent.png "Frequent Visitors tables, updated to show data")
-
-As referenced in the **Home Devices** table, a separate **Frequent Visitors - Known Devices** table is provided due to the report [settings](#known-devices). 
-These IPs were separated based on their user-agents (tech), and are not shown in the **Hit Counts by Log** table.
-
-A number of **Top 10** tables are presented. The data in these tables may help design fail2ban filters. Top 10 tables now show the average data returned by the requests.
-
-![report_outside2](/docs/pics/Report_Outside_top10_locations.png "Top 10 tables of Outside locations, note settings")
-
-Again, the report settings allow Known Devices to be separated into their own tables.
-
-![report_outside3](/docs/pics/Report_Outside_top10.png "Top 10 tables of outside requested resources and user-agents, note separation of Known Devices")
-
-### Known Devices
-
-The image below shows the available **Report Settings**. All settings shown below were modified from their defaults. 
-Report settings are on the same page as **Geography Settings**, and can also be accessed from the **Options** drop-down menu.
-
-**Known Devices** can be used to separate some Outside connections from the rest of the pack. 
-They are identified by their [user-agent AKA tech](#processed-data).
-Once **Known Devices** have been identified, they can be separated / excluded from a number of report features.
-
-![report_set](/docs/pics/Settings_report.png "exclude Known Devices in Report settings")
-
-### Home Ignorable
-
-The criteria for **fail2ban home ignores** may seem redundant, provided the [discussion](#home) in the home section. 
-If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** table. 
-
-***Current implementation of fail2ban Home Ignores may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution***
-
-<details><summary>usage</summary>
-
-**Report Setting:** `(status ...)`, see [database querying](#database-explorer) for help determining setting
-```sql
---SQL Selects in Report:
---Home Ignores. time selection omitted from example
-SELECT  DISTINCT date_trunc('second', fail2ban.date) "time", filter, <access_info>
-FROM "fail2ban" INNER JOIN "access" on date_trunc('second',fail2ban.date) = access.date
-WHERE access.home=True AND fail2ban.home=True AND fail2ban.action='Ignore'
-
--- further specify what might have been ignored
--- 4xx status codes or non HTTP/2 connections
-AND (status BETWEEN 400 AND 499 OR http<20)
-
-```
-
-</details>
-
-Given that many requests can happen within a second, and **access.log**'s time resolution of one second vs. fail2ban.log's one micro-second resolution, 
-speciying home connections that should be ignored (ignorable) will help match the appropriate home requests with fail2ban ignores. Excess matches may be presented otherwise.
-
-### fail2ban [|demo|](https://nbpub.github.io/BeatLog/#scrollspyfail2ban)
-
-The fail2ban section provides a bar-chart summarizing the filters used (and a table for un-used filters, if present). 
-A section of the recent-actions table is shown in the image, which can serve as a sanity check. Are filters finding, and then banning IPs as expected with their number of retries?
-
-![report_f2b](/docs/pics/Report_fail2ban_summary.png "Report's fail2ban summary, filtrate tables not shown")
-
-Not shown in the image are **filtrate tables**. Any outside connections from IPs that were not found or banned by fail2ban will be listed according to their log.
-
-<details><summary>Filtrate</summary>
-
-![Report_fail2ban_filtrate1](/docs/pics/Report_fail2ban_filtrate1.png "Filtrate from both the Access and Error logs, number is total connections")
-![Report_fail2ban_filtrate2](/docs/pics/Report_fail2ban_filtrate2.png "Buttons show/hide tables.")
-
-These visitors were not picked up by fail2ban, at least within the duration of the report. They would be prime candidates for the ***[Beat Button](#beat-button)!***
-
-</details>
-
-
-## Beat Button
-
-On the right side of the navigation bar is a text-box combined with a **Beat** button. This is intended as a companion when reviewing logs or the **Report**. 
-Enter a valid IP address and press the button to open a new tab showing recent connections and fail2ban entries matching the IP address.
-
-In this example, the **Top 10 Data Transfers** will be referenced to supply an IP address. 
-*Also note the* **Contents** *button on the navigation bar, it appears on the Report page to provide convenient scrolling*
-
-![beat1](/docs/pics/beat_1.png "Enter an IP address and click the button")
-
-The connection from the table is the only one from `54.226.246.60` in the database. This same connection was Found and Banned by fail2ban.
-
-![beat2](/docs/pics/beat_2.png "Tables showing connection and fail2ban data matching the IP")
-
-## Database Explorer
-
-While the [Beat Button](#beat-button) may only provide a limited result of the logs (up to 10 rows from each), 
-a log's data can be fully explored through the **Database Query** page. Results are always sorted by time, with 
-a specific start or end time specified. They default to `Starting : one week before now` and `Ending : now` on page load.
-
-![dataview1](/docs/pics/query_1.png "Query options for Database Explorer") 
-
-Each log be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
-
-<details><summary>Query Descriptions</summary>
-
-| Log - Query | Description |
-| :----: | --- |
-| **ALL** - Basic | Simply use the options specified at the top of the page. They default to all entries, going back from now, limited to 50 rows per page. |
-| --- | --- | --- |
-| **Access** - Ignorable | Hits matching *Home Ignorable* [specification](#home-ignorable), if set. |
-| **Access** - Known Devices | Hits with user-agents matching *Known Devices* [specification](#known-devices), if set. |
-| **Access** - Filtrate | Outside hits with IPs not banned by fail2ban. Matches limited to one-week blocks. |
-| **Access** - Regex2 | Log data processed by the *default* secondary [regex method](#adding-regex-to-logs). They lack [data](#access-logs---access) for HTTP protocol version and request method. |
-| **Access** - HTTP v X | Hits with the specified HTTP network protocol [version](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Evolution_of_HTTP). One grouping for `2.0` and another for `1.0, 1.1` |
-| **Access** - HTTP Xxx | Hits with the specified HTTP response [status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) grouping. see [Neat Reference](https://www.httpstatuses.org/) |
-| --- | --- | --- |
-| **Error** - IP v X | Internet Protocol address [version](https://en.wikipedia.org/wiki/IP_address#IP_versions). `IPv4` or `IPv6` |
-| **Error** - Filtrate | Outside hits with IPs not banned by fail2ban. Matches limited to one-week blocks. |
-| **Error** - Level | All available Error Log [severity levels](https://en.wikipedia.org/wiki/Syslog#Severity_level) for entries are provided. Parsed data [info](#error-log---error)  |
-| --- | --- | --- |
-| **fail2ban** - Ignores | fail2ban entries with the "Ignore" action. I have fail2ban ignore my local, "Home", IP to allow me to tailor filters.  |
-| **fail2ban** - Match Ignores | Attempt to match fail2ban ignores with home hits on the access log. Home Ignorable [specification](#home-ignorable) may improve matching. Same table as shown in [report](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs). |
-| **fail2ban** - Filter | query for each fail2ban filter |
-
-</details>
-
-![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options shown above") 
-
-Coordinates, Cities, and Counties are added if any of the results have [geoinfo](#maxminddb). 
-Unlike the report, the data is not styled in any way on the tables, providing a raw view of the database. 
-Data styling is retained for ***Match Ignores***, however, which attempts to combine associated entries from 
-the **fail2ban** and **access** logs. *[Report demo example](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs)*
-
-If the results are larger than the size limit, the result page provides a link to view more data. 
-
-![dataview3](/docs/pics/query_3.png "Query result table (entire table not shown).") 
-
-If the **Next** button is used, a **Previous** button is provided on the page. 
-This will only backtrack to the query from the source page. 
-For this reason, it may be beneficial to open **Next** results in a new tab or window.
-
-The **SQL** statement used to generate the table can be viewed for each result. 
-
-![dataview4](/docs/pics/query_4.png "If Next button used, a Previous button provides a link to one query back") 
-
-Conveniently, it can be copied to the clipboard with a click. *Action may be disabled by web browser, SSL [certificate](https://github.com/FiloSottile/mkcert) may be required.*
-
-![dataview5](/docs/pics/query_5.png "Copy SQL statement to clipboard") 
-![dataview6](/docs/pics/query_6.png "Paste SQL statement somewhere") 
-
-
-## Geography
-
-After adding the [GeoLite2-City](#maxminddb) file to **BeatLog**, locations will be added to all outside IP addresses. There are a few ways to interact with location data.
-
-### Location Lookup
-
-If a city or country name is not found during parsing, unnamed locations can be manually filled or looked up using reverse geocoding from [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/). 
-The table of unnamed locations provides OpenStreetMaps and GoogleMaps links for the coordinates to help name or check the naming of locations.
-
-*City or country names saved as "None" will be interpreted as [NULL](https://en.wikipedia.org/wiki/Null_(SQL)), currently. can change later*
-
-![Geography_locationfill](/docs/pics/Geography_locationfill.png "(Un)named locations page with blank locations")
-
-Location lookup pauses for one second in between each request to ensure rate limits are observed. If names were added to locations, they are indicated in a list. 
-A portion of the resulting page is shown below.
-
-![Geography_locationfilled](/docs/pics/Geography_locationfilled.png "Snippet of page after successful location naming")
-
-How did the Nominatim service do for the top row in the table?
- - Coordinates: **(51.2993, 9.491)**
- - [OpenStreetMap](https://www.openstreetmap.org/#map=14/51.2993/9.4910), [GoogleMaps](https://www.google.com/maps/@51.2993,9.491,13z)
- - Location Filled: **Kassel, Germany**
-
-
-### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
-
-Outside visitor locations can be plotted on an interactive map, with their markers scaled to total connections or number of visitors. 
-The **Visitor Map** shows locations logged from the previous few days, or a [customized](#custom-reports-and-maps) date range.
-
-![geo_map1](/docs/pics/Map.png "Visitor map, full table not shown")
-
-Pan and zoom on the map to see more details. Hover over markers to see location names and counts.
-
-![geo_map2](/docs/pics/Map_tooltip.png "Visitor map, zoom and tooltip")
-
-### Tables, Charts
-
-Geography data is grouped and presented as tables or charts in the **Geography > Data Assessment** page. 
-As with the [location lookup](#location-lookup) tables, City and Country names can be edited.
-
-![geo_table](/docs/pics/Geography_table.png "Location table with editable City and Country names")
-
-The **Inspect** and **Clean Cache** buttons check that all the saved locations match at least one IP in the database. If a location has no associations, it can be deleted.
-
-The **Top 10** bar charts show top countries or cities by total requests or unique IP addressess.
-
-![geo_chart](/docs/pics/Geography_barchart.png "Location chart, top 10 Cities by unique IPs")
-
-## Custom Reports and Maps
-
-The form to generate **[Maps](#visitor-map-demo)** or **[Reports](#report-demo)** over a user-defined date range is on the bottom of the Report and Geography Settings page, 
-and can also be accessed from the **Options** drop-down menu.
-
-![custom](/docs/pics/Settings_custom.png "Custom date range for Report or Visitor Map")
-
-## Database Cleanup
-
-Data saved from log parsing can be deleted from the database, based on date.
-
-![database_cleanup1](/docs/pics/database_cleanup1.png "Database cleanup page")
-
-Data removal must be confirmed after estimation. Canceling will allow another estimate. 
-
-![database_cleanup2](/docs/pics/database_cleanup2.png "Database cleanup - confirm deletion?")
-
-
-## Failed Regex
-
-Any line that fails parsing will be saved and categorized according to log file. No features have been developed to assess or delete Failed Regex lines.

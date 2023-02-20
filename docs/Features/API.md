@@ -20,10 +20,10 @@
 ## Motivation
 
 Provide simple data retrieval from the database in a JSON format. The API will not be comprehensive means of crafting SQL queries.<sup>1</sup>
-The **[Report](/docs#report-demo)** and **[Database Explorer](/docs#database-explorer)**<sup>2</sup> cover 
+The **[Report](/docs/Features/Report.md#contents)** and **[Database Explorer](/docs/Features/Database.md#database-explorer)**<sup>2</sup> cover 
 more complex data retrievals I like to reference often.
 
-<sup>1</sup>*As noted in the [installation options](/README.md#extra-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
+<sup>1</sup>*As noted in the [installation options](/docs/Installation/Installation_Extra.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
 <sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), provides a good start for building SQL queries based on user inputs.*
 
 ## API Help Page
@@ -48,7 +48,7 @@ Invalid queries should return a [422](https://www.httpstatuses.org/422) or [404]
 
 `<your-base-URL>/api/v1/summary/<OPTION>`
 
-The **Data Summary** options are meant to provide simple statistics from the last 24 hours, and are designed similarly to the [report](/docs#report-demo) sections.
+The **Data Summary** options are meant to provide simple statistics from the last 24 hours, and are designed similarly to the [report](/docs/Features/Report.md#demonstration-page) sections.
 It was the first API call added to **BeatLog** and is meant to be easily integrated in dashboard or notification systems. 
 For example, I now keep tabs of [home ignores](#home) and [filtrate](#outside) on my homepage. 
 
@@ -75,7 +75,7 @@ Note the structure of the various example returns shown below.
 **Notes:**
 
  - "IP" will return array even if only one entry
- - "IP_duration" will return "All of time" if only one homeIP in database, as shown on the [home page](/docs#parsing)
+ - "IP_duration" will return "All of time" if only one home IP in database, as shown on the [home page](/docs#parsing)
  - `"data"` will be `null` *(note, not string)*, if log data does not exist. Numbers will be `0`. IP information should still be returned.
 
 ```JSON
@@ -104,10 +104,10 @@ Note the structure of the various example returns shown below.
 
 **Notes:**
 
- - The following are unique IPs, not total
+ - The following are unique IPs, not total connections
    - "banned" *outside IPs from fail2ban with*  `action=Ban`
    - "filtrate" *outside IPs from access and error logs that aren't banned by fail2ban*
-   - "known_visitors" *outside IPs from access log that are [known devices](/docs#known-devices)*, ***only present if Known Devices specified in settings***
+   - "known_visitors" *outside IPs from access log that are [known devices](/docs/Features/Report.md#known-devices)*, ***only present if Known Devices specified in settings***
    - "visitors" *outside IPs from access and error logs*
  - `"data"` will be `null` *(note, not string)*, if log data does not exist. Numbers will be `0`
 
@@ -258,7 +258,7 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
  - **Optional date filter:** `date=<START>-<END>, . . . `<br>`<START>` and `<END>` must be [UNIX timestamps](https://unixtime.org/) with one second resolution (10 digit integer).
     - `<START>` and `<END>` must be separated by a dash. Date specification and field/value pairs must be comma separated. *as shown above*
     - If date is specified, it must come before the field/value pair.
-    - Times are rounded to the nearst day for the SQL query. They will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
+    - Times will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
 	- Specifying `<START>` greater than or equal to `<END>` ensures an empty result
 
 <details><summary id="example-bandwidth-return"><b>example call and return</b></summary>
@@ -283,8 +283,8 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
     "query": {
       "field": "referrer",
       "time_bounds": {
-        "end": "02/18/23",
-        "start": "02/17/23"
+        "end": "02/18/23 22:28:53",
+        "start": "02/17/23 22:28:53"
       },
       "value": "%http://%"
     }
@@ -314,7 +314,7 @@ Links to PostgreSQL documentation are provided, when applicable.
 | **Tech** | `tech=Mozilla/5.0 zgrab/0.x` OR `tech=%iOS%` | pattern matching available. 2nd example:<br>*contains "iOS"*  |
 | **Geo** | `geo=22` | must be an integer. Currently matches the rowid on the [geography table](/docs#geography-table---geoinfo). May be further developed to make matching more human friendly. |
 
-Still not sure about Field/Value pairs? The **Top 10 Tables** in the [BeatLog report](/docs#outside-demo) are a good place to start. 
+Still not sure about Field/Value pairs? The **Top 10 Tables** in the [BeatLog report](/docs/Features/Report.md#outside-demo) are a good place to start. 
 You can query the most popular values for a `<FIELD>` from the entire database with the following SQL:
 
 ```sql
@@ -328,7 +328,7 @@ LIMIT 10
 
 ## More?
 
-Submit an [issue](/issues/new) if you have ideas for API calls.
+Submit an [issue](https://github.com/NBPub/BeatLog/issues/new) if you have ideas for API calls.
 
  * **Parsing Check** - show time difference between last modified and last parsed for each log
  * **fail2ban Jail Check** - update fail2ban jail if changed or return that it's up to date

@@ -10,14 +10,14 @@
 	- [Docker](#docker-compose)
 	- [Parameters](#parameters)
 	- [Data Sources](#data-sources)	
-	- [Optional Extras](#extra-options)	
-	- [Updates](#updating-postgresql-container), [Container Interaction](#shell-acess-to-beatlog-container)
+	- *[Installation Extras](/docs/installation_extras.md)*
 - [Setup](#application-setup)
 - [Development](#development)
 	- [Feedback](#development)
 	- [In Progress](#submit-bugs-or-feedback)	
-	- [Local Installation](#local-installation---python-venv)
 	- [Pre-Release Notes](#pre-release-changelog)
+		- *[Detailed Changelog](/docs/Installation/Changelog.md#contents)*
+	- *[Local Installation](#local-installation---python-venv)*
 	
 ## Background
 
@@ -50,14 +50,14 @@ based on [OpenStreetMap](https://www.openstreetmap.org/about) data.
 
 ----
 
-See the [BeatLog Guide](/docs#parsing) for a full list of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
+See the [BeatLog Documentation](/docs#beatlog-documentation-) for a full description of features. The **Database**, **Report**, and **Visitor Map** are briefly highlighted here.
 
 ### Database
 
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
 See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
-and [Database Explorer](/docs#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
-A simple [JSON API](/docs/API.md#simple-json-api) can return summaries for various categories in the past day. 
+and [Database Explorer](/docs/Features/Database.md#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
+A simple [JSON API](/docs/Features/API.md#simple-json-api) can return summaries for various categories in the past day. 
 
 
 <details><summary>Database Query - fail2ban Log</summary>
@@ -66,13 +66,7 @@ A simple [JSON API](/docs/API.md#simple-json-api) can return summaries for vario
 
 </details>
 
-Adminer [can be installed](#extra-options) to facilitate interaction with the database.
-
-<details><summary>Adminer - Database Overview</summary>
-
-![Adminer](/docs/pics/adminer.png "BeatLog tables, viewed in Adminer")
-
-</details>
+Adminer [can be installed](/docs/Installation/installation_extras.md#adminer) to facilitate interaction with the database.
 
 ----
 
@@ -80,7 +74,7 @@ Adminer [can be installed](#extra-options) to facilitate interaction with the da
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
-**[Documentation](/docs#report-demo)**
+**[Documentation](/docs/Features/Report.md#contents)**
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
  - Scrutinize traffic from frequent visitors, monitor popular client requests
  - **Known Devices** can be identified and separated from other outside connections
@@ -92,7 +86,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
-**[Documentation](/docs#visitor-map-demo)**
+**[Documentation](/docsFeatures/Geography.md#visitor-map-demo)**
  - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
  - Location marker sizes are scaled by total connections or unique visitors
  - Tabular data is presented beneath the map
@@ -106,9 +100,9 @@ Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there a
 Current release: **[alpha-0.1.5](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)**, In development: **[alpha-0.1.6](#development)**<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
-| x86-64 | *latest* | *stable*, *alpha-0.1.4* |
-| arm64 | *latest*  | *stable*, *alpha-0.1.4* |
-| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.4* |
+| x86-64 | *latest* | *stable*, *alpha-0.1.5* |
+| arm64 | *latest*  | *stable*, *alpha-0.1.5* |
+| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.5* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -169,6 +163,8 @@ For example, setting ports to `5433:5432` would expose port `5432` from inside t
 
 Sensitive data can be passed to compose using [secrets](https://docs.docker.com/engine/swarm/secrets/#use-secrets-in-compose), if desired.
 
+<details><summary><b>Docker Compose Parameters</b></summary>
+
 | Parameter | Function |
 | :----: | --- |
 | **user** | ---- |
@@ -198,6 +194,10 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | **postgres db volumes**  | ---- |
 | `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Recommended](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. Facilitates PostgreSQL updates. |
 
+</details>
+
+See the [Installation Extras](/docs/Installation/installation_extras.md) page for more, including how to add healthchecks to the docker containers and how to update the database.
+
 ### Data Sources
 
 **BeatLog** reads the following files for the information described. 
@@ -212,119 +212,10 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 - **MaxMindDB**
 	- GeoLite2-City.mmdb - *database to match IP addressess to locations, updated twice monthly*
 
-### Extra Options
-
-- Add [healthcheck(s)](https://docs.docker.com/engine/reference/builder/#healthcheck) to indicate container status.
-
-<details><summary>Healthcheck - BeatLog</summary>
-
-*The port number,* `8000` *should match the container's internal port.*
-
-```yaml
-  beatlog:
-    image: nbpub/beatlog:stable
-    healthcheck:
-      test: curl -I --fail http://localhost:8000 || exit 1
-      interval: 300s
-      timeout: 10s
-      start_period: 20s
-    .
-    .
-    .
-```
-</details>
-
-<details><summary>Healthcheck - Postgres</summary>
-
-*The user,* `beatlog` *should match the* `POSTGRES_USER` *specified.*
-
-```yaml
-  db:
-    image: postgres:15
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "beatlog"]
-      interval: 300s
-      start_period: 30s
-```
-</details>
-
-- Add an [Adminer](https://www.adminer.org/) container to interact with your database. Database adjustments outside **BeatLog** are *not* supported and could break functionality. 
-
-<details><summary>Adminer</summary>
-
-*Visit* `<server>:8080` *and login to the postgresql database to view tables and data.*
-
-```yaml
-  adminer:
-    image: adminer
-    container_name: beatlog_mgmt	
-    restart: unless-stopped
-    depends_on:
-      - db
-    ports:
-      - 8080:8080
-  db:
-    .
-    .
-    .
-
-```
-</details>
-
-### Updating PostgreSQL container
-
-<details><summary>Instructions</summary>
-
-**BeatLog** should work well with PostgreSQL 14 and 15.
-As mentioned above, if the database data is mounted to a volume, then upgrading should be as easy as deleting the old image and recreating a new container with the same volume. 
-Release logs for PostgreSQL should be checked for any breaking changes.
-
-If the volume was not mounted, upgrading PostgreSQL may erase existing data. In this case, data can be transferred from PostgreSQL containers. 
-See **[Migration Between Releases](https://www.postgresql.org/docs/9.0/migration.html)** for more info, and also: 
- * [docker exec](https://docs.docker.com/engine/reference/commandline/exec/)
- * [pg_dumpall](https://www.postgresql.org/docs/current/app-pg-dumpall.html)
- * [docker cp](https://docs.docker.com/engine/reference/commandline/cp/)
-
-The following shows how to manually copy existing database data to a new container. After following these steps, update the container information as needed in the **BeatLog** environment.
-```bash
-# 1. enter existing container "beatlog_db"
-docker exec -it beatlog_db /bin/bash
-
-# 2. pg_dumpall into convenient directory, exit container
-cd home
-pg_dumpall -U beatlog > db.out
-exit
-
-# 3. copy to local directory, then into new database container "beatlog_db_NEW"
-docker cp beatlog_db:/home/db.out  /path/of/choosing
-docker cp /path/of/choosing/db.out  beatlog_db_NEW:/home
-
-# 4. enter new container and execute script
-docker exec -it beatlog_NEW /bin/bash
-psql -f db.out -U beatlog postgres
- ```
-</details>
-
-### Shell Acess to BeatLog Container
-
-<details><summary>Docker Exec example</summary>
-
-Explore **BeatLog** container using [docker exec](https://docs.docker.com/engine/reference/commandline/exec/), for example, investigate Python environment:
-
-
-```shell
-# 1. enter existing container "beatlog"
-docker exec -it beatlog_db /bin/sh
-
-# 2. pip freeze to view installed packages and versions
-python -m pip freeze
-```
-
-</details>
 
 ## Application Setup
 
-Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup)**
+Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup-guide-contents)**
 
 *If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
 
@@ -344,7 +235,7 @@ Get the most information from BeatLog following these steps:
 
 ### In Progress, alpha-0.1.7
 
-[Details](#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
+[Details](/docs/Installation/Changelog.md#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
 
 - Features
   - allow for SSL in deployment
@@ -352,9 +243,10 @@ Get the most information from BeatLog following these steps:
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
 	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
   - API v1 fixes/improvements
+    - no longer rounding date_spec for [bandwidth](/docs/Features/API.md#bandwidth) API calls to nearest day
     - handle geography data better / provide calls to retrieve geography data
-	- other ideas [listed](/docs/API.md#more) on page?
-- Documentation
+	- other ideas [listed](/docs/Features/API.md#more) on page?
+- Documentation *in progress*
   - planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now
   - will update Contents sections to include external links
   - will likely break a lot of existing links in the process
@@ -376,23 +268,10 @@ Get the most information from BeatLog following these steps:
   - fail2ban filter testing
 </details>
 
-### Local Installation - Python venv
-
-- *Required: Python 3.10, connectable postgresql database*
-- Add **[BeatLog folder](https://github.com/NBPub/BeatLog/tree/main/BeatLog)** and **[requirements.txt](https://github.com/NBPub/BeatLog/blob/main/requirements.txt)** into a new directory
-- Create and activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html)
-- Install requirements `pip install -r requirements.txt`
-  - *Note:* Docker images are built with each commit and without version specification for the packages. This allows gradual updates, but also means the [requirements.txt](/requirements.txt) may not work for your system. The packages listed below can be installed individually.
-  - Packages: [Flask](https://flask.palletsprojects.com/), [Flask-APScheduler](https://github.com/viniciuschiele/flask-apscheduler), [python-dotenv](https://github.com/theskumar/python-dotenv), [psycopg3](https://www.psycopg.org/psycopg3/), [geoip2](https://github.com/maxmind/GeoIP2-python)
-  - *[gunicorn](https://gunicorn.org/) used in deployment, Flask's Werkzeug can be used for local use*
-- Create and populate a **.env** file, model after docker-compose [example](#docker-compose)
-  - *Note:* `FLASK_APP=beatlog` is required, `FLASK_RUN_HOST` and `FLASK_RUN_PORT` can be used to change access options. 
-  - See links below for details
-- Run flask app `flask run` or in debug mode `flask --debug run`
-
-See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installation/) and [Quickstart](https://flask.palletsprojects.com/en/2.2.x/quickstart/) docs for details on these steps.
 
 ### Pre-Release Changelog
+
+**[Version-by-version details](/docs/Installation/Changelog.md#contents)**
 
 | Version ([Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags)) | Notes |
 | :----: | --- |
@@ -400,142 +279,7 @@ See the Flask [Installation](https://flask.palletsprojects.com/en/2.2.x/installa
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
-| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
-| alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
+| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docsFeatures/Database.md#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
+| alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
-| alpha-0.1.6 | *No releases* |
-
-### pre alpha-0.1.7 details
-
-<details><summary>═════════</summary>
-
-- Nothing
-  - Yet!
-
-</details>
-
-
-### pre alpha-0.1.6 details
-
-<details><summary>═════════</summary>
-
-- JSON API
-  - new feature: **[bandwidth](/docs/API.md#bandwidth)** - returns total bandwidth from access log.
-    - filter return by specifying FIELD and VALUE. String matching provided for `tech`,`URL`, and `referrer`
-	- optional filter by date with start/stop inputs. only supporting UNIX format for now
-	- see documentation (linked above) for more details
-  - named only previous feature **[summary](/docs/API.md#data-summary)**. each "feature" on separate URLs.
-  - separated code into two files. Additional features can be added to existing blueprint.
-    - *future development:* can copy blueprint and establish `API v2` to maintain existing features through unstable releases
-- Docker Image Workflows
-  - no longer building "latest" image automatically with each commit for `armhf` AKA `arm32v7` architectures, can build on request
-  - will continue building "stable" images with each release
-- Bugfixes to make a more "stable" release. Various aesthetic / navigation improvements 
-  - API bugfixes
-  - Updated [Bootstrap](https://getbootstrap.com/docs/) from to 5.3 from 5.2
-  - minor fixes
-
-</details>
-
-### pre alpha-0.1.5 details
-
-<details><summary>═════════</summary>
-
-- Version Control, Image management
-  - renamed existing workflow to build+push docker images with each commit. Tags still same name, `latest`.
-  - created additional workflow to build+push docker images with each release. Tags will be version `alpha-0.1.4` and `stable`.  
-  - No more docker images built+pushed by me, all from within Github.
-- Code Cleaning
-  - removed unauthorized.log support. removed comment blocks for NullConnectionPool versions (see [changes](/docs/NullConnectionPool.md#background)).
-- API v1
-  - JSON API to retrieve basic stats, [help page](/docs/API.md#simple-json-api)
-- Bug Fixes / Minor Improvements
-  - fixed issues with changed code for fail2ban jail page, Known Device settings
-  - added check for existing data before API calls
-  - various aesthetic / navigation improvements
-
-
-</details>
-
-
-
-### pre alpha-0.1.4 details
-
-<details><summary>═════════</summary>
-
-- Database Schema
-  - changed datatypes for Settings > **KnownDevices** and Jail > **IgnoreIPs**
-  - Added time interval columns, **Findtime** and **Bantime** to Jail.
-  - detailed in [alpha-0.1.2 tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**), manual migrations required prior to update
-- DB Features
-  - page to query database (access, error, fail2ban logs) and page to view time-ordered results as table
-  - various filter options and pre-assembled queries
-- Documentation
-  - added sections detailing new DB features
-  - fixes for some images and file paths
-- SQL query creation improved **[Known Devices](/docs#known-devices)**
-  - devices now input as group of strings, which is stored as text array in database
-  - [psycopg3 sql module](https://www.psycopg.org/psycopg3/docs/api/sql.html) then used to craft specific SQL, `WHERE tech = ANY(<list>)` or `WHERE tech != ALL(<list>)`
-- Expanded fail2ban jail.local page
-  - can now read more than one *ignore* IP address, if present
-  - reads and present find and ban times
-- Bug Fixes / Minor Improvements
-  - various aesthetic / navigation improvements
-
-</details>
-
-
-### pre alpha-0.1.3 details
-
-<details><summary>═════════</summary>
-
-- Installation, Docker Compose
-  - mount directories instead of files to update logs within **BeatLog** container
-  - PostgreSQL upgrade instructions
-- Docker Image
-  - Building **latest** and **arm32v7-latest** tags via Github [workflow](/actions/workflows/main.yml)
-  - NullConnectionPool versions uploaded manually for now, may stop later
-- Documentation
-  - [demonstration page](https://nbpub.github.io/BeatLog/) for Map and Report, added links to docs
-- General
-  - SQL query creation improved, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)
-    - *need to continue work on *`Known Devices`* and *`Home Ignorable`* [usage](/docs#known-devices)*
-  - increased gunicorn worker timeout to 60s, from 30s, to allow for long operations
-	- Can revert by 
-	  - Timechecks in `Parse All`, individual parsing operations
-	  - Analyze report generation with profiler for potential improvements
-	  - geography [location lookup](/docs#location-lookup) capped to 20 per attempt
-  - Bug Fixes / Minor Improvements
-    - various errors fixed
-    - added data to report tables
-    - various aesthetic / navigation improvements
-
-</details>
-
-Last NullConnectionPool releases! [Notes](/docs/NullConnectionPool.md)
-
-### pre alpha-0.1.2 details
-
-<details><summary>═════════</summary>
-
-- Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?
-  - general issue of `ConnectionPool` with Gunicorn's forked workers. error may be solved: pool opened and checked after fork, before first request.
-  - Scheduled tasks created with `gunicorn --preload`, to run with a single Gunicorn worker.
-  - need to figure out how to best use (Flask)-**APScheduler**, **Gunicorn**, and **psycopg3 ConnectionPool** together. 
-    - reading up on [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks)
-- If modified location city/country is set to `None`, should save as `NULL` in database.
-  - adding note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
-- Scheduled `parse_all` may cause duplicate prepared statements error
-  - monitor, think this is fixed. probably result of spamming home page
-- Potential Gunicorn worker timeout for parsing or location fill operations
-  - limited geofill to maximum of 20 locations at a time (20-25 second operation), could increase `gunicorn --timeout` from default 30 seconds.
-  - what is upper limit for parsing time?
-- change fail2ban lastparsed from last saved line to last read line
-  - should be less confusing when checking last parsed
-- expand documentation*
-  - continuous drafting, documenting changes in detail until beta release
-- add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now
-  - do workers+ConnectionPool take too many database connections?
-  - reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks
-  
-</details>
+| alpha-0.1.6 | **BIG** documentation reorganization. Modified bandwidth API, no longer rounding to nearest day. |
