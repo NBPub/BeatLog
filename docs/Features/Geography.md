@@ -2,22 +2,17 @@
 
 ## Contents
 
- - [Overview](#overview)
-    - [Reference Links](#reference-links)
+After adding the [GeoLite2-City](/docs#maxminddb) file to **BeatLog**, locations will be added to all outside IP addresses. There are a few ways to interact with location data.
+
+
  - [Location Lookup](#location-lookup)
  - [Visitor Map](#visitor-map-demo) 
     - [Custom Dates](#custom-dates) 
  - [Data Assessment](#data-assessment) 
-
  
-## Overview
-
-After adding the [GeoLite2-City](/docs#maxminddb) file to **BeatLog**, locations will be added to all outside IP addresses. There are a few ways to interact with location data.
-
-### Reference Links
-
- - ***[Geography Table](/docs#geography-table---geoinfo)***
- - ***[Geography Settings](/docs#maxminddb)***
+**Reference Links**
+ - *[Geography Database Table](/docs#geography-table---geoinfo)*
+ - *[Geography Setup and Settings](/docs#maxminddb)*
 
 ## Location Lookup
 

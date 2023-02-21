@@ -57,7 +57,7 @@ See the [BeatLog Documentation](/docs#beatlog-documentation-) for a full descrip
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
 See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
 and [Database Explorer](/docs/Features/Database.md#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
-A simple [JSON API](/docs/Features/API.md#simple-json-api) can return summaries for various categories in the past day. 
+A simple [JSON API](/docs/Features/API.md#simple-json-api) can provides daily summaries and bandwidth statistics. 
 
 
 <details><summary>Database Query - fail2ban Log</summary>
@@ -74,26 +74,32 @@ Adminer [can be installed](/docs/Installation/Installation_Extras.md#adminer) to
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
-<br>**[Documentation](/docs/Features/Report.md#contents)**
+
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
  - Scrutinize traffic from frequent visitors, monitor popular client requests
  - **Known Devices** can be identified and separated from other outside connections
    - ex: connections with a [user-agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) of `DSub`, 
- matching requests from a [Subsonic Android app](http://subsonic.org/pages/apps.jsp#dsub), may be [separated from other Outside connections](/docs#known-devices)
+ matching requests from a [Subsonic Android app](http://subsonic.org/pages/apps.jsp#dsub), may be [separated from other Outside connections](/docs/Features/Report.md#known-devices)
+
+**[Documentation](/docs/Features/Report.md#contents)**
 
 ----
 
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
-<br>**[Documentation](/docs/Features/Geography.md#visitor-map-demo)**
+
  - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
  - Location marker sizes are scaled by total connections or unique visitors
  - Tabular data is presented beneath the map
 
+**[Documentation](/docs/Features/Geography.md#visitor-map-demo)**
+
+----
+
 ## Installation
 
-BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** in the following architectures. 
+BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with the following tags. 
 "Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
 Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
 
@@ -102,7 +108,7 @@ Current release: **[alpha-0.1.5](#https://github.com/NBPub/BeatLog/releases/tag/
 | :----: | --- | --- |
 | x86-64 | *latest* | *stable*, *alpha-0.1.5* |
 | arm64 | *latest*  | *stable*, *alpha-0.1.5* |
-| armhf | *arm32v7-latest* | *arm32v7-stable*, *arm32v7-alpha-0.1.5* |
+| armhf | (*built on request*) | *arm32v7-stable*, *arm32v7-alpha-0.1.5* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -167,11 +173,11 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 
 | Parameter | Function |
 | :----: | --- |
-| **user** | ---- |
+| **user** | <br> |
 | `1000:1000` | Optional [setting](https://docs.docker.com/compose/compose-file/#user) to change the **user** used for the docker container. [See also](https://docs.linuxserver.io/general/understanding-puid-and-pgid) |
-| **ports** | ---- |
+| **ports** | <br> |
 | `5000:8000` | Example of changing external access port. Internal port, `8000`, should not be changed. |
-| **environment**  | ----  |
+| **environment**  | <br>  |
 | `TZ=Pacific/Galapagos` | Timezone should match log files. Defaults to `UTC`. [time zone list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) |
 | `db_host=<IP>` | IP address or host name of PostgreSQL database, defaults to `localhost` which should fail |
 | `db_password=changeme` | PostgreSQL database password, should match `POSTGRES_PASSWORD` |
@@ -181,18 +187,19 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 | `FLASK_SECRET_KEY=<secretkey>` | Generate a [secret key](https://flask.palletsprojects.com/en/2.2.x/tutorial/deploy/#configure-the-secret-key) for deployment. Default, `dev`, is not suitable |
 | `check_IP=12` | Interval (hours) for checking / updating the home IP address, `12` hr default. Specify as integer, or `0` to disable |
 | `check_Log=3` | Interval (hours) for checking / parsing the Log Files, `3` hr default. Specify as integer, or `0` to disable  |
-| **volumes**  | ---- |
+| **volumes**  | <br> |
 | `/path/to/log_directory:`<br>`/path/in/container` | Add log files, fail2ban jail, and MaxMindDB to container, to be read by **BeatLog**. See [data sources](#data-sources) below |
 | `/swag_config/<subdirectory>:`<br>`/import/<subdirectory>` | example for SWAG structure in [setup guide](/docs#data-sources) |
-| *. . .* | *. . .* |
-| **postgres db ports**  | ---- |
+| <br> | <br> |
+| <br> | <br> |
+| **postgres db ports**  | <br> |
 | `5432:5432` | Default database port. If the external port is changed, then `db_port` must be specifed for the beatlog container |
-| **postgres db environment**  | ---- |
+| **postgres db environment**  | <br> |
 | `POSTGRES_USER=beatlog` | If changed from `beatlog`, `db_user` and `db_database` must be specified for the beatlog container |
 | `POSTGRES_PASSWORD=changeme` | PostgreSQL database password, should match `db_password` |
 | `TZ=Pacific/Galapagos` | See above |
-| **postgres db volumes**  | ---- |
-| `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Recommended](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. Facilitates PostgreSQL updates. |
+| **postgres db volumes**  | <br> |
+| `/path_to/beatlog_conifg/db:`<br>`/var/lib/postgresql/data` | *[Recommended](https://github.com/docker-library/docs/blob/master/postgres/README.md#pgdata)*: Store database files in a location of your choosing. Facilitates PostgreSQL [updates](/docs/Installation/Installation_Extras.md#postgresql-updates). |
 
 </details>
 
@@ -215,13 +222,12 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 
 ## Application Setup
 
-Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.
+Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`. 
+*If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
 
 ### [Setup Guide](/docs#setup-guide-contents)
 
-*If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
-
-Get the most information from BeatLog following these steps:
+Get the most information from BeatLog following these steps (detailed in Setup Guide):
 
 1. Specify **[Log File](/docs#log-files)** locations `*/Logs/add/`
 2. [Load default **regex methods**](/docs#regex-methods) or create and test your own `*/Logs/add_regex/`
@@ -229,7 +235,7 @@ Get the most information from BeatLog following these steps:
 4. Specify fail2ban **[jail.local](/docs#fail2ban-jail)** location `*/jail/`
 5. Specify MaxMind **[GeoLite2-City](/docs#maxminddb)** database location, in **geography settings** `*/settings#geography`
 6. Add a user-agent for the **[Nominatim API](/docs#maxminddb)** to fill unnamed locations, in **geography settings**
-7. [Parse](/docs#parsing) Logs!
+7. [Parse](/docs#parsing) Logs! [Schedule](/docs#scheduled-tasks) parsing!
 
 ## Development
 
@@ -239,22 +245,18 @@ Get the most information from BeatLog following these steps:
 
 [Details](/docs/Installation/Changelog.md#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
 
+- Documentation ***Proofreading In Progress***
+  - ~~planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now~~
+  - ~~will update Contents sections to include external links~~
+  - ~~will likely break a lot of existing links in the process~~
 - Features
-  - allow for SSL in deployment, *likely just changes to Gunicorn start command*
-    - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
-	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
-	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
   - API v1 fixes/improvements
     - no longer rounding date_spec for [bandwidth](/docs/Features/API.md#bandwidth) API calls to nearest day
 	- more?
       - handle geography data better / provide calls to retrieve geography data
 	  - other ideas [listed](/docs/Features/API.md#more) on page?
-- Documentation ***in progress***
-  - ~~planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now~~
-  - ~~will update Contents sections to include external links~~
-  - will likely break a lot of existing links in the process
-- Bugfixes
-  - .
+- Bug Fixes / Minor Improvements
+  - various aesthetic / navigation improvements
 
 ### Possible Improvements
 
@@ -269,6 +271,10 @@ Get the most information from BeatLog following these steps:
 - Features
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
+  - allow for SSL in deployment, *likely just changes to Gunicorn start command*
+    - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
+	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
+	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
 </details>
 
 

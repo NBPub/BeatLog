@@ -4,7 +4,7 @@
 
 **Stable Version**: alpha-0.1.5
 
-[Repository](/README.md), [Releases](/releases)
+[Repository](/README.md), [Releases](https://github.com/NBPub/BeatLog/releases)
 
 ## Contents
 
@@ -27,19 +27,16 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 ### pre alpha-0.1.7 details
 
-<details><summary>═════════</summary>
 
 - JSON API
   - no longer rounding *bandwidth* calls to nearest day
 - Documentation
   - big reorganization
 
-</details>
 
 
 ### pre alpha-0.1.6 details
 
-<details><summary>═════════</summary>
 
 - JSON API
   - new feature: **[bandwidth](/docs/Features/API.md#bandwidth)** - returns total bandwidth from access log.
@@ -57,7 +54,6 @@ BeatLog is still in development. Every version thus far is a "pre-release".
   - Updated [Bootstrap](https://getbootstrap.com/docs/) from to 5.3 from 5.2
   - minor fixes
 
-</details>
 
 ### pre alpha-0.1.5 details
 

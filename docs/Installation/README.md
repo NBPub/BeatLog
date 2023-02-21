@@ -6,4 +6,10 @@
 
 ### [Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)
 
+----
+
+### [Changelog Details](/docs/Installation/Changelog.md#beatlog-changelog)
+
+#### [Releases](https://github.com/NBPub/BeatLog/releases)
+
 ### [NullConnectionPool Info](/docs/Installation/NullConnectionPool.md#background)

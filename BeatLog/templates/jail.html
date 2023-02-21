@@ -56,10 +56,12 @@
 			{% endif %}
 		  {% endfor %}		
 		</p>
-		<p class="ms-4 fs-3 fw-bold">Enabled Filters:<br>
-		<span class="ms-4 fs-6 fw-normal">&#9989; <em>check filter activity over the past day</em></span></p>
-		  <form method="POST" action="{{ url_for('home.configure_jail') }}" id="filter_check_all" style="float:right;position:relative;top:-50px;">
-		  <button type="submit" class="btn btn-lg border" name="all_activity">&#10035; <b>check all</b></button></form>
+		<p class="ms-4 fs-3 fw-bold">Enabled Filters:</p>
+		<p>
+		  <form method="POST" action="{{ url_for('home.configure_jail') }}" id="filter_check_all"  class="ms-4 fs-6 fw-normal">
+		  &#9989; <em>check filter activity over the past day</em>&nbsp;
+		  <button type="submit" class="btn-primary-subtle border-primary rounded ms-5" name="all_activity">&#10035; <b>Check All</b></button>
+		  </form>
 		</p>
 		<div class="row row-cols-auto">	  
 	    {% for log in watch_logs %}

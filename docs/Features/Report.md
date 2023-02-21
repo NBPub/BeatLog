@@ -17,8 +17,8 @@
 ## Overview
 
 The report provides valaubale information from your processed data. 
-The duration of a "recent report", **Known Devices**, and other options can be set in the **[Report Settings](#settings)**. 
-See the **[Custom Dates setting](#custom-dates)** for report generation over a chosen time range.
+The duration of a "recent report", [Known Devices](#known-devices), and other options can be set in the [Report Settings](#settings). 
+See the [Custom Dates setting](#custom-dates) for report generation over a chosen time range.
 
 Below is the overall summary shown at the top of the report. 
 The **Daily Action Counts** chart summarizes key connection counts. 
@@ -49,7 +49,7 @@ Once **Known Devices** have been identified, they can be separated / excluded fr
 
 ### Home Ignorable
 
-The setting for **fail2ban home ignores** may seem redundant, provided the [upcoming discussion](#home-demo) in the home section. 
+The setting for **fail2ban home ignores** may seem redundant, provided the [upcoming discussion](#home-demo) in the **Home** section. 
 If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** [table](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs). 
 
 Given that many requests can happen within a second, and **[access.log](/docs#access-logs---access)**'s 
@@ -77,7 +77,7 @@ AND (status BETWEEN 400 AND 499 OR http<20)
 
 </details>
 
-*<sup>1</sup> It is unlikely that you will do harm to your database with a bad **fail2ban Home Ignores** setting, but it is probable that your Report will not load and result in a 500 error. Container logs may help*
+*<sup>1</sup>If **BeatLog** is used on a private, trusted network, then it is unlikely that you will do harm to your database with a bad **fail2ban Home Ignores** setting, but it is probable that your Report will not load and result in a 500 error. Container logs may help in this case.*
 
 ### Custom Dates
 
@@ -90,18 +90,18 @@ and can also be accessed from the **Options** drop-down menu.
 
 You can get a sense of how the report looks and feels by checking out the **[demonstration page](https://nbpub.github.io/BeatLog/#scrollspyTop)**. 
 Some links on the page are disabled, and some data has been modified or redacted for sharing. 
-Links to the various sections of the demo report will be provided with each corresponding section on this page.
+Links to the various sections of the demo report will be provided with each corresponding section on the documentation.
 
 
 ## Home [|demo|](https://nbpub.github.io/BeatLog/#scrollspyHome)
 
-The home connections are summarized in a few tables and bar charts. I have strict fail2ban filters setup for connections that:
+The home connections are summarized in a few tables and bar charts. I have strict fail2ban [filters](https://fail2ban.readthedocs.io/en/latest/filters.html#developing-filter-regular-expressions) setup for connections that:
 1. do not use `HTTP/2`, i.e. `HTTP/1.0` or `HTTP/1.1` connections
 2. return 4xx [status codes](https://www.httpstatuses.org/), client errors
 
 Therefore, I flag these connections as **home ignorable**, indicated in the bottom row of the summary table and the action count chart above. 
 **Daily Action Counts** above shows a fortunate situation. Despite a number of **home ignorable** connections, no fail2ban filters registered **ignores**.
-This suggests that the exceptions I have in my strict filters are allowing what I want them to.
+This suggests that the exceptions ([ignoreregex](https://fail2ban.readthedocs.io/en/latest/filters.html#filter-file)) I have in my strict filters are allowing what I want them to.
 
 ![report_home](/docs/pics/Report_Home_summary.png "Home Summary, daily table and graphs")
 ![report_home2](/docs/pics/Report_Home_summary2.png "Home Summary, devices")

@@ -2,8 +2,9 @@
 
 ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)*
 
-BeatLog alpha-0.1.3 and prior had alternate versions using a NullConnectionPool, due to early issues implementing the ConnectionPool. 
+BeatLog [alpha-0.1.3](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3) and prior had alternate versions using a NullConnectionPool, due to early issues implementing the ConnectionPool. 
 These issues have been resolved, and alternative versions of BeatLog utilizing a NullConnectionPool will not be provided.
+This page shows the previous changes used for the alternate versions.
 
 ## Code
 
@@ -59,7 +60,7 @@ def pool_check(): # function should not be used for NullConnectionPool
 
 ## Connection Pool Logging
 
-Add to top of [create_app](/BeatLog/__init__.py) function.
+Check on the (Null)ConnectionPool status in the application's logs. Add to top of [create_app](/BeatLog/__init__.py) function.
 
 ```python
 # pool logging for development
@@ -69,7 +70,7 @@ try:
     pool_logger.handlers = app.logger.handlers
     app.logger = pool_logger
 except Exception as e:
-    app.logger.info(f'Error with pool logging, may have to move to pool_check function, {e}')
+    app.logger.info(f'Error with pool logging, {e}')
 ```
 
 See [ConnectionPool class](https://github.com/psycopg/psycopg/blob/master/psycopg_pool/psycopg_pool/pool.py) for details.

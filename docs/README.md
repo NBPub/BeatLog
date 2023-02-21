@@ -4,16 +4,17 @@
 ## Documentation Pages
 
 - **Installation**
-  - [Docker Compose](/README.md#installation)
+  - [Basics](/README.md#installation)
+    - [Docker Compose](/README.md#docker-compose)
     - [Parameter Details](/README.md#parameters)
   - [Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) 
   - [Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)
 - ***Setup Guide***
-  - *[this page](#setup-guide-contents))*
+  - *[this page](#setup-guide-contents)*
 - **Features**
   - [Report](/docs/Features/Report.md#contents)
   - [Geography](/docs/Features/Geography.md#contents)
-  - [Database](/docs/Features/Database.md#contents)
+  - [Database](/docs/Features/Database.md#database-features-documentation)
   - [JSON API](/docs/Features/API.md#simple-json-api)
 - **BeatLog History**
   - [Detailed Changelog](/docs/Installation/Changelog.md#contents)
@@ -100,9 +101,11 @@ Paths shown in pictures may not match the file structure shown above. See the te
 The navigation bar on top provides links to all of the pages shown below. 
 Also note the home IP address is red, indicating it is not being ignored by fail2ban. In this case, the fail2ban **jail.local** file has yet to be [added](#fail2ban-jail).
 
+`/home/`
+
 ![homepage_fresh](/docs/pics/homepage_fresh.png "Homepage without any logfiles.")
 
-**✱ access.log ✱**
+**✱ access.log ✱** `/Logs/add/`
 
 */import/log/nginx/access.log*
 
@@ -117,15 +120,20 @@ Before [specifying](#adding-regex-to-logs) regex methods for parsing **access.lo
 ### fail2ban Jail
 
 The fail2ban **jail.local** will provide information on enabled filters and list ignored IP addresses. If an ignored IP matches the home IP address, it is shown in green. 
-Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in the past 24 hours (unique IPs, not total).  
 
-**✱ jail.local ✱**
+**✱ jail.local ✱** `/jail/`
 
 */import/log/fail2ban/fail2ban.log*
 
 ![add_jail](/docs/pics/load_jail.png "Adding jail.local")
 
 ![added_jail](/docs/pics/loaded_jail.png "jail.local added")
+
+Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in the past 24 hours (unique IPs, not total).  
+
+![check_filter](/docs/pics/filter_check.png "Check filter activity")
+
+![checked_filter](/docs/pics/filter_checked.png "All found IPs banned. No Home ignores.")
 
 
 ### MaxMindDB
@@ -134,7 +142,7 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 
 ![geo_set1](/docs/pics/navbar_settings.png "Geography settings")
 
-**✱ GeoLite2-City.mmdb ✱**
+**✱ GeoLite2-City.mmdb ✱** `/settings/#Geography`
 
 */import/geoip2db/GeoLite2-City.mmdb*
 
@@ -145,7 +153,9 @@ Refer to the [Nominatim usage policy](https://operations.osmfoundation.org/polic
 
 ### Regex Methods
 
-Load the default regex patterns to get started parsing logs.
+Load the default regex patterns to get started parsing logs; or, [create](https://docs.python.org/3/howto/regex.html) your own.
+
+`/Logs/add_regex/`
 
 ![regex_load](/docs/pics/load_regex_methods.png "Empty regex methods")
 
@@ -155,9 +165,11 @@ If any of the default methods are deleted, they can be reloaded again with the b
 ![regex_loaded](/docs/pics/loaded_regex_methods.png "Default regex methods")
 
 
-#### ✱Adding Regex to Logs✱
+#### ✱Adding Regex to Logs✱ 
 
 Associate regex methods to Log Files. The default names should be self-explanatory.
+
+`/Logs/access/regex/`
 
 ![Log_regex](/docs/pics/Log_regex.png "Adding patterns to a log file")
 
@@ -266,7 +278,7 @@ Each unique coordinate pair is saved in a **Geography** table. As described abov
 
 Routine home IP checks and log parsing can be scheduled using the `check_IP` and `check_Log` environmental variables.
 
-Example log of scheduled tasks: *comments added by me, they are not part of the log*
+Example log of scheduled tasks:
 ```python
 [2022-09-17 12:57:04] [1] [INFO] Scheduled Home IP check complete
 [2022-09-17 13:11:37] [1] [INFO] Scheduled Log check complete 
@@ -283,10 +295,11 @@ error: Parsing completed, 2 lines added in 0s
 # address not found for one location, manual update required
 # see links below
 ```
+*comments added by me, they are not part of the log*
 
 ### Home IP check
 
-Home IP is checked using the [ident.me](ident.me) website. It happens when actively using **BeatLog** (requesting pages), and at most every 30 minutes. 
+Home IP is checked using the [ident.me](https://api.ident.me/) website. It happens when actively using **BeatLog** (requesting pages), no more often than every 30 minutes. 
 Up to date home IP addresses will ensure that the parsed connections are appropriately classified.
 
 The default interval for home IP checks is `12` hours, starting 30 seconds after container startup. Set to `0` to disable task.
@@ -294,6 +307,6 @@ The default interval for home IP checks is `12` hours, starting 30 seconds after
 ### Log Check
 
 Without scheduling, logs are only [parsed](#parsing) by user request. Logs will only be parsed if their *date modified* has changed since the last parsing. 
-If [locations](#maxminddb) are added without a name, their locations will be [looked up](/docs/Features/Geography#location-lookup).   
+If [locations](#maxminddb) are added without a name, their locations will be [looked up](/docs/Features/Geography.md#location-lookup).   
 
 The default interval for checking and parsing all available logs is `3` hours, starting 15 minutes after container startup. Set to `0` to disable task.

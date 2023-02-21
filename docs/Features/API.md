@@ -19,19 +19,19 @@
 
 ## Motivation
 
-Provide simple data retrieval from the database in a JSON format. The API will not be comprehensive means of crafting SQL queries.<sup>1</sup>
+Provide simple data retrieval from the database in JSON format. The API will *not* be comprehensive means of crafting SQL queries.<sup>1</sup>
 The **[Report](/docs/Features/Report.md#contents)** and **[Database Explorer](/docs/Features/Database.md#database-explorer)**<sup>2</sup> cover 
 more complex data retrievals I like to reference often.
 
-<sup>1</sup>*As noted in the [installation options](/docs/Installation/Installation_Extras.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
-<sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), provides a good start for building SQL queries based on user inputs.*
+<sup>1</sup>*As noted in the [installation extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
+<sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), provides a good start for building SQL queries based on user inputs, if further development is desired.*
 
 ## API Help Page
 
 `<your-base-URL>/api/help/`
 
-**BeatLog** provides an API help page which provides links to all available options and the ability to preview returns on the page itself. 
-The available options will be detailed on this page, with example returns provided and data types discussed. 
+**BeatLog** provides an API help page which provides links to all available API calls and the ability to preview their returns on the page itself. 
+The available options will also be detailed on this page, with example returns provided and data types discussed. 
 
 ![API_1](/docs/pics/API_1.png "The API help page shows current options for the JSON API.")
 
@@ -105,11 +105,11 @@ Note the structure of the various example returns shown below.
 **Notes:**
 
  - The following are unique IPs, not total connections
-   - "banned" *outside IPs from fail2ban with*  `action=Ban`
-   - "filtrate" *outside IPs from access and error logs that aren't banned by fail2ban*
-   - "known_visitors" *outside IPs from access log that are [known devices](/docs/Features/Report.md#known-devices)*, ***only present if Known Devices specified in settings***
-   - "visitors" *outside IPs from access and error logs*
- - `"data"` will be `null` *(note, not string)*, if log data does not exist. Numbers will be `0`
+   - "banned" outside IPs from fail2ban with  `action=Ban`
+   - "filtrate" outside IPs from access and error logs that aren't banned by fail2ban
+   - "known_visitors" outside IPs from access log that are [known devices](/docs/Features/Report.md#known-devices), ***only present if Known Devices specified in settings***
+   - "visitors" outside IPs from access and error logs
+ - `"data"` will be `null` (note, not string), if log data does not exist. Numbers will be `0`
 
 ```JSON
 {
@@ -174,7 +174,7 @@ Note the structure of the various example returns shown below.
 
 **Notes:**
 
- - "top_hits" and "top_visitors" provide an array of `["<location>", <integer>]`
+ - "top_hits" and "top_visitors" provide an array of `["<City, Country>", <relevant number>]`
  - empty return `"geo":{}` provided if no locations exist 
    - Enable [MaxMind](/docs#maxminddb) to add locations to IP addresses.
 
@@ -239,8 +239,10 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
 - `"bytes"` - sum of raw bytes, as stored in the database. *number*
 - `"hits"` - number of connections (rows) returned by the query. *number*
 - `"data"` - [human readable](https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADMIN-DBSIZE) format of bytes. *string*
-- `"data_per_hit"` - human readable format of bytes divided by hits
-- `"query"` - *JSON object* desribing query. Contains "field" and "value" keys and possible "time_bounds" *object* containing "start" and "end" keys. See more [below](#bandwidth-option-syntax).
+- `"data_per_hit"` - human readable format of bytes divided by hits *string*
+- `"query"` - *JSON object* desribing query. Contains: 
+	- "field" and "value" keys 
+	- possible "time_bounds" *object* containing "start" and "end" keys. See more [below](#bandwidth-option-syntax).
 
 ![API_3](/docs/pics/API_3.png "BeatLog API help page - Bandwidth")
 
@@ -249,14 +251,15 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
   - **Required filter:** `<FIELD>=<VALUE>`<br>`<FIELD>` must be a valid column (capitalization is ignored). `<VALUE>` may be anything to match to the field. Values for some fields must be a specific data type.
     - Review the [documentation](/docs#access-logs---access) for valid fields and and their data types. Valid data types are also listed in the [query guide](#bandwidth-query-guide) below.
 	- If `<VALUE>` is `None`, it will be interpreted as `NULL` for the SQL query. 
-	  - `geo=None` as a query option would translate to `WHERE geo IS NULL`
+	  - `url=None` as a query option would translate to `WHERE url IS NULL` *vs.* `url=/` *which would translate to* `WHERE url='/'`
     - For the **URL**, **referrer**, and **tech** fields, pattern matching can be employed. The SQL query will use `<FIELD> LIKE <VALLUE>` instead of `<FIELD> = <VALLUE>`
-	  - To enable, include at least one `%` in the `<VALUE>`. A value cannot contain `%`
-	  - Escapse a `%` meant to be taken literally by adding a backslash before it  for more information
+	  - To enable, include at least one `%` in the `<VALUE>`. A value cannot only be `%`
+	  - Escapse a `%` meant to be taken literally by adding a backslash before it `\%`
+	  - See more: [PostgreSQL documentation](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE)
  <br>
  
- - **Optional date filter:** `date=<START>-<END>, . . . `<br>`<START>` and `<END>` must be [UNIX timestamps](https://unixtime.org/) with one second resolution (10 digit integer).
-    - `<START>` and `<END>` must be separated by a dash. Date specification and field/value pairs must be comma separated. *as shown above*
+ - **Optional date filter:** `date=<START>-<END>,. . . `<br>`<START>` and `<END>` must be [UNIX timestamps](https://unixtime.org/) with one second resolution (10 digit integer).
+    - `<START>` and `<END>` must be separated by a dash. Date specification and field/value pairs must be comma separated.<br>*as shown above*
     - If date is specified, it must come before the field/value pair.
     - Times will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
 	- Specifying `<START>` greater than or equal to `<END>` ensures an empty result
@@ -269,7 +272,7 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
 
  - Optional date filter used, so it comes first in the query
    - If date was not specified, `"time_bounds"` would not be returned within the `"query"` *object*
- - The value for **referrer** contains a `%`, so pattern matching is used.
+ - The value for **referrer** contains at least one `%`, so pattern matching is used
    - `%http://%` means any referrer that contains the text `http://`
 
 

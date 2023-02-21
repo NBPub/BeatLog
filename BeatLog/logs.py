@@ -49,7 +49,7 @@ def add_regex_method():
     return render_template('add_regex_method.html', existing=existing, regex_groups=regex_groups, 
                            regex_patterns=regex_patterns, regex_logs=regex_logs, logs=logs, alert=alert)
 
-@bp.route("/add", methods = ['GET', 'POST'])
+@bp.route("/add/", methods = ['GET', 'POST'])
 def add_log_file():
     available = ['access','error','fail2ban']
     alert = None  
