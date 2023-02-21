@@ -6,6 +6,7 @@ from psycopg import sql
 from .db_pool import pool
 from .ops_report import table_build
 from .ops_api_v1 import summary, bandwidth
+from .ops_log import home_ip
 from urllib.request import Request
 from urllib.request import urlopen
 
@@ -41,6 +42,8 @@ def api_v1_summary(api_spec): # validate option, establish time bounds, return d
     data=dict(time_bounds=dict(start=start.strftime('%x %X'),end=end.strftime('%x %X')))    
     with pool.connection() as conn:
         cur = conn.cursor()
+        with conn.transaction():
+            _ = home_ip(cur)
         if api_spec == 'all':
             for val in ['home','outside','fail2ban','geo']:
                 data[val] = summary(start,end,val,cur)

@@ -18,7 +18,8 @@ def init_tasks(check_IP, check_Log, scheduler, conninfo):
                 try:
                     with psycopg.connect(conninfo) as conn:
                         cur = conn.cursor()
-                        _, task_log = home_ip(conn,cur) # return duration as timedelta, error as string, or None (first entry / no change to first)
+                        with conn.transaction():
+                            _, task_log = home_ip(cur) # return duration as timedelta, error as string, or None (first entry / no change to first)
                         if task_log and type(task_log) == str:
                             scheduler.app.logger.error(f"Scheduled Home IP check error\n{task_log}")                                         
                         else:

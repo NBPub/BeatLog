@@ -86,7 +86,7 @@ def filter_info(cur, name):
         return ('success', (finds, bans, home_ignores))  
     except Exception as e:
         return ('danger', ('Error!',str(e)))  
-def home_ip(conn, cur):
+def home_ip(cur):
     try:
         # select last 2
         record = cur.execute("SELECT * FROM homeip ORDER BY date DESC LIMIT 2").fetchall()

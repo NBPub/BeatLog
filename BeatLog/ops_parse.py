@@ -11,7 +11,8 @@ def log_homeIP(conn, cur, log):
     # get start date to gather homeIPs
     start = cur.execute(sql.SQL('SELECT date FROM {} WHERE home IS NULL ORDER BY date ASC LIMIT 1').format(sql.Identifier(log))).fetchone()[0]
     # get homeIPs after updating
-    _ = home_ip(conn, cur)
+    with conn.transaction():
+        _ = home_ip(cur)
     data = cur.execute('SELECT row, ip, date FROM homeip WHERE date > %s ORDER BY date', (start,)).fetchall()    
     with conn.transaction():   
         if len(data) == 1: # one IP forever or for entire range, update everything

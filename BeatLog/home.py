@@ -36,7 +36,8 @@ def home():
         versions.append(version.split(' ')[0])
         
         # check home IP, gather ignoreIPs from f2b jail
-        homeIP, duration = home_ip(conn, cur)
+        with conn.transaction():
+            homeIP, duration = home_ip(cur)
         ig = cur.execute('SELECT ignoreips FROM jail').fetchone()
         ig = [] if ig == None else ig[0]
         
@@ -241,7 +242,8 @@ def configure_jail():
             jail_loc, mod, lastcheck, filters, ig, findtime, bantime = cur.execute('SELECT * FROM jail').fetchone()
         else:
             jail_loc = mod = lastcheck = filters = findtime = bantime = ig = None
-        homeIP,_ = home_ip(conn, cur)
+        with conn.transaction():
+            homeIP,_ = home_ip(cur)
         if jail_loc:
             location = jail_loc
             made, message = update_Jail(conn, cur, mod, location, lastcheck) # returns up to date, updated, or failure message
