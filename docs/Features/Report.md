@@ -17,30 +17,29 @@
 ## Overview
 
 The report provides valaubale information from your processed data. 
-The duration of a "recent report", **Known Devices**, and other options can be set in the **[Report Settings](#known-devices)**. 
-See the **[custom dates](#custom-dates) setting** for report generation over a chosen time range.
+The duration of a "recent report", **Known Devices**, and other options can be set in the **[Report Settings](#settings)**. 
+See the **[Custom Dates setting](#custom-dates)** for report generation over a chosen time range.
 
 Below is the overall summary shown at the top of the report. 
 The **Daily Action Counts** chart summarizes key connection counts. 
 
 ![report_top](/docs/pics/Report_Top_summary.png "Start of report, action count table")
-*hover over any chart for detailed data*
+*hover over any chart on the report for detailed data, see [demonstration page](#demonstration-page)*
 
 **Daily Action Counts**
 - fail2ban **Finds** (unique IP/filter), overlap of filters possible `... [filter] Found <IP> ...`
 - fail2ban **Bans** (unique IP/filter), overlap of filters possible  `... [filter] Ban <IP>`
 - outside **Visitors** (unique IP), from error and access logs
 - fail2ban **Ignores** (total) `... [filter] Ignore <IP> ...`
-- home **Ignorable** (total) - *see bottom row of [home summary](#home-demo)*
+- home **Ignorable** (total) - *see bottom row of [home summary table](#home-demo)*
 
 ## Settings
 
 The image shows the available **Report Settings**. All the settings shown were modified from their defaults. 
-Report settings are on the same page as **Geography Settings**, and can also be accessed from the **Options** drop-down menu.
+Report settings are on the same page as **Geography Settings**, and can be accessed from the **Options** drop-down menu.
 
 ![report_set](/docs/pics/Settings_report.png "exclude Known Devices in Report settings")
 
-Some special **Report Settings** are discussed next.
 
 ### Known Devices
 
@@ -51,14 +50,14 @@ Once **Known Devices** have been identified, they can be separated / excluded fr
 ### Home Ignorable
 
 The setting for **fail2ban home ignores** may seem redundant, provided the [upcoming discussion](#home-demo) in the home section. 
-If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** table. 
+If fail2ban ignores are found, they are matched to home request(s) based on timestamp and presented together in the **Home Ignores** [table](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs). 
 
 Given that many requests can happen within a second, and **[access.log](/docs#access-logs---access)**'s 
 time resolution of one second vs. **[fail2ban.log](/docs#fail2ban-log---fail2ban)**'s one milli-second resolution, 
 speciying home connections that should be ignored (ignorable) will help match the appropriate home requests with fail2ban ignores. 
 Excess matches may be presented otherwise.
 
-***Current implementation of fail2ban Home Ignores may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution***
+***Current implementation of fail2ban Home Ignores may be susceptible to [SQL injection](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection), use with caution<sup>1</sup>***
 
 <details><summary>usage</summary>
 
@@ -78,7 +77,7 @@ AND (status BETWEEN 400 AND 499 OR http<20)
 
 </details>
 
-*it is unlikely that you will do harm to your database with bad **fail2ban Home Ignores** setting, but it is probably that your Report will not load and result in a 500 error. Container logs may help*
+*<sup>1</sup> It is unlikely that you will do harm to your database with a bad **fail2ban Home Ignores** setting, but it is probable that your Report will not load and result in a 500 error. Container logs may help*
 
 ### Custom Dates
 
@@ -91,7 +90,7 @@ and can also be accessed from the **Options** drop-down menu.
 
 You can get a sense of how the report looks and feels by checking out the **[demonstration page](https://nbpub.github.io/BeatLog/#scrollspyTop)**. 
 Some links on the page are disabled, and some data has been modified or redacted for sharing. 
-Links to the various sections of the demo report will be provided with each section on the page.
+Links to the various sections of the demo report will be provided with each corresponding section on this page.
 
 
 ## Home [|demo|](https://nbpub.github.io/BeatLog/#scrollspyHome)

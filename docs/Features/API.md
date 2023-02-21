@@ -1,6 +1,6 @@
 # Simple JSON API
 
-***Page updated as of [alpha-0.1.5](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)**), new changes will be called out separately***
+***Page updates in progress***
 
 - [Motivation](#motivation)
 - [API Help Page](#api-help-page)
@@ -23,7 +23,7 @@ Provide simple data retrieval from the database in a JSON format. The API will n
 The **[Report](/docs/Features/Report.md#contents)** and **[Database Explorer](/docs/Features/Database.md#database-explorer)**<sup>2</sup> cover 
 more complex data retrievals I like to reference often.
 
-<sup>1</sup>*As noted in the [installation options](/docs/Installation/Installation_Extra.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
+<sup>1</sup>*As noted in the [installation options](/docs/Installation/Installation_Extras.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
 <sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), provides a good start for building SQL queries based on user inputs.*
 
 ## API Help Page

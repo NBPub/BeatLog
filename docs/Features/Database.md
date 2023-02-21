@@ -1,27 +1,28 @@
 # Database Features Documentation
 
-## Contents
-
  - [Explorer](#database-explorer)
-  - [Query](#query)
-  - [Results](#results)
+   - [Query](#query)
+   - [Results](#results)
  - [Cleanup](#database-cleanup)
  - [Failed Regex](#failed-regex) 
  
- 
 ## Database Explorer
 
-While the [Beat Button](/docs/Features/Report.md#beat-button) may only provide a limited result of the logs (up to 10 rows from each), 
-a log's data can be fully explored through the **Database Query** page. Results are always sorted by time, with 
-a specific start or end time specified. They default to `Starting : one week before now` and `Ending : now` on page load.
+While the [Beat Button](/docs/Features/Report.md#beat-button) only provides a limited result (up to 10 rows from each log), 
+a log's data can be fully explored through the **Database Query** page. 
 
 ![dataview1](/docs/pics/query_1.png "Query options for Database Explorer") 
 
-*Review [parsed data, database schema](/docs#processed-data).*
+Results are always sorted by time, with a specific start or end time specified. 
+They default to `Starting : one week before now` and `Ending : now` on page load.
+
+*[Review parsed data and database schema](/docs#processed-data)*
 
 ### Query
 
 Each log's database table can be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
+
+![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options at the top of the page") 
 
 <details><summary>Query Descriptions</summary>
 
@@ -46,14 +47,12 @@ Each log's database table can be explored, and a variety of filters, settings, a
 
 </details>
 
-![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options at the top of the page") 
-
 ### Results
 
 Coordinates, Cities, and Counties are added if any of the results have [geoinfo](/docs#maxminddb). 
 Unlike the report, the data is not styled in any way, providing a raw view of the database. 
 Data styling is retained for ***Match Ignores***, however, which attempts to combine associated entries from 
-the **[fail2ban](/docs#fail2ban-log---fail2ban)** and **[access](/docs#access-logs---access)**** logs. 
+the **[fail2ban](/docs#fail2ban-log---fail2ban)** and **[access](/docs#access-logs---access)**logs. 
 *[Report demo example](https://nbpub.github.io/BeatLog/#scrollspyHomeIgs)*
 
 If the results are larger than the size limit, the result page provides a link to view more data. 
@@ -61,17 +60,19 @@ If the results are larger than the size limit, the result page provides a link t
 ![dataview3](/docs/pics/query_3.png "Query result table (entire table not shown).") 
 
 If the **Next** button is used, a **Previous** button is provided on the page. 
-This will only backtrack to the query from the source page. 
+This will only backtrack to the query its the source page. 
 For this reason, it may be beneficial to open **Next** results in a new tab or window.
 
 The **SQL** statement used to generate the table can be viewed for each result. 
 
 ![dataview4](/docs/pics/query_4.png "If Next button used, a Previous button provides a link to one query back") 
 
-Conveniently, it can be copied to the clipboard with a click. *Action may be disabled by web browser, SSL [certificate](https://github.com/FiloSottile/mkcert) may be required.*
+Conveniently, it can be copied to the clipboard with a click.
 
 ![dataview5](/docs/pics/query_5.png "Copy SQL statement to clipboard") 
 ![dataview6](/docs/pics/query_6.png "Paste SQL statement somewhere") 
+
+*This action may be disabled by web browser, [SSL certificate](https://github.com/FiloSottile/mkcert) may be required.*
 
 ## Database Cleanup
 

@@ -7,11 +7,13 @@
   - [Docker Compose](/README.md#installation)
     - [Parameter Details](/README.md#parameters)
   - [Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) 
-- ***[Setup Guide](#setup-guide-contents)*** *this page*
+  - [Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)
+- ***Setup Guide***
+  - *[this page](#setup-guide-contents))*
 - **Features**
   - [Report](/docs/Features/Report.md#contents)
-  - [Geography](/docs/Features/Geography#contents)
-  - [Database](/docs/Features/Database_Explorer.md#contents)
+  - [Geography](/docs/Features/Geography.md#contents)
+  - [Database](/docs/Features/Database.md#contents)
   - [JSON API](/docs/Features/API.md#simple-json-api)
 - **BeatLog History**
   - [Detailed Changelog](/docs/Installation/Changelog.md#contents)
@@ -92,8 +94,6 @@ Following the example, the files can be loaded into **BeatLog** from the `/impor
 
 ### Log Files
 
-*!!! **Unauthorized Log** no longer supported !!!*
-
 Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all four have not been added. 
 Paths shown in pictures may not match the file structure shown above. See the text above pictures for the correct path.
 
@@ -140,7 +140,7 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 
 ![geo_set2](/docs/pics/Settings_geography.png "Geography settings, MaxMindDB")
 
-While here, a user-agent header may be specified for reverse geocoding. This is required to [look-up](/docs/Features/Geography#location-lookup) unnamed locations. 
+While here, a user-agent header may be specified for reverse geocoding. This is required to [look-up](/docs/Features/Geography.md#location-lookup) unnamed locations. 
 Refer to the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/).
 
 ### Regex Methods
@@ -149,7 +149,7 @@ Load the default regex patterns to get started parsing logs.
 
 ![regex_load](/docs/pics/load_regex_methods.png "Empty regex methods")
 
-The default methods should provide everything needed to parse the four different logs. Each one is shown below, and the *access_secondary* pattern is highlighted. 
+The default methods should provide everything needed to parse the three different logs. Each one is shown below, and the *access_secondary* pattern is highlighted. 
 If any of the default methods are deleted, they can be reloaded again with the button shown above. If a pattern is edited or saved with the same name as a default method, it will not be overwritten.
 
 ![regex_loaded](/docs/pics/loaded_regex_methods.png "Default regex methods")

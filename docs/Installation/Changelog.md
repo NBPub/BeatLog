@@ -1,6 +1,7 @@
 # BeatLog Changelog
 
 *Latest Version*: alpha-0.1.6
+
 **Stable Version**: alpha-0.1.5
 
 [Repository](/README.md), [Releases](/releases)
@@ -10,13 +11,13 @@
 - [Pre-Release](pre-release)
   - *[alpha-0.1.6](#pre-alpha-017-details)*
   - **[alpha-0.1.5](#pre-alpha-016-details)**
-    - [Tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)
+    - [Images, Notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)
   - [alpha-0.1.4](#pre-alpha-015-details)
-    - [Tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)  
+    - [Images, Notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)  
   - [alpha-0.1.3](#pre-alpha-014-details)
-    - [Tag, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)  
+    - [Images, Notes, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)  
   - [alpha-0.1.2](#pre-alpha-013-details)
-    - [Tag, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
+    - [Images, Notes, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
   - [alpha-0.1.1](#pre-alpha-012-details)
 
 

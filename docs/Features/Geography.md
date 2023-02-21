@@ -3,10 +3,10 @@
 ## Contents
 
  - [Overview](#overview)
-  - [Reference Links]()#reference-links)
+    - [Reference Links](#reference-links)
  - [Location Lookup](#location-lookup)
  - [Visitor Map](#visitor-map-demo) 
-  - [Custom Dates](#custom-dates) 
+    - [Custom Dates](#custom-dates) 
  - [Data Assessment](#data-assessment) 
 
  
@@ -22,9 +22,9 @@ After adding the [GeoLite2-City](/docs#maxminddb) file to **BeatLog**, locations
 ## Location Lookup
 
 If a city or country name is not found during parsing, unnamed locations can be manually filled or looked up using reverse geocoding from [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/). 
-The table of unnamed locations provides OpenStreetMaps and GoogleMaps links for the coordinates to help name or check the naming of locations.
+The table of unnamed locations provides OpenStreetMaps and GoogleMaps links to the coordinates to help name or check the naming of locations.
 
-*City or country names saved as "None" will be interpreted as [NULL](https://en.wikipedia.org/wiki/Null_(SQL)), currently. may change later*
+*City or country names saved as "None" will be interpreted as [NULL](https://en.wikipedia.org/wiki/Null_(SQL))*
 
 ![Geography_locationfill](/docs/pics/Geography_locationfill.png "(Un)named locations page with blank locations")
 
@@ -65,7 +65,8 @@ As with the [location lookup](#location-lookup) tables, City and Country names c
 
 ![geo_table](/docs/pics/Geography_table.png "Location table with editable City and Country names")
 
-The **Inspect** and **Clean Cache** buttons check that all the saved locations match at least one IP in the database. If a location has no associations, it can be deleted.
+The **Inspect** and **Clean Cache** buttons check that all the saved locations match at least one IP in the database. 
+They will only appear if such locations exist. If a location has no associations, it can be deleted.
 
 The **Top 10** bar charts show top countries or cities by total requests or unique IP addressess.
 

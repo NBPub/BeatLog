@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/NBPub/BeatLog/main/BeatLog/static/favicon.png" title="BeatLog!"> BeatLog
 
-## Overview | [Documentation](/docs#contents)
+## Overview | [Documentation](/docs#beatlog-documentation-)
 - [Background](#background)
 - [Features](#features)
 	- [Database](#database)
@@ -10,14 +10,14 @@
 	- [Docker](#docker-compose)
 	- [Parameters](#parameters)
 	- [Data Sources](#data-sources)	
-	- *[Installation Extras](/docs/installation_extras.md)*
+	- *[Installation Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) +*
 - [Setup](#application-setup)
 - [Development](#development)
 	- [Feedback](#development)
 	- [In Progress](#submit-bugs-or-feedback)	
 	- [Pre-Release Notes](#pre-release-changelog)
-		- *[Detailed Changelog](/docs/Installation/Changelog.md#contents)*
-	- *[Local Installation](#local-installation---python-venv)*
+		- *[Detailed Changelog](/docs/Installation/Changelog.md#contents) +*
+	- *[Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation) +*
 	
 ## Background
 
@@ -66,7 +66,7 @@ A simple [JSON API](/docs/Features/API.md#simple-json-api) can return summaries 
 
 </details>
 
-Adminer [can be installed](/docs/Installation/installation_extras.md#adminer) to facilitate interaction with the database.
+Adminer [can be installed](/docs/Installation/Installation_Extras.md#adminer) to facilitate interaction with the database.
 
 ----
 
@@ -74,7 +74,7 @@ Adminer [can be installed](/docs/Installation/installation_extras.md#adminer) to
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
-**[Documentation](/docs/Features/Report.md#contents)**
+<br>**[Documentation](/docs/Features/Report.md#contents)**
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
  - Scrutinize traffic from frequent visitors, monitor popular client requests
  - **Known Devices** can be identified and separated from other outside connections
@@ -86,7 +86,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
 Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
-**[Documentation](/docsFeatures/Geography.md#visitor-map-demo)**
+<br>**[Documentation](/docs/Features/Geography.md#visitor-map-demo)**
  - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
  - Location marker sizes are scaled by total connections or unique visitors
  - Tabular data is presented beneath the map
@@ -113,7 +113,7 @@ In the example below, the specified directories, and their contents, will be ava
 
 *It is important to mount files that may change (log turnover, changed fail2ban settings, MaxMindDB updates) indirectly via their parent directories. Directly mounted files will not update within the container.*
 
-The [compose parameters](#parameters) are detailed in the next section. Optional `healthcheck` and `adminer` additions are shown [below](#extra-options).
+The [compose parameters](#parameters) are detailed in the next section. Optional `healthcheck` and `adminer` additions are shown on the [Installation Extras page](/docs/Installation/Installation_Extras.md#beatlog-installation-options).
 
 *With an existing, connectable database,* `depends_on:` *and the following lines are not needed. Ensure a database with the name specified in BeatLog's environment exists.*
 
@@ -196,12 +196,12 @@ Sensitive data can be passed to compose using [secrets](https://docs.docker.com/
 
 </details>
 
-See the [Installation Extras](/docs/Installation/installation_extras.md) page for more, including how to add healthchecks to the docker containers and how to update the database.
+See the [Installation Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) page for more, including how to add healthchecks to the docker containers and how to update the database.
 
 ### Data Sources
 
 **BeatLog** reads the following files for the information described. 
-See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sections of the **[Guide](/docs#contents)** for more information.
+See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sections of the **[Guide](/docs#setup-guide-contents)** for more information.
 
 - **NGINX reverse proxy**
 	- access.log - *client requests to the server*
@@ -215,7 +215,9 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 
 ## Application Setup
 
-Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.<br>**[Setup Guide](/docs#setup-guide-contents)**
+Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`.
+
+### [Setup Guide](/docs#setup-guide-contents)
 
 *If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
 
@@ -233,25 +235,26 @@ Get the most information from BeatLog following these steps:
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.7
+### In Progress, alpha-0.1.6
 
 [Details](/docs/Installation/Changelog.md#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - allow for SSL in deployment
+  - allow for SSL in deployment, *likely just changes to Gunicorn start command*
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
 	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
   - API v1 fixes/improvements
     - no longer rounding date_spec for [bandwidth](/docs/Features/API.md#bandwidth) API calls to nearest day
-    - handle geography data better / provide calls to retrieve geography data
-	- other ideas [listed](/docs/Features/API.md#more) on page?
-- Documentation *in progress*
-  - planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now
-  - will update Contents sections to include external links
+	- more?
+      - handle geography data better / provide calls to retrieve geography data
+	  - other ideas [listed](/docs/Features/API.md#more) on page?
+- Documentation ***in progress***
+  - ~~planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now~~
+  - ~~will update Contents sections to include external links~~
   - will likely break a lot of existing links in the process
 - Bugfixes
-  - 
+  - .
 
 ### Possible Improvements
 
@@ -262,7 +265,7 @@ Get the most information from BeatLog following these steps:
   - use template file for SQL commands to clean up code
   - add tests for code
   - consider smarter way to gather regex methods across functions
-  - solve possible issues with SQL creation: [Home Ignores](/docs#home-ignorable)
+  - solve possible issues with SQL creation: [Home Ignores](/docs/Features/Report.md#home-ignorable)
 - Features
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
@@ -279,7 +282,7 @@ Get the most information from BeatLog following these steps:
 | alpha-0.1.1 | Switched WSGI from **Werkzeug** to **Gunicorn**, updated compose example. Minor fixes / tweaks. Working to properly implement Gunicorn, APScheduler, psycopg3 together. |
 | alpha-0.1.1t | `NullConnectionPool` version of alpha-0.1.1. may be more stable and less load on postgresql, might be slower. ***psycogp3** [ConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#connection-pools) vs. [NullConnectionPool](https://www.psycopg.org/psycopg3/docs/advanced/pool.html#null-connection-pools)* |
 | alpha-0.1.2, alpha-0.1.2t | Improved contruction of SQL queries across all functions and pages, with care for [SQL Injection risks](https://www.psycopg.org/psycopg3/docs/basic/params.html#danger-sql-injection). Docker images built via Github [workflow](/actions/workflows/main.yml). Added [demo page](https://nbpub.github.io/BeatLog/). Bugfixes and improvements. |
-| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docsFeatures/Database.md#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
+| alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs/Features/Database.md#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
-| alpha-0.1.6 | **BIG** documentation reorganization. Modified bandwidth API, no longer rounding to nearest day. |
+| alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified bandwidth API, no longer rounding to nearest day. |
