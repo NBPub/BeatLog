@@ -12,11 +12,12 @@
 	- [Data Sources](#data-sources)	
 	- *[Installation Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) +*
 - [Setup](#application-setup)
+	- *[Setup Guide](/docs#setup-guide-contents) +*
 - [Development](#development)
 	- [Feedback](#development)
 	- [In Progress](#submit-bugs-or-feedback)	
 	- [Pre-Release Notes](#pre-release-changelog)
-		- *[Detailed Changelog](/docs/Installation/Changelog.md#contents) +*
+		- *[Detailed Changelog](/docs/Installation/Changelog.md#beatlog-changelog) +*
 	- *[Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation) +*
 	
 ## Background
@@ -252,11 +253,17 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 - Features
   - API v1 fixes/improvements
     - no longer rounding date_spec for [bandwidth](/docs/Features/API.md#bandwidth) API calls to nearest day
+	- added [home_ip check](/BeatLog/ops_log.py#L89) before data summary call, added SQL transaction surrounding home_ip calls in general to fix some bugs
 	- more?
       - handle geography data better / provide calls to retrieve geography data
 	  - other ideas [listed](/docs/Features/API.md#more) on page?
+  - Failed Regex
+    - if primary and secondary regex methods fail during parsing, line saved to database
+	- expanded failed regex page: view lines by log, delete saved lines
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
+  - removed unusued template(s)
+  
 
 ### Possible Improvements
 
@@ -280,7 +287,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 
 ### Pre-Release Changelog
 
-**[Version-by-version details](/docs/Installation/Changelog.md#contents)**
+**[Version-by-version details](/docs/Installation/Changelog.md#beatlog-changelog)**
 
 | Version ([Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags)) | Notes |
 | :----: | --- |
@@ -292,3 +299,9 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 | alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified bandwidth API, no longer rounding to nearest day. |
+
+### Other Pages
+
+ - **[Local Installation]**
+ - **[Null Connection Pool](/docs/Installation/NullConnectionPool.md#background)**
+ - **[Releases](https://github.com/NBPub/BeatLog/releases)**

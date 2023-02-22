@@ -9,7 +9,7 @@
 		<form method="POST" action="{{ url_for('home.settings') }}" id="ReportSetting">	    
 		  <label for="ReportDaysId" class="form-label">Previous days to include in <b>Recent Report</b></label>
 		  <output name="ReportDaysOutput" id="ReportDaysOutputId" class="fs-5 fw-bold border border-dark border-3 ms-3 mt-2 px-2">{{ old[0] }}</output>		  
-		  <input name="ReportDays" type="range" class="form-range" min="1" max="7" step="1" value="{{ old[0] }}" id="ReportDaysId" oninput="ReportDaysOutputId.value = ReportDaysId.value">
+		  <input name="ReportDays" type="range" class="form-range rounded bg-dark-subtle px-2" min="1" max="7" step="1" value="{{ old[0] }}" id="ReportDaysId" oninput="ReportDaysOutputId.value = ReportDaysId.value">
 		  
 		  <label for="HomeIgnore" class="form-label mt-3">Specify
 			<a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WHERE">condition</a>
@@ -106,7 +106,7 @@
 		  </div>		  
 	      <label for="GeoDaysId" class="form-label mt-5">Previous days to include in <b>Visitor Map</b></label>
 		  <output name="GeoDaysOutput" id="GeoDaysOutputId" class="fs-5 fw-bold border border-dark border-3 ms-3 mt-2 px-2">{{ old[10] }}</output>
-		  <input name="GeoDays" type="range" class="form-range mb-3" min="1" max="7" step="1" value="{{ old[10] }}" id="GeoDaysId" oninput="GeoDaysOutputId.value = GeoDaysId.value">    
+		  <input name="GeoDays" type="range" class="form-range mb-3 rounded bg-dark-subtle px-2" min="1" max="7" step="1" value="{{ old[10] }}" id="GeoDaysId" oninput="GeoDaysOutputId.value = GeoDaysId.value">    
 		  
 		  <span class="fw-bold">Scale map by:</span>
 		  <div class="form-check form-check-inline">
@@ -135,7 +135,7 @@
 	  </div>
 <br /><br /><hr /></div> 
 <br /><br /><hr />
-  <h1 class="mt-5">Custom Report or Visitor Map</h1>
+  <h1 class="mt-5 text-center">Custom Report or Visitor Map</h1>
 	<div class="row mx-5 mb-5 bg-light border-bottom border-black-50">	
 	  <form method="POST" action="">
 		<div class="input-group my-4">

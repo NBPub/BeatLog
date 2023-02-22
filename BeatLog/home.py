@@ -110,14 +110,26 @@ def data_clean():
 
 @bp.route("/failed_regex/", methods = ['GET','POST'])
 def failed_regex():
+    failed = lines = alert = None
     with pool.connection() as conn:
         cur = conn.cursor()
-        failed = cur.execute('SELECT log, line FROM failedregex').fetchall()
-        if failed != []:
-            lines = len(failed)
-        else:
-            lines = 0
-    return render_template('failed_regex.html', lines=lines)
+        if request.method == 'POST' :
+            if "delete" in request.form:
+                try:
+                    with conn.transaction():
+                        deleted = int(cur.execute('DELETE FROM failedregex WHERE log=%s',
+                                     (request.form["delete"],)).statusmessage[7:])
+                    alert = (f'{deleted} failed lines removed from {request.form["delete"]}.log','success')
+                except Exception as e:
+                    alert = (str(e),'danger')
+        check = cur.execute('SELECT DISTINCT log FROM failedregex').fetchall()
+        if check != []:
+            failed = {}
+            lines = {}
+            for val in check:
+                failed[val[0]] = cur.execute('SELECT COUNT(line) FROM failedregex WHERE log=%s ',val).fetchone()[0]
+                lines[val[0]] = cur.execute('SELECT line FROM failedregex WHERE log=%s LIMIT 20',val).fetchall()
+    return render_template('failed_regex.html', failed=failed, lines=lines, alert=alert)
 
 @bp.route("/settings/", methods = ['GET','POST'])
 def settings():  

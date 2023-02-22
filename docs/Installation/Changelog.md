@@ -27,16 +27,20 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 ### pre alpha-0.1.7 details
 
-
 - JSON API
   - no longer rounding *bandwidth* calls to nearest day
+  - cleaned up help page
+- Failed Regex
+  - if primary and secondary regex methods fail during parsing, line saved to database
+  - expanded failed regex page: view lines by log, delete saved lines  
 - Documentation
   - big reorganization
-
+- Bug Fixes / Minor Improvements
+  - various aesthetic / navigation improvements
+  - removed unusued template(s)
 
 
 ### pre alpha-0.1.6 details
-
 
 - JSON API
   - new feature: **[bandwidth](/docs/Features/API.md#bandwidth)** - returns total bandwidth from access log.

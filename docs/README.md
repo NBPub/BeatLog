@@ -9,7 +9,7 @@
     - [Parameter Details](/README.md#parameters)
   - [Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) 
   - [Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)
-- ***Setup Guide***
+- **Setup Guide**
   - *[this page](#setup-guide-contents)*
 - **Features**
   - [Report](/docs/Features/Report.md#contents)
@@ -17,7 +17,7 @@
   - [Database](/docs/Features/Database.md#database-features-documentation)
   - [JSON API](/docs/Features/API.md#simple-json-api)
 - **BeatLog History**
-  - [Detailed Changelog](/docs/Installation/Changelog.md#contents)
+  - [Detailed Changelog](/docs/Installation/Changelog.md#beatlog-changelog)
   - [NullConnectionPool](/docs/Installation/NullConnectionPool.md#background)  
 
 ## Setup Guide Contents
@@ -101,11 +101,11 @@ Paths shown in pictures may not match the file structure shown above. See the te
 The navigation bar on top provides links to all of the pages shown below. 
 Also note the home IP address is red, indicating it is not being ignored by fail2ban. In this case, the fail2ban **jail.local** file has yet to be [added](#fail2ban-jail).
 
-`/home/`
+`*/home/`
 
 ![homepage_fresh](/docs/pics/homepage_fresh.png "Homepage without any logfiles.")
 
-**✱ access.log ✱** `/Logs/add/`
+**✱ access.log ✱** `*/Logs/add/`
 
 */import/log/nginx/access.log*
 
@@ -121,20 +121,15 @@ Before [specifying](#adding-regex-to-logs) regex methods for parsing **access.lo
 
 The fail2ban **jail.local** will provide information on enabled filters and list ignored IP addresses. If an ignored IP matches the home IP address, it is shown in green. 
 
-**✱ jail.local ✱** `/jail/`
+**✱ jail.local ✱** `*/jail/`
 
 */import/log/fail2ban/fail2ban.log*
 
-![add_jail](/docs/pics/load_jail.png "Adding jail.local")
+![add_jail](/docs/pics/load_jail.png "Adding jail.local") ![added_jail](/docs/pics/loaded_jail.png "jail.local added")
 
-![added_jail](/docs/pics/loaded_jail.png "jail.local added")
+![check_filter](/docs/pics/filter_check.png "Check filter activity") ![checked_filter](/docs/pics/filter_checked.png "All found IPs banned. No Home ignores.")
 
 Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in the past 24 hours (unique IPs, not total).  
-
-![check_filter](/docs/pics/filter_check.png "Check filter activity")
-
-![checked_filter](/docs/pics/filter_checked.png "All found IPs banned. No Home ignores.")
-
 
 ### MaxMindDB
 
@@ -142,7 +137,7 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 
 ![geo_set1](/docs/pics/navbar_settings.png "Geography settings")
 
-**✱ GeoLite2-City.mmdb ✱** `/settings/#Geography`
+**✱ GeoLite2-City.mmdb ✱** `*/settings/#Geography`
 
 */import/geoip2db/GeoLite2-City.mmdb*
 
@@ -155,7 +150,7 @@ Refer to the [Nominatim usage policy](https://operations.osmfoundation.org/polic
 
 Load the default regex patterns to get started parsing logs; or, [create](https://docs.python.org/3/howto/regex.html) your own.
 
-`/Logs/add_regex/`
+`*/Logs/add_regex/`
 
 ![regex_load](/docs/pics/load_regex_methods.png "Empty regex methods")
 
@@ -169,7 +164,7 @@ If any of the default methods are deleted, they can be reloaded again with the b
 
 Associate regex methods to Log Files. The default names should be self-explanatory.
 
-`/Logs/access/regex/`
+`*/Logs/access/regex/`
 
 ![Log_regex](/docs/pics/Log_regex.png "Adding patterns to a log file")
 

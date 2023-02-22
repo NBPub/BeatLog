@@ -16,6 +16,8 @@
  
 ## Overview
 
+`*/report/`
+
 The report provides valaubale information from your processed data. 
 The duration of a "recent report", [Known Devices](#known-devices), and other options can be set in the [Report Settings](#settings). 
 See the [Custom Dates setting](#custom-dates) for report generation over a chosen time range.
@@ -33,7 +35,15 @@ The **Daily Action Counts** chart summarizes key connection counts.
 - fail2ban **Ignores** (total) `... [filter] Ignore <IP> ...`
 - home **Ignorable** (total) - *see bottom row of [home summary table](#home-demo)*
 
+![contents_0](/docs/pics/Report_scrollSpy_0.png) ![contents_1](/docs/pics/Report_scrollSpy_1.png) 
+
+On the Report page, the a **Contents** button is added to the navigation bar. It provides convenient scrolling to the report's sections.
+
+[contents_2](/docs/pics/Report_scrollSpy_2.png) 
+
 ## Settings
+
+`*/settings/#Report`
 
 The image shows the available **Report Settings**. All the settings shown were modified from their defaults. 
 Report settings are on the same page as **Geography Settings**, and can be accessed from the **Options** drop-down menu.
@@ -80,6 +90,8 @@ AND (status BETWEEN 400 AND 499 OR http<20)
 *<sup>1</sup>If **BeatLog** is used on a private, trusted network, then it is unlikely that you will do harm to your database with a bad **fail2ban Home Ignores** setting, but it is probable that your Report will not load and result in a 500 error. Container logs may help in this case.*
 
 ### Custom Dates
+
+`*/settings/#Custom`
 
 The form to generate **[Maps](/docs/Features/Geography.md#visitor-map-demo)** or **Reports** over a user-defined date range is on the bottom of the Report and Geography Settings page, 
 and can also be accessed from the **Options** drop-down menu.
@@ -166,7 +178,6 @@ On the right side of the navigation bar is a text-box combined with a **Beat** b
 Enter a valid IP address and press the button to open a new tab showing recent connections and fail2ban entries matching the IP address.
 
 In this example, the **[Top 10 Data Transfers](#outside-demo)** will be referenced to supply an IP address. 
-*Also note the* **Contents** *button on the navigation bar, it appears on the Report page to provide convenient scrolling*
 
 ![beat1](/docs/pics/beat_1.png "Enter an IP address and click the button")
 

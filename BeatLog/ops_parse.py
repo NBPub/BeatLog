@@ -183,7 +183,7 @@ def parse(conn, cur, log):
     _ = update_LogFile(conn, cur, log) 
     loc, log, mod, lastParsed, regex_1, regex_2, regex_time = \
     cur.execute('SELECT * FROM logfiles WHERE name=%s', (log,)).fetchone()
-    if not regex_1 or not regex_2:
+    if not regex_1 and not regex_2:
         return None, ('Add regex methods to log', 'danger'), (lastParsed, mod, regex_1, regex_2, regex_time)
     
     if lastParsed[0] == datetime(1,1,1) or lastParsed[1] != mod: # last parsed check, returns on else

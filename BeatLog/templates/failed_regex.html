@@ -1,10 +1,51 @@
 {% extends "base.html" %}
 {% block title %}Parsing Failures{% endblock %}
 {% block content %}
-  <h1>Failed Regex / Parsed Lines</h1>
-	{% if lines > 0 %}
-	  <p class="fs-3 text-danger ms-5">{{ lines }} lines failed to parse, page features in development</p>
+  <h1 class="mb-5">Failed Regex / Parsed Lines</h1>
+  	{% if alert %}
+	  <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
+	    {{ alert[0] }}
+	    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	  </div><br />
+	{% endif %}
+	{% if not failed  %}
+	  <p class="fs-3 text-success ms-5">No parsing failures found!</p>	  
     {% else %}
-	  <p class="fs-3 text-success ms-5">No parsing failures found!</p>
+	  <u class="fs-2 text-danger ms-3">Parsing Failures by Log</u>
+	  <div class="row mt-3">
+	    {% for log,count in failed.items() %}
+		<div class="col">
+		  <p class="fs-3 ms-2">
+		    <b class="ms-5">{{ log }}:</b> {{ count }}<br>
+			<a href="{{ url_for('logs.edit_log_regex', log_file=log) }}" class="btn bg-primary-subtle border-primary me-3 fw-bold text-primary" target="_blank">Regex</a>
+			<button type="button" class="btn bg-danger-subtle border-danger me-3 fw-bold text-danger" data-bs-toggle="modal" data-bs-target="#confirm{{log}}">Delete</button>
+			<a class="btn bg-success-subtle border-success me-3 fw-bold text-success" data-bs-toggle="collapse" href="#collapse{{log}}" role="button">View</a>
+		  </p>
+		  <div class="collapse" id="collapse{{log}}">
+		    <p class="text-center fw-bold fs-5"><u>up to 20 failed lines for {{ log }}.log</u></p>
+			<div class="bg-dark text-warning px-2 overflow-auto" style="max-height:60vh;">
+		    {% for line in lines[log] %}
+			  <span class="fs-6 my-2">{{ line[0] }}</span><br><br>
+			{% endfor %}
+			</div>
+		  </div>
+		</div>
+		<div class="modal fade" id="confirm{{log}}" tabindex="-1" >
+		  <div class="modal-dialog">
+			<div class="modal-content">		  
+			  <div class="modal-body text-danger fw-bold">			
+				<form method="POST" action="{{ url_for('home.failed_regex') }}" class="text-center fs-5">
+				  Remove {{count}} failed lines?
+				  <button type="submit" name="delete" value="{{log}}" class="btn btn-sm btn-danger ms-5 fw-bold">Clear {{log}}.log</button>
+				</form>
+			  </div>
+			  <div class="modal-footer text-muted fst-italic">
+				click outside to cancel
+			  </div>
+			</div>
+		  </div>
+		</div>	
+		{% endfor %}	  
+	  </div>
 	{% endif %}
 {% endblock %}

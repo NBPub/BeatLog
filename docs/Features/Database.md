@@ -10,6 +10,8 @@
  
 ## Database Explorer
 
+`*/db_view/`
+
 While the [Beat! Button](/docs/Features/Report.md#beat-button) only provides a limited result (up to 10 rows from each log), 
 a log's data can be fully explored through the **Database Query** page. 
 
@@ -17,7 +19,6 @@ a log's data can be fully explored through the **Database Query** page.
 
 Results are always sorted by time, with a specific start or end time specified. 
 They default to `Starting : one week before now` and `Ending : now` on page load.
-
 
 
 ### Query
@@ -78,6 +79,7 @@ Conveniently, it can be copied to the clipboard with a click.
 
 ## Database Cleanup
 
+`*/data_cleaning/`
 
 Data saved from log parsing can be deleted from the database, based on date.
 
@@ -89,5 +91,22 @@ Data removal must be confirmed after estimation. Canceling will allow another es
 
 ## Failed Regex
 
+`*/failed_regex/`
+
 Any line that fails parsing will be saved and categorized according to log file. 
-No features have been developed to assess or delete Failed Regex lines.
+Currently, **BeatLog** provides limited interaction with the failed lines. You can clear a log's failed regex or view a sample of the failed lines.
+I have not had any parsing failures using my [default regex methods](/docs#regex-methods), 
+therefore I didn't specify a **Secondary** regex method to generate failed lines for an example.
+
+*Individual log parsing result indicates failed lines, investigate on Failed Regex page:*
+
+![failed_lines_1](/docs/pics/failed_lines_1.png "Log Parse result") ![failed_lines_2](/docs/pics/failed_lines_2.png "Failed Regex page shows logs with lines that failed to parse")
+![failed_lines_3](/docs/pics/failed_lines_3.png "View up to 20 failed lines")
+
+I have some ideas of things to add:
+  - [Test Regex](/docs#adding-regex-to-logs) for log's failed lines
+  - Attempt to parse again and save into database
+  - . . .
+  
+Please submit any parsing failures you encounter with the default methods and/or features you might want with the failed lines. 
+
