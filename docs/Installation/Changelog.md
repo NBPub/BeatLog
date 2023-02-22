@@ -37,7 +37,7 @@ BeatLog is still in development. Every version thus far is a "pre-release".
   - big reorganization
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
-  - removed unusued template(s)
+  - removed unused template(s)
 
 
 ### pre alpha-0.1.6 details

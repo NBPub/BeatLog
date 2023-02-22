@@ -262,7 +262,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 	- expanded failed regex page: view lines by log, delete saved lines
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
-  - removed unusued template(s)
+  - removed unused template(s)
   
 
 ### Possible Improvements
@@ -298,10 +298,10 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs/Features/Database.md#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
-| alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified bandwidth API, no longer rounding to nearest day. |
+| alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. |
 
 ### Other Pages
 
- - **[Local Installation]**
+ - **[Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)**
  - **[Null Connection Pool](/docs/Installation/NullConnectionPool.md#background)**
  - **[Releases](https://github.com/NBPub/BeatLog/releases)**

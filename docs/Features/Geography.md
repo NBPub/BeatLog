@@ -21,11 +21,11 @@ After adding the [GeoLite2-City](/docs#maxminddb) file to **BeatLog**, locations
 If a city or country name is not found during parsing, unnamed locations can be manually filled or looked up using reverse geocoding from [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/). 
 The table of unnamed locations provides OpenStreetMaps and GoogleMaps links to the coordinates to help name or check the naming of locations.
 
-*Home Page "link bar" indicates unnamed locations*
 ![Geography_locationfill_0](/docs/pics/Geography_locationfill_0.png "The link bar on the home page indicates unnaned locations, if present.")
+*Home Page "link bar" indicates unnamed locations*
 
-*City or country names saved as "None" will be interpreted as [NULL](https://en.wikipedia.org/wiki/Null_(SQL))*
 ![Geography_locationfill](/docs/pics/Geography_locationfill.png "(Un)named locations page with blank locations")
+*City or country names saved as "None" will be interpreted as [NULL](https://en.wikipedia.org/wiki/Null_(SQL))*
 
 Location lookup pauses for one second in between each request to ensure rate limits are observed. If names were added to locations, they are indicated in a list. 
 A portion of the resulting page is shown below.
