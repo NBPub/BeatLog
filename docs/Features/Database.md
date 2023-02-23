@@ -23,8 +23,11 @@ They default to `Starting : one week before now` and `Ending : now` on page load
 
 ### Query
 
-Each log's database table can be explored, and a variety of filters, settings, and log-specific pre-assembled queries are provided.
-The image above shows the **Basic** options. The *IP Address* form is not shown.
+A variety of filters, settings, and log-specific pre-assembled queries are provided.
+The image above shows the **Basic** options. 
+The optional *Location* and *IP Address* filters can be toggled; *IP Address* form is not shown.
+
+Detailed query descriptions follow the image.
 
 ![dataview2](/docs/pics/query_2.png "Queries for each log, basic simply uses the options at the top of the page") 
 
@@ -63,7 +66,7 @@ If the there are more results than the size limit, the page provides a link to v
 ![dataview3](/docs/pics/query_3.png "Query result table (entire table not shown).") 
 
 If the **Next** button is used, a **Previous** button is provided on the resulting page. 
-This will only backtrack to the query to its the source page. 
+This will only backtrack to its source page. 
 For this reason, it may be beneficial to open **Next** results in a new tab or window.
 
 The **SQL** statement used to generate the table can be viewed for each result. 
@@ -93,7 +96,7 @@ Data removal must be confirmed after estimation. Canceling will allow another es
 
 `*/failed_regex/`
 
-Any line that fails parsing will be saved and categorized according to log file. 
+Any line that fails [parsing](/docs#parsing) will be saved and categorized according to log file. 
 Currently, **BeatLog** provides limited interaction with the failed lines. You can clear a log's failed regex or view a sample of the failed lines.
 I have not had any parsing failures using my [default regex methods](/docs#regex-methods), 
 therefore I didn't specify a **Secondary** regex method to generate failed lines for an example.
@@ -105,6 +108,8 @@ therefore I didn't specify a **Secondary** regex method to generate failed lines
 
 I have some ideas of things to add:
   - [Test Regex](/docs#adding-regex-to-logs) for log's failed lines
+    - provide more detailed information on how/where regex failed
+    - check **Time Skip** method only
   - Attempt to parse again and save into database
   - . . .
   

@@ -23,7 +23,7 @@ The duration of a "recent report", [Known Devices](#known-devices), and other op
 See the [Custom Dates setting](#custom-dates) for report generation over a chosen time range.
 
 Below is the overall summary shown at the top of the report. 
-The **Daily Action Counts** chart summarizes key connection counts. 
+The **Daily Action Counts** chart summarizes key connections. 
 
 ![report_top](/docs/pics/Report_Top_summary.png "Start of report, action count table")
 *hover over any chart on the report for detailed data, see [demonstration page](#demonstration-page)*
@@ -133,19 +133,21 @@ The `404` status returns were caught by the **nginx-http** filter. These request
 
 ## Outside [|demo|](https://nbpub.github.io/BeatLog/#scrollspyOutside)
 
-The outside section provides more detail than the home section. 
-The **Hit Counts by Log** chart (top-right) lists the amount of IPs that visited a certain amount of times. For unwanted visitors, the amount of hits should be low. 
-The graph below indicates that most visitors (>100) only visited one time. 
-
-Note the one address that had 5 requests. It is also shown in the **Frequent Visitors** table. The table indicates that the IP's 5 hits occured within one second, and it was promptly banned.
+**Outside** provides more detail than **Home**. 
+The **Hit Counts by Log** chart (top-right) lists the number of IPs that had a certain number of connections, "hits". For unwanted visitors, the amount of hits should be low. 
+The graph below indicates that most visitors (>100) only had one connection to the server. 
 
 ![report_outside1](/docs/pics/Report_Outside_summary.png "Report's summary of Outside connections")
+
+Note one Outsider had 5 requests. It is also shown in the **Frequent Visitors** table, which indicates that the IP's 5 hits occured within one second, and it was promptly banned.
+
 ![report_outside1](/docs/pics/Report_Outside_frequent.png "Frequent Visitors tables, updated to show data")
 
 As referenced in the **Home Devices** table, a separate **Frequent Visitors - Known Devices** table is provided due to the report [settings](#known-devices). 
 These IPs were separated based on their user-agents (tech), and are not shown in the **Hit Counts by Log** table.
 
-A number of **Top 10** tables are presented. The data in these tables may help design fail2ban filters. Top 10 tables also show the average data returned by the requests.
+A number of **Top 10** tables are presented in the **Outside** section. The data in these tables may help design fail2ban filters. 
+Top 10 tables also show the average data returned by the requests.
 
 ![report_outside2](/docs/pics/Report_Outside_top10_locations.png "Top 10 tables of Outside locations, note settings")
 
@@ -174,7 +176,7 @@ These visitors were not picked up by fail2ban, at least within the duration of t
 
 ## Beat Button
 
-On the right side of the navigation bar is a text-box combined with a **Beat** button. This is intended as a companion when reviewing logs or the **Report**. 
+On the right side of the navigation bar is a text-box combined with a **Beat** button. This is intended as a companion when [reviewing logs](/docs/Features/Database.md#query) or the **Report**. 
 Enter a valid IP address and press the button to open a new tab showing recent connections and fail2ban entries matching the IP address.
 
 In this example, the **[Top 10 Data Transfers](#outside-demo)** will be referenced to supply an IP address. 

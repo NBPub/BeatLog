@@ -22,17 +22,17 @@
 	
 ## Background
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
-![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
-![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
-![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
-![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54 "Python")
+![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white "Flask")
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white "PostgreSQL")
+![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black "Jinja2")
+![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white "Bootstrap 5")
+![Chart.js](https://img.shields.io/badge/chart.js-F5788D.svg?style=for-the-badge&logo=chart.js&logoColor=white "Chart JS")
 <img src="https://camo.githubusercontent.com/efe5825f7b954f1bdfea52541875c2d3c05da61c645a59d4b08c03e1ff6fbc4c/68747470733a2f2f7261776769742e636f6d2f4c6561666c65742f4c6561666c65742f6d61696e2f7372632f696d616765732f6c6f676f2e737667" 
 title="Leaflet.js" style="height:30px;width:auto;">
 <img src="https://static.maxmind.com/d2007b9fb8c2a6f15a54/images/maxmind-header-logo-compact-alt.svg" 
-title="Leaflet.js" style="height:30px;width:auto;">
-![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=purple)
+title="MaxMind GeoIP2" style="height:30px;width:auto;">
+![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=purple "Gunicorn")
 
 **BeatLog** parses [NGINX](https://www.nginx.com/) reverse proxy and [fail2ban](https://www.fail2ban.org/wiki/index.php/Main_Page) logs into readable tables and reports. 
 Use **BeatLog** to assess server traffic and tailor fail2ban filters.
@@ -56,9 +56,9 @@ See the [BeatLog Documentation](/docs#beatlog-documentation-) for a full descrip
 ### Database
 
 Data is saved in a PostgreSQL database and can be used for your own purposes. 
-See the [Processed Data](/docs#processed-data) section in the Docs to see the table and field schema used for parsed log data, 
-and [Database Explorer](/docs/Features/Database.md#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
-A simple [JSON API](/docs/Features/API.md#simple-json-api) can provides daily summaries and bandwidth statistics. 
+See the [Processed Data section](/docs#processed-data) in the Setup Guide to see the table and field schema used for parsed log data, 
+and the [Database Explorer page](/docs/Features/Database.md#database-explorer) to see how data can be queried and viewed within **BeatLog**. 
+A simple [JSON API](/docs/Features/API.md#simple-json-api) provides daily summaries and bandwidth statistics. 
 
 
 <details><summary>Database Query - fail2ban Log</summary>
@@ -75,12 +75,11 @@ Adminer [can be installed](/docs/Installation/Installation_Extras.md#adminer) to
 
 A report synthesizes all log data from the previous few days or a custom date range. 
 Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](https://getbootstrap.com/) is used for tables and styling. 
+Within the report, you can:
 
  - Analyze **home** and **outside** connections against fail2ban **finds, bans,** and **ignores** to assess efficacy of [fail2ban filters](https://fail2ban.readthedocs.io/en/latest/filters.html).
- - Scrutinize traffic from frequent visitors, monitor popular client requests
- - **Known Devices** can be identified and separated from other outside connections
-   - ex: connections with a [user-agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) of `DSub`, 
- matching requests from a [Subsonic Android app](http://subsonic.org/pages/apps.jsp#dsub), may be [separated from other Outside connections](/docs/Features/Report.md#known-devices)
+ - Scrutinize traffic from frequent visitors and monitor popular client requests
+ - **Known Devices** can be [identified and separated](/docs/Features/Report.md#known-devices) from other outside connections
 
 **[Documentation](/docs/Features/Report.md#contents)**
 
@@ -88,7 +87,7 @@ Charts are integrated using [CanvasJS](https://canvasjs.com/), and [Bootstrap](h
 
 ### Visitor Map [|demo|](https://nbpub.github.io/BeatLog/#scrollspyVisitorMap)
 
-Visitor locations can be visualized on an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
+Visitor locations are plotted onto an interactive map using [LeafletJS](https://leafletjs.com/) and [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tiles. 
 
  - Tool tips show location names and total connections or unique visitors (IPs) over the selected time range
  - Location marker sizes are scaled by total connections or unique visitors
@@ -100,16 +99,16 @@ Visitor locations can be visualized on an interactive map using [LeafletJS](http
 
 ## Installation
 
-BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with the following tags. 
-"Stable" images are built and pushed with each release, and "Latest" images are built and pushed with each commit. 
-Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that may be desired.
+BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created via **[workflows](https://github.com/NBPub/BeatLog/blob/main/.github/workflows/main.yml)** with two different *tags*. 
+"*Stable*" images are built and pushed with each release, and "*Latest*" images are built and pushed with each commit. 
+Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that are desired.
 
-Current release: **[alpha-0.1.5](#https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)**, In development: **[alpha-0.1.6](#development)**<br>
+Current release: **[alpha-0.1.6](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.6)**, In development: **[alpha-0.1.7](#development)**<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
-| x86-64 | *latest* | *stable*, *alpha-0.1.5* |
-| arm64 | *latest*  | *stable*, *alpha-0.1.5* |
-| armhf | (*built on request*) | *arm32v7-stable*, *arm32v7-alpha-0.1.5* |
+| x86-64 | *latest* | *stable*, *alpha-0.1.6* |
+| arm64 | *latest*  | *stable*, *alpha-0.1.6* |
+| armhf | (built on request) | *arm32v7-stable*, *arm32v7-alpha-0.1.6* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -224,7 +223,7 @@ See the [Parsing](/docs#parsing) and [Processed Data](/docs#processed-data) sect
 ## Application Setup
 
 Create the container, monitor logs for proper startup, and then navigate to the WebUI at the port specified `http://<your-ip>:5000`. 
-*If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
+<br>*If a database connection error is presented, check the parameters provided in your compose file and consult the container logs for more information.*
 
 ### [Setup Guide](/docs#setup-guide-contents)
 
@@ -242,27 +241,18 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.6
+### In Progress, alpha-0.1.7
 
-[Details](/docs/Installation/Changelog.md#pre-alpha-017-details), [Previous Versions](#pre-release-changelog)
+[Details](/docs/Installation/Changelog.md#pre-alpha-018-details), [Previous Versions](#pre-release-changelog)
 
-- Documentation ***Proofreading In Progress***
-  - ~~planning to move certain sections to their own files, as the "main" README and "docs" README are quite large now~~
-  - ~~will update Contents sections to include external links~~
-  - ~~will likely break a lot of existing links in the process~~
 - Features
   - API v1 fixes/improvements
-    - no longer rounding date_spec for [bandwidth](/docs/Features/API.md#bandwidth) API calls to nearest day
-	- added [home_ip check](/BeatLog/ops_log.py#L89) before data summary call, added SQL transaction surrounding home_ip calls in general to fix some bugs
-	- more?
-      - handle geography data better / provide calls to retrieve geography data
-	  - other ideas [listed](/docs/Features/API.md#more) on page?
+    - handle geography data better / provide calls to retrieve geography data
+	- other ideas [listed](/docs/Features/API.md#more) on page?
   - Failed Regex
-    - if primary and secondary regex methods fail during parsing, line saved to database
-	- expanded failed regex page: view lines by log, delete saved lines
+    - finalize features? add ability to [test Regex methods](/main/docs#adding-regex-to-logs) on failed lines
 - Bug Fixes / Minor Improvements
-  - various aesthetic / navigation improvements
-  - removed unused template(s)
+  - make sure deleted logs are handled properly in database, date modified should account for former file and also parsed lines
   
 
 ### Possible Improvements
@@ -278,6 +268,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 - Features
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
+  - add to newer features: Failed Regex, JSON API
   - allow for SSL in deployment, *likely just changes to Gunicorn start command*
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
@@ -298,7 +289,9 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.3, alpha-0.1.3t | **BREAKING: altered database schema! [notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**<br><br> Added **DB Query** and **View** [pages](/docs/Features/Database.md#database-explorer) to access database within BeatLog. Improved handling of **Known Devices.** Added location fill to scheduled log parsing. Bugfixes and improvements. Last NullConnectionPool release. |
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
-| alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. |
+| alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. Bugfixes, aesthetic, and navigation improvements. |
+| alpha-0.1.7 | *Nothing yet!* |
+
 
 ### Other Pages
 

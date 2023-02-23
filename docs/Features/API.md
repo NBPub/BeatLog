@@ -1,7 +1,5 @@
 # Simple JSON API
 
-***Page updates in progress***
-
 - [Motivation](#motivation)
 - [API Help Page](#api-help-page)
 - [Query Parameters](#api-query-parameters)
@@ -23,12 +21,12 @@ Provide simple data retrieval from the database in JSON format. The API will *no
 The **[Report](/docs/Features/Report.md#contents)** and **[Database Explorer](/docs/Features/Database.md#database-explorer)**<sup>2</sup> cover 
 more complex data retrievals I like to reference often.
 
-<sup>1</sup>*As noted in the [installation extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options), Adminer can provide a nice interface for running SQL commands against the database.*<br>
-<sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), provides a good start for building SQL queries based on user inputs, if further development is desired.*
+<sup>1</sup>*As noted in the [installation extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options), Adminer provides a nice interface for running SQL commands against the database.*<br>
+<sup>2</sup>*The code for Database Explorer, [db_query](/BeatLog/db_query.py) and [db_view](/BeatLog/db_view.py#L77), is a good start for building SQL queries based on user inputs.*
 
 ## API Help Page
 
-`<your-base-URL>/api/help/`
+`*/api/help/`
 
 **BeatLog** provides an API help page which provides links to all available API calls and the ability to preview their returns on the page itself. 
 The available options will also be detailed on this page, with example returns provided and data types discussed. 
@@ -39,27 +37,27 @@ The available options will also be detailed on this page, with example returns p
 
 # API Query Parameters
 
-`<your-base-URL>/api/v1/<QUERY>/<OPTION>`
+`*/api/v1/<QUERY>/<OPTION>`
 
 As shown in the images below, the [API Help Page](#api-help-page) will provide links for valid query parameters. 
 Invalid queries should return a [422](https://www.httpstatuses.org/422) or [404](https://www.httpstatuses.org/404) response.
 
 ## Data Summary
 
-`<your-base-URL>/api/v1/summary/<OPTION>`
+`*/api/v1/summary/<OPTION>`
 
 The **Data Summary** options are meant to provide simple statistics from the last 24 hours, and are designed similarly to the [report](/docs/Features/Report.md#demonstration-page) sections.
 It was the first API call added to **BeatLog** and is meant to be easily integrated in dashboard or notification systems. 
 For example, I now keep tabs of [home ignores](#home) and [filtrate](#outside) on my homepage. 
 
-![API_dash](/docs/pics/API_dash.png "Link to BeatLog on my homepage dashboard")
+![API_dash](/docs/pics/API_dash.png "Link to BeatLog on my homepage dashboard. Purple text updated with API calls to BeatLog")
 
 You could also create an alert if the current home IP address is not being ignored by [fail2ban](/docs#fail2ban-jail).
 
 
 ![API_2](/docs/pics/API_2.png "BeatLog API help page - Data Summary")
 
-The following data types are returned for the **Data Summary** options:
+The following [data types](https://restfulapi.net/json-data-types/) are returned for the **Data Summary** options:
 
 - `string` - most items are strings, noted by quotation marks. `"<some-value>"` All keys are strings. Time format may vary from the examples, depending on your locale.
 - `number` - simple integer, not encased in quotation markes. `3` OR `<some-integer>`
@@ -70,7 +68,7 @@ Note the structure of the various example returns shown below.
 
 <details><summary id="home"><b>home  +</b></summary>
 
-`<your-base-URL>/api/v1/summary/home`
+`*/api/v1/summary/home`
 
 **Notes:**
 
@@ -100,7 +98,7 @@ Note the structure of the various example returns shown below.
 
 <details><summary id="outside"><b>outside  +</b></summary>
 
-`<your-base-URL>/api/v1/summary/outside`
+`*/api/v1/summary/outside`
 
 **Notes:**
 
@@ -132,7 +130,7 @@ Note the structure of the various example returns shown below.
 
 <details><summary id="fail2ban"><b>fail2ban +</b></summary>
 
-`<your-base-URL>/api/v1/summary/fail2ban`
+`*/api/v1/summary/fail2ban`
 
 **Notes:**
 
@@ -170,7 +168,7 @@ Note the structure of the various example returns shown below.
 
 <details><summary id="geo"><b>geo  +</b></summary>
 
-`<your-base-URL>/api/v1/summary/geo`
+`*/api/v1/summary/geo`
 
 **Notes:**
 
@@ -201,7 +199,7 @@ Note the structure of the various example returns shown below.
 
 <details><summary id="all"><b>all +</b></summary>
 
-`<your-base-URL>/api/v1/summary/all`
+`*/api/v1/summary/all`
 
 **Notes:**
 
@@ -231,18 +229,18 @@ Note the structure of the various example returns shown below.
 
 ## Bandwidth
 
-`<your-base-URL>/api/v1/bandwidth/<OPTION>`
+`*/api/v1/bandwidth/<OPTION>`
 
 The **Bandwidth** query returns data transfer statistics from the [Access Log table](/docs#access-logs---access) in the database. 
-The keys and their data types are listed below. If a valid query returns 0 hits, data values will be <em>`null`</em> instead of their listed *type*.
+The keys and their [data types](https://restfulapi.net/json-data-types/) are listed below. If a valid query returns 0 hits, data values will be <em>`null`</em> instead of their listed *type*.
  
-- `"bytes"` - sum of raw bytes, as stored in the database. *number*
-- `"hits"` - number of connections (rows) returned by the query. *number*
-- `"data"` - [human readable](https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADMIN-DBSIZE) format of bytes. *string*
-- `"data_per_hit"` - human readable format of bytes divided by hits *string*
-- `"query"` - *JSON object* desribing query. Contains: 
-	- "field" and "value" keys 
-	- possible "time_bounds" *object* containing "start" and "end" keys. See more [below](#bandwidth-option-syntax).
+- `"bytes"` - sum of raw bytes, as stored in the database | *number*
+- `"hits"` - number of connections (rows) returned by the query | *number*
+- `"data"` - [human readable](https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADMIN-DBSIZE) format of bytes | *string*
+- `"data_per_hit"` - human readable format of bytes divided by hits | *string*
+- `"query"` - *JSON object* | desribes query options, all keys and values within the object(s) are *strings*
+	- `"field"` and `"value"` keys 
+	- possible `"time_bounds"` | *JSON object* | containing `"start"` and `"end"` keys. See more [below](#bandwidth-option-syntax).
 
 ![API_3](/docs/pics/API_3.png "BeatLog API help page - Bandwidth")
 
@@ -264,9 +262,10 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
     - Times will be converted to your timezone, if [configured](/README.md#parameters) (as done with parsed data).
 	- Specifying `<START>` greater than or equal to `<END>` ensures an empty result
 
+<br>
 <details><summary id="example-bandwidth-return"><b>example call and return</b></summary>
 
-`<your-base-URL>/api/v1/bandwidth/date=1676613051-1676699451,referrer=%http://%`
+`*/api/v1/bandwidth/date=1676613051-1676699451,referrer=%http://%`
 
 **Notes:**
 
@@ -295,6 +294,7 @@ The keys and their data types are listed below. If a valid query returns 0 hits,
 }
 ```
 </details>
+<br>
 
 ### Bandwidth Query Guide
 

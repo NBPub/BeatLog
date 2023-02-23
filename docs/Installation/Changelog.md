@@ -1,40 +1,49 @@
 # BeatLog Changelog
 
-*Latest Version*: alpha-0.1.6
+*Latest Version: alpha-0.1.7*
 
-**Stable Version**: alpha-0.1.5
+**Stable Version: alpha-0.1.6**
 
-[Repository](/README.md), [Releases](https://github.com/NBPub/BeatLog/releases)
+[Releases](https://github.com/NBPub/BeatLog/releases)
 
 ## Contents
 
 - [Pre-Release](pre-release)
-  - *[alpha-0.1.6](#pre-alpha-017-details)*
-  - **[alpha-0.1.5](#pre-alpha-016-details)**
-    - [Images, Notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5)
+  - *[alpha-0.1.7](#pre-alpha-018-details)*
+  - **[alpha-0.1.6](#pre-alpha-017-details)**
+    - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.6) +
+  - [alpha-0.1.5](#pre-alpha-016-details)
+    - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5) +
   - [alpha-0.1.4](#pre-alpha-015-details)
-    - [Images, Notes](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4)  
+    - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4) +
   - [alpha-0.1.3](#pre-alpha-014-details)
-    - [Images, Notes, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)  
+    - [Tagged Release, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3) +
   - [alpha-0.1.2](#pre-alpha-013-details)
-    - [Images, Notes, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
+    - [Tagged Release, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2) +
   - [alpha-0.1.1](#pre-alpha-012-details)
+  - [alpha-0.1.0](#pre-alpha-011-details) | *Initial Commit*
 
 
 ## Pre-Release
 
 BeatLog is still in development. Every version thus far is a "pre-release".
 
+### pre alpha-0.1.8 details
+
+- *no code changes yet*, see [plan](/README.md#development)
+
 ### pre alpha-0.1.7 details
 
 - JSON API
   - no longer rounding *bandwidth* calls to nearest day
   - cleaned up help page
+  - added [home_ip check](/BeatLog/ops_log.py#L89) before data summary call, added SQL transaction surrounding home_ip calls in general to fix some bugs
 - Failed Regex
   - if primary and secondary regex methods fail during parsing, line saved to database
   - expanded failed regex page: view lines by log, delete saved lines  
 - Documentation
   - big reorganization
+  - updated [Docker README](https://hub.docker.com/r/nbpub/beatlog), *last update: alpha-0.1.2*
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
   - removed unused template(s)
@@ -161,3 +170,9 @@ Last NullConnectionPool releases! [Notes](/docs/NullConnectionPool.md)
   - reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks
   
 </details>
+
+### pre alpha-0.1.1 details
+
+- Initialize repository, documentation
+- Upload **BeatLog** images to [Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags) with alpha-0.1.0 tag
+  

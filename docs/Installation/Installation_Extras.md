@@ -133,8 +133,10 @@ vi <filename>.html
 
 **vi Resources**
 
-*alternative text editors can be installed in the container, if desired. see [alpine Linux packages](https://pkgs.alpinelinux.org/packages)*
-
 [Colorado State University CS Dept.](https://www.cs.colostate.edu/helpdocs/vi.html)
 
 [UITS](https://kb.iu.edu/d/adxz)
+
+
+*alternative text editors can be installed in the container. see [alpine Linux packages](https://pkgs.alpinelinux.org/packages)*
+

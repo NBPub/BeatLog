@@ -86,7 +86,7 @@ Following the example, the files can be loaded into **BeatLog** from the `/impor
       - /path_to/swag_config/geoip2db:/import/geoip2db # MaxMindDB
 ```
 
-| File | Path in Container |
+| File | Mount Path in **BeatLog** Container |
 | :----: | --- |
 | access.log | `/import/log/nginx/access.log` |
 | error.log | `/import/log/nginx/error.log` |
@@ -95,11 +95,12 @@ Following the example, the files can be loaded into **BeatLog** from the `/impor
 
 ### Log Files
 
-Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all four have not been added. 
-Paths shown in pictures may not match the file structure shown above. See the text above pictures for the correct path.
+Log File locations must be added to **BeatLog** after initial startup. The home page will provide a link for adding Log Files, if all three have not been added. 
+The file paths shown in pictures may not match the file structure shown above. See the *text below the pictures* for the correct filepath.
+The navigation bar provides links to all of the pages shown below, and their URLs relative to `<IP>:<port>` are provided `*/like this`. 
 
-The navigation bar on top provides links to all of the pages shown below. 
-Also note the home IP address is red, indicating it is not being ignored by fail2ban. In this case, the fail2ban **jail.local** file has yet to be [added](#fail2ban-jail).
+On initial startup the homepage lists the home IP address in red, indicating it is not being ignored by fail2ban. 
+In this case, the fail2ban **jail.local** file has yet to be [added](#fail2ban-jail).
 
 `*/home/`
 
@@ -107,9 +108,9 @@ Also note the home IP address is red, indicating it is not being ignored by fail
 
 **✱ access.log ✱** `*/Logs/add/`
 
-*/import/log/nginx/access.log*
-
 ![add_log_file](/docs/pics/add_log_file.png "Adding access.log")
+
+*/import/log/nginx/access.log*
 
 Now that **access.log** has been added, it is no longer in the available list. Additionally, a link to its regex page is presented. 
 Before [specifying](#adding-regex-to-logs) regex methods for parsing **access.log**, [regex methods need to be added to BeatLog!](#regex-methods)
@@ -119,17 +120,20 @@ Before [specifying](#adding-regex-to-logs) regex methods for parsing **access.lo
 
 ### fail2ban Jail
 
-The fail2ban **jail.local** will provide information on enabled filters and list ignored IP addresses. If an ignored IP matches the home IP address, it is shown in green. 
+The fail2ban **jail.local** page will provide information on enabled filters, find/ban times, and ignored IP addresses. 
 
 **✱ jail.local ✱** `*/jail/`
 
+![add_jail](/docs/pics/load_jail.png "Adding jail.local") 
+
 */import/log/fail2ban/fail2ban.log*
 
-![add_jail](/docs/pics/load_jail.png "Adding jail.local") ![added_jail](/docs/pics/loaded_jail.png "jail.local added")
+![added_jail](/docs/pics/loaded_jail.png "jail.local added")
+
+If an ignored IP matches the home IP address, it is shown in green. Local addresses are shown in grey. All others will appear red.
+Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in the past 24 hours (unique IPs, not total).  
 
 ![check_filter](/docs/pics/filter_check.png "Check filter activity") ![checked_filter](/docs/pics/filter_checked.png "All found IPs banned. No Home ignores.")
-
-Each filter (or all at once) can be checked for its Finds, Bans, and Ignores in the past 24 hours (unique IPs, not total).  
 
 ### MaxMindDB
 
@@ -139,9 +143,9 @@ Specify your **GeoLite2-City** database file in the geography settings to add co
 
 **✱ GeoLite2-City.mmdb ✱** `*/settings/#Geography`
 
-*/import/geoip2db/GeoLite2-City.mmdb*
-
 ![geo_set2](/docs/pics/Settings_geography.png "Geography settings, MaxMindDB")
+
+*/import/geoip2db/GeoLite2-City.mmdb*
 
 While here, a user-agent header may be specified for reverse geocoding. This is required to [look-up](/docs/Features/Geography.md#location-lookup) unnamed locations. 
 Refer to the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/).
@@ -176,13 +180,13 @@ In the example below, some lines failed the **primary** method but succeeded wit
 
 ## Parsing
 
-Once all the logs have been added, the home page will appear similar to the image shown below. If you have yet to parse any logs, then it should look different. 
-From the home page, you can parse logs individually, or all at once using the **Parse All** button on the navigation bar. 
-Individual log parsing will open a new page with detailed results. Parsing all logs returns the home page with brief alerts for each log.
+Once all the logs have been added, the home page will appear similar to the image shown below. If you have yet to parse any logs, there will not be any **records**. 
+From the home page, you can parse logs individually, or parse all at once using the **Parse All** button on the navigation bar. 
+Individual log parsing will open a new page with detailed results. Parsing all logs returns the home page with brief summaries for each log.
 
 ![homepage](/docs/pics/homepage.png "BeatLog home page with all logs ready to be parsed")
 
-A few other functions are available from the home page:
+A few other links and functions are available from the home page:
 - **Location** - edit log file's location or delete log file
 - **Regex** - adjust or test regex methods used to parse log file
 - **Check** - update log file's *date modified*, if it is different from when the log was last parsed, it will be highlighted
@@ -204,7 +208,7 @@ A few other functions are available from the home page:
 
 The following tables describe how parsed logs and other data are saved into the database. 
 See [PostgreSQL docs](https://www.postgresql.org/docs/current/datatype.html) for more information on data types. 
-The [Mozilla HTTP docs](https://developer.mozilla.org/en-US/docs/Web/HTML) are a good reference for learning more about each column, 
+The [Mozilla HTTP docs](https://developer.mozilla.org/en-US/docs/Web/HTML) are a good reference for learning more about each column (AKA field), 
 and are linked where column names are ambiguous.
 
 Wikipedia has a nice [example](https://en.wikipedia.org/wiki/Common_Log_Format#Example) of the **Common Log Format** in its article.

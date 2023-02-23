@@ -18,10 +18,12 @@ After adding the [GeoLite2-City](/docs#maxminddb) file to **BeatLog**, locations
 
 `*/geo/`
 
-If a city or country name is not found during parsing, unnamed locations can be manually filled or looked up using reverse geocoding from [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/). 
+Locations are "unnamed" when City or Country names are not provided with coordinates from the [GeoIP database](/docs/README.md#maxminddb). 
+Unnamed locations can be manually filled or looked up using reverse geocoding provided by [Nominatim](https://nominatim.org/release-docs/develop/api/Reverse/). 
 The table of unnamed locations provides OpenStreetMaps and GoogleMaps links to the coordinates to help name or check the naming of locations.
 
 ![Geography_locationfill_0](/docs/pics/Geography_locationfill_0.png "The link bar on the home page indicates unnaned locations, if present.")
+
 *Home Page "link bar" indicates unnamed locations*
 
 ![Geography_locationfill](/docs/pics/Geography_locationfill.png "(Un)named locations page with blank locations")
@@ -34,7 +36,7 @@ A portion of the resulting page is shown below.
 
 How did the Nominatim service do for the top row in the table?
  - Coordinates: **(51.2993, 9.491)**
- - [OpenStreetMap](https://www.openstreetmap.org/#map=14/51.2993/9.4910), [GoogleMaps](https://www.google.com/maps/@51.2993,9.491,13z)
+ - MapLinks: [OpenStreetMap](https://www.openstreetmap.org/#map=14/51.2993/9.4910), [GoogleMaps](https://www.google.com/maps/@51.2993,9.491,13z)
  - Location Filled: **Kassel, Germany**
 
 
@@ -70,8 +72,8 @@ As with the [location lookup](#location-lookup) tables, City and Country names c
 
 ![geo_table](/docs/pics/Geography_table.png "Location table with editable City and Country names")
 
-The **Inspect** and **Clean Cache** buttons check that all the saved locations match at least one IP in the database. 
-They will only appear if such locations exist. If a location has no associations, it can be deleted.
+The **Inspect** and **Clean Cache** buttons will only appear if there are one or more locations without an associated IP in the database. 
+**Inspect** will show the table of unassociated locations, and **Clean Cache** will delete them. 
 
 The **Top 10** bar charts show top countries or cities by total requests or unique IP addressess.
 
