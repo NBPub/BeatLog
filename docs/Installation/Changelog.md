@@ -30,7 +30,12 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 ### pre alpha-0.1.8 details
 
-- *no code changes yet*, see [plan](/README.md#development)
+- testing Python upgrade 3.10 --> 3.11
+- aesthetic / navigation improvements
+- bugfixes
+- Features
+  - ability to delete from all logs at once on [database clean](/docs/Features/Database.md#database-cleanup)
+  - API [call](/docs/Features/API.md#python-packages) for listing all Python packages
 
 ### pre alpha-0.1.7 details
 

@@ -22,35 +22,52 @@ def log_data_cleaning(cur):
     if logs == {}:
         return None, None
     data = [] # first record, last record, estimated size for table
+    prefill = None
     for log in logs.keys():      
         stop = cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date desc LIMIT 1').format(sql.Identifier(log))).fetchone()
         stop = stop[0].strftime('%x %X') if stop else '' 
         start = cur.execute(sql.SQL('SELECT date FROM {} ORDER BY date LIMIT 1').format(sql.Identifier(log))).fetchone()
+        if prefill:
+            prefill = start[0] if start and start[0] < prefill else prefill
+        else:
+            prefill = start[0] if start else None
         start = start[0].strftime('%x %X') if start else ''
         size = cur.execute('SELECT pg_size_pretty( pg_total_relation_size(%s));', (log,)).fetchone()[0]
         data.append((log, logs[log], start, stop, size))
     table = table_build(data, ['Log Name', 'Database Rows', 'First Entry', 'Last Entry', 'Estimated Size'],False)[0]
-    return logs, table
+    return logs, table, prefill
 
 def log_clean_estimate(cur,data):
-    SQL = sql.SQL('SELECT COUNT(date) FROM {} WHERE date BETWEEN %s AND %s').format(sql.Identifier(data[0]))
-    estimate = cur.execute(SQL, (data[1], data[2])).fetchone()[0]
-    return estimate if estimate > 0 else None
+    estimate = []
+    if type(data[0]) == list:
+        for log in data[0]:
+            SQL = sql.SQL('SELECT COUNT(date) FROM {} WHERE date BETWEEN %s AND %s').format(sql.Identifier(log))
+            estimate.append(cur.execute(SQL, (data[1], data[2])).fetchone()[0])
+    else:
+        SQL = sql.SQL('SELECT COUNT(date) FROM {} WHERE date BETWEEN %s AND %s').format(sql.Identifier(data[0]))
+        estimate.append(cur.execute(SQL, (data[1], data[2])).fetchone()[0])
+    return estimate if sum(estimate) > 0 else None
     
 def log_clean_confirmed(conn,cur,data):
-    SQL = sql.SQL("DELETE FROM {} WHERE date BETWEEN %s AND %s").format(sql.Identifier(data[0]))
-    with conn.transaction():    
-        deleted = int(cur.execute(SQL, (data[1], data[2])).statusmessage[7:])    
-    if deleted > 0:
-        # update last parsed if needed, set back to 0 if none
-        line = cur.execute(sql.SQL("SELECT date FROM {} ORDER BY date desc LIMIT 1").format(sql.Identifier(data[0]))).fetchone()
-        line = line[0] if line else datetime(1,1,1)
-        lastParsed = cur.execute("SELECT lastparsed FROM logfiles WHERE name=%s", (data[0],)).fetchone()[0]
-        if lastParsed[0] != line:
-            cur.execute('UPDATE logfiles SET lastparsed=%s WHERE name=%s', ([line, lastParsed[1]], data[0]))
-        return (f'{deleted} rows deleted', 'success')
-    else:
-        return('No data deleted!', 'warning')
+    logs = [data[0]] if type(data[0]) == str else data[0]
+    message = []
+    indicator = False
+    for log in logs:
+        SQL = sql.SQL("DELETE FROM {} WHERE date BETWEEN %s AND %s").format(sql.Identifier(log))
+        with conn.transaction():    
+            deleted = int(cur.execute(SQL, (data[1], data[2])).statusmessage[7:])    
+        if deleted > 0:
+            # update last parsed if needed, set back to 0 if none
+            line = cur.execute(sql.SQL("SELECT date FROM {} ORDER BY date desc LIMIT 1").format(sql.Identifier(log))).fetchone()
+            line = line[0] if line else datetime(1,1,1)
+            lastParsed = cur.execute("SELECT lastparsed FROM logfiles WHERE name=%s", (log,)).fetchone()[0]
+            if lastParsed[0] != line:
+                cur.execute('UPDATE logfiles SET lastparsed=%s WHERE name=%s', ([line, lastParsed[1]], log))
+            message.append((f'{deleted} rows deleted from {log}', 'success'))
+            indicator = True
+        else:
+            message.append(('No data deleted!', 'warning'))
+    return message, indicator
     
 def geo_noIP_check(cur):
     SQL = '''SELECT COUNT(id) FROM geoinfo WHERE id NOT IN (

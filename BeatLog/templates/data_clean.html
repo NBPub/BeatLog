@@ -26,25 +26,28 @@
 			<label for="log_select" class="form-label mx-3 fw-bold fs-5">Log Name</label>
 			<select class="form-select" id="log_select" name="log_select" required>
 			  {% if disable %}
-			    <option value="{{ existing[0] }}" selected>{{ existing[0] }}</option>
+			    <option value="all" selected>
+			     {% if existing[0] is string %} {{ existing[0] }} {% else %} ALL LOGS {% endif %} 
+				</option>			
 			  {% else %}
 			    {% for log in logs.keys() %}
 				  {% if existing and log == existing[0] %}
-				    <option value="{{ log }}" selected>{{ log }}</option>
+				    <option value="{{ log }}" selected>{{ log }}</option>			
 				  {% else %}
 			        <option value="{{ log }}">{{ log }}</option>
 				  {% endif %}
 			    {% endfor %}
+				<option value="all" class="fw-bold text-danger">ALL LOGS</option>
 			  {% endif %}
 			</select>
 			<label for="start" class="form-label mx-3 fw-bold fs-5">Start</label>
-			<input type="datetime-local" class="form-control" id="start" name="start" value={% if existing %}"{{existing[1]}}"{% else %}""{% endif %} {% if disable %}readonly{% endif %} required>		
+			<input type="datetime-local" class="form-control" id="start" name="start" value={% if existing %}"{{existing[1]}}"{% else %}"{{prefill[0]}}"{% endif %} {% if disable %}readonly{% endif %} required>		
 			<label for="stop" class="form-label mx-3 fw-bold fs-5">Stop</label>
-			<input type="datetime-local" class="form-control" id="stop" name="stop" value={% if existing %}"{{existing[2]}}"{% else %}""{% endif %} {% if disable %}readonly{% endif %} required>		
+			<input type="datetime-local" class="form-control" id="stop" name="stop" value={% if existing %}"{{existing[2]}}"{% else %}"{{prefill[1]}}"{% endif %} {% if disable %}readonly{% endif %} required>		
 		</div>
 		<div class="ms-2 mb-3">
 		  {% if estimate %}
-		    <p class="ms-3 fw-bold fst-italic text-danger">{{ estimate }}</p>
+		    <p class="ms-3 fw-bold fst-italic text-danger">{{ estimate|safe }}</p>
 		    <a href="{{ url_for('home.data_clean') }}" class="btn btn-secondary mx-5">Cancel</a>
 		    <button type="submit" class="btn btn-danger mx-5 text-end" name="confirm_delete">Confirm Deletion</button>
 		  {% else %}
@@ -53,12 +56,12 @@
 		</div>
       </form> 
     {% endif %}
-      {% if alert %}
-	    <div class="alert alert-{{ alert[1] }} alert-dismissible fade show" role="alert">
-		  {{ alert[0] }}
+      {% if alert %}{% for message in alert %}
+	    <div class="alert alert-{{ message[1] }} alert-dismissible fade show" role="alert">
+		  {{ message[0] }}
 		  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
-	  {% endif %}
+	  {% endfor %}{% endif %}
   <footer class="d-flex flex-wrap justify-content-between align-items center border-top mt-5 fw-semibold text-muted" style="font-size:10pt;position:relative;float:bottom;">
 	<span class="justify-content-start">{{ versions[0] }}</span>
 	<span class="justify-content-center mx-2 text-primary">║</span>

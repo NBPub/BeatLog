@@ -83,30 +83,43 @@ def data_clean():
         alert = vacuum_tables(['access','error','fail2ban'])    
     with pool.connection() as conn:
         cur = conn.cursor()
-        logs, table = log_data_cleaning(cur) # logs with > 0 rows, table of data
+        logs, table, prefill = log_data_cleaning(cur) # logs with > 0 rows, table of data
+        prefill = (prefill.strftime('%Y-%m-%dT%H:%M'), (prefill+timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')) if prefill else prefill
         noIPgeo = geo_noIP_check(cur)
         versions = [cur.execute('SELECT version();').fetchone()[0]]
         versions.append(f'Python - {version}')
                     
         if request.method == 'POST' and 'Estimate' in request.form or 'confirm_delete' in request.form:
-            existing = (request.form['log_select'],request.form['start'],
-                        request.form['stop'])   
+            if request.form['log_select'] == 'all':
+                existing = (list(logs.keys()),request.form['start'], request.form['stop']) 
+            else:
+                existing = (request.form['log_select'],request.form['start'], request.form['stop']) 
             if 'Estimate' in request.form:
                 estimate = log_clean_estimate(cur,existing)                   
                 if estimate:
-                    estimate = f'{"{:,}".format(estimate)} out of {logs[existing[0]]}\
-                                rows, {round(100*estimate/int(logs[existing[0]].replace(",","")),1)}%, \
-                                of {existing[0].capitalize()} data would be deleted!'
+                    if type(existing[0]) == str:
+                        est_message = f'{"{:,}".format(estimate[0])} out of {logs[existing[0]]}\
+                                rows, {round(100*estimate[0]/int(logs[existing[0]].replace(",","")),1)}%, \
+                                of {existing[0]}.log data would be deleted!'
+                    else:
+                        est_message = []
+                        for i,val in enumerate(existing[0]):
+                            est_message.append(f'{"{:,}".format(estimate[i])} out of {logs[val]}\
+                                rows, {round(100*estimate[i]/int(logs[val].replace(",","")),1)}%, \
+                                of {val}.log data would be deleted!')
+                        est_message = '<br>'.join(est_message)
+                    estimate = est_message
                     disable = True
                 else:
-                    alert = ('No records would be deleted', 'warning')                
+                    alert = [('No records would be deleted', 'warning')]     
             elif 'confirm_delete' in request.form:
-                alert = log_clean_confirmed(conn,cur, existing)
-                if alert[1] == 'success':
-                    logs, table = log_data_cleaning(cur) 
+                alert, indicator = log_clean_confirmed(conn,cur, existing)
+                if indicator: # data changed
+                    logs, table, prefill = log_data_cleaning(cur) 
                     existing = None                   
     return render_template('data_clean.html', logs=logs, table=table, alert=alert, disable=disable,
-                           estimate=estimate, existing=existing, noIPgeo=noIPgeo, versions=versions)
+                           estimate=estimate, existing=existing, noIPgeo=noIPgeo, versions=versions,
+                           prefill=prefill)
 
 @bp.route("/failed_regex/", methods = ['GET','POST'])
 def failed_regex():

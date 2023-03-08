@@ -2,6 +2,11 @@
 {% block title %}BeatLog - Home{% endblock %}
 {% block content %}
     <h1>BeatLog
+	  {% if logs|length > 0 %}
+	    <span class="badge"><form method="POST" action="{{ url_for('home.home') }}">	  
+	      <button type="submit" class="btn btn-sm btn-secondary fw-bold border border-success border-3" name="log_check" value="update_all" data-bs-toggle="tooltip" title="Check all logs">&#10004;</button>
+		</form></span> 
+	  {% endif %}
 	  <div class="btn-group my-1" role="group" style="float:right;">
 	{% if places == 0 %}
 	    <a href="{{ url_for('home.settings', _anchor='Geography') }}" class="fw-bold btn btn-sm btn-success border-light">Enable Locations</a>
@@ -22,8 +27,7 @@
 	  </div>
 	</h1>	   
 	  <div class="row ms-5 my-3">
-	    <div class="col">
-	    <p class="fs-5 ms-2 fw-bold">Home IP: 
+	    <div class="col"><p class="fs-5 ms-2 fw-bold">Home IP: 
 		  {% if homeIP %}
 	        {% if homeIP in ignoreIPs %}
 	          <span class="text-muted fw-normal ms-3">{{ homeIP }}</span>
@@ -39,32 +43,14 @@
 		  {% else %}
 		    <span class="text-danger ms-3"><em>{{ duration }}</em></span>
 		  {% endif %}
-		</p>	
-		</div><div class="col">
-	  {% if logs|length > 0 %}
-	    <form method="POST" action="{{ url_for('home.home') }}" class="ms-5">
-		  <em class="fs-6 text-muted">check all logs</em>
-	      <button type="submit" class="btn btn-sm btn-secondary fw-bold border border-success border-3" name="log_check" value="update_all">&#10004;</button>
-		</form>
-	  {% endif %}
-		</div>
+		</p></div>
 	  </div>	  
-	  <div class="row mx-5">
+	  <div class="row row-cols-auto container mb-5">
 	    {% for name, mod, parsed in logs %}
-		  <div class="col-xl-4 col-lg-5 col-md-5 border border-dark  bg-light m-1">
-		    <h3 class="ms-5 fs-4 fw-bold text-center">{{ name|capitalize }}
-			  <span class="badge"><form method="POST" action="{{ url_for('home.home') }}">
-		        <button type="submit" name="vacuum" value="{{ name }}" class="btn btn-sm btn-info fw-bold fs-6">&#11156;</button>
-			  </form></span>
-			</h3>
-			  <form style="float:right;" method="POST" action="{{ url_for('home.home') }}" >
-			    <button type="submit" class="btn btn-sm btn-secondary" value="{{ name }}" name="log_check">&#10004;</button>
-			  </form>
-		    <div class="btn-group mb-3 d-flex justify-content-center" role="group">
-			  <a class="btn btn-sm btn-primary rounded me-3" href="{{ url_for('logs.edit_log_file', log_file=name) }}">Location</a>
-			  <a class="btn btn-sm btn-warning rounded me-3" href="{{ url_for('logs.edit_log_regex', log_file=name) }}">Regex</a>
-			  <a class="btn btn-sm btn-success rounded me-3" href="{{ url_for('logs.parse_log_file', log_file=name) }}">Parse</a>				  
-		    </div>		  
+		  <div class="col border border-dark  bg-light m-1"><div class="row">
+		    <h3 class="fs-4 mt-2 fw-bold text-center">{{ name }}.log</h3>
+		  </div><div class="row">
+		  <div class="col mt-4">
 		    <p class="text-dark fs-6 fw-bold">
 			  <span class="text-muted">Modified:</span> {{ mod.strftime('%x %X') }}
 			  <br><span class="text-muted">Parsed: </span>
@@ -81,6 +67,19 @@
 			    {{ log_info[name]|safe }}		
 			  </p>
 			{% endif %}
+		  </div>
+		  <div class="col-3">
+		    <div class="btn-group-vertical mb-3" role="group">
+			  <form method="POST" action="{{ url_for('home.home') }}" class="btn-group">
+		        <button type="submit" class="btn btn-sm btn-info fw-bold" name="vacuum" value="{{ name }}" data-bs-toggle="tooltip" title="Vacuum {{ name }} table">&#11156;</button>
+				<button type="submit" class="btn btn-sm btn-secondary ps-1" name="log_check" value="{{ name }}" data-bs-toggle="tooltip" title="Check {{ name }} dates" >&#10004;</button>
+			  </form>		
+			  <a class="btn btn-sm btn-success rounded my-1 mt-2" href="{{ url_for('logs.parse_log_file', log_file=name) }}" data-bs-toggle="tooltip" title="Parse {{ name }}.log">Parse</a>		  
+			  <a class="btn btn-sm btn-warning rounded my-1" href="{{ url_for('logs.edit_log_regex', log_file=name) }}" data-bs-toggle="tooltip" title="{{ name }} regex page">Regex</a>
+			  <a class="btn btn-sm btn-primary rounded my-1" href="{{ url_for('logs.edit_log_file', log_file=name) }}" data-bs-toggle="tooltip" title="{{ name }} setup page">Location</a>			  				  
+		    </div>	
+		  </div>		  
+		  </div>
 			{% if name in alert %}
 			  <div class="alert alert-{{ alert[name][1] }} alert-dismissible fade show" role="alert">
 			    {{ alert[name][0] }}
@@ -88,25 +87,33 @@
 			  </div>
 			{% endif %}
 		  </div>
-	    {% endfor %}
-	  </div>		  
+	    {% endfor %}		  
 	{% if 3 > logs|length %}
-	  <div class="row mx-5">
-	    <div class="col-xl-4 col-lg-5 col-md-5 border border-dark bg-secondary m-1">
+	  <div class="row border border-dark bg-secondary m-1">
+	    <div class="my-2">
 		  <a href="{{ url_for('logs.add_log_file') }}" class="text-decoration-none">      
 			<button class="btn btn-danger fw-bold mb-2 me-3 p-3 border-dark"></button>
-			<span class="fs-3 fw-bold text-dark" style="-webkit-text-stroke:1px paleturquoise;">Add Log</span>
+			<span class="fs-3 fw-bold text-dark" style="-webkit-text-stroke:0.75px paleturquoise;">Add Log</span>
 		  </a> 
 		</div>
 	  </div>
     {% endif %}
+    </div>
+	<br>
 	<footer class="d-flex flex-wrap justify-content-between align-items center border-top fixed-bottom bg-white" style="font-size:10pt;">
 	  <ul class="text-muted fw-bold justify-content-start ms-3 mt-2 list-unstyled">
-	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.5</em></li>
+	    <li>BeatLog <em class="fw-normal ms-2">alpha-0.1.6</em></li>
 		<li>{{ versions[0] }}<em class="fw-normal ms-2">{{ versions[1] }}</em><span class="mx-4 text-info">║</span> 
 		Python <em class="fw-normal ms-2">{{ versions[2] }}</em></li>
 	  </ul>
 	  <a class="link-secondary text-underline fw-bold justify-content-center mt-2 me-5" href="https://github.com/NBPub/BeatLog">Source Code - GPLv3</a>	  
 	  <img src="/static/greycon.png" class="justify-content-end mt-3" style="height:32px;"/>
 	</footer>
+{% endblock %}
+
+{% block script_additions %}
+	<script>
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+	</script>
 {% endblock %}

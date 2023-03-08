@@ -10,11 +10,12 @@
 	  <div class="col fs-5 fw-bold"><ul>Page Contents
 	    <li><a href="#summary">Data Summary</a></li>
 		<li><a href="#bandwidth">Bandwidth</a></li>
+		<li><a href="#pkg">Python Packages</a></li>
 		<li><a href="#ideas">Up Next?</a></li>
 	  </ul></div>
 	</div>
 	
-<hr class="my-3">
+<hr class="mt-5 border-3">
 <!-- SUMMARY -->
   <h3 class="ms-5" id="summary">Data Summary
 	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
@@ -51,7 +52,7 @@
 	  </div>
     </form>
 	
-<hr class="my-3">
+<hr class="mt-5 border-3">
 <!-- BANDWIDTH -->  
   <h3 class="ms-5" id="bandwidth">Bandwidth
 	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
@@ -94,7 +95,28 @@
 	  .../{{ ex_bandwidth[0:27] }}home=True<br><br>.../{{ ex_bandwidth[0:27] }}home=False
 	</div></div>
   </div>
-<hr>
+
+<hr class="mt-5 border-3">
+<!-- PYTHON PACKAGES -->  
+  <h3 class="ms-5" id="pkg">Python Packages
+	<span class="bg-info-subtle border border-info-subtle rounded text-primary px-2 ms-5 fs-5">
+	  {{ url_for('api_v1.api_v1_pkgs', _external=True) }}
+	</span>
+  </h3>	
+    <div class="fs-5 my-4 mx-2">
+	  <b>"Python"</b> lists packages found by <a href="https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules">pkgutil</a> iter_modules
+	  and version info, if available, from <a href="https://docs.python.org/3/library/importlib.metadata.html#overview">importlib.metadata</a>. 
+	  Otherwise version will be <em>null</em>. This information may be more accurate than the 
+	  <a href="https://github.com/NBPub/BeatLog/blob/main/requirements.txt">requirements.txt</a> list in the repository. 
+	  The <b>BeatLog, Python,</b> and <b>PostgreSQL</b> release information is displayed on the home <a href="{{ url_for('home.home') }}">page</a> 
+	  and in more detail on the data cleaning <a href="{{ url_for('home.data_clean') }}">page</a>.
+    </div>  
+	<div class="bg-dark text-warning p-3"><pre><code>
+	  <span class="text-info" style="float:left;">{{ url_for('api_v1.api_v1_pkgs', _external=True) }}</span>
+	  <br>{<br>&nbsp;&nbsp; . . .<br>&nbsp;&nbsp;"package-name":"version-number"<br>&nbsp;&nbsp;"other-package":null<br>&nbsp;&nbsp; . . .<br>}
+	</code></pre></div>
+
+<hr class="mt-5 border-3">
 <!-- Other Ideas -->  
   <h3 class="ms-5" id="ideas">Up Next?</h3>
 	<ul class="fs-5 mb-5">Other Ideas - possible options to add in future. <a class="mx-3" href="https://github.com/NBPub/BeatLog/issues/new">Submit your own</a>

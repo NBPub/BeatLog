@@ -13,6 +13,7 @@
     - [Syntax](#bandwidth-option-syntax)  
     - [Example Return](#example-bandwidth-return)
 	- [Query Guide](#bandwidth-query-guide)
+  - [Python Packages](#python-packages)	
 - [More to come?](#more)
 
 ## Motivation
@@ -327,7 +328,22 @@ GROUP BY <FIELD>
 ORDER BY COUNT DESC 
 LIMIT 10
 ```
+## Python Packages
 
+`*/api/v1/python/`
+
+**Python** lists packages found by [pkgutil](https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules) iter_modules as keys. 
+If version info is available from [importlib.metadata](https://docs.python.org/3/library/importlib.metadata.html#overview), it will be listed as the value, otherwise version will be `null`.
+If a key or value is not `null`, it will be provided as a string.
+
+This information will be specific to your installation and may be more accurate than [requirements.txt](/requirements.txt). 
+
+```JSON
+{
+  "package-name": "version.number"
+  "other-package": null
+}
+```
 
 ## More?
 

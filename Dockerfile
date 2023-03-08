@@ -1,4 +1,4 @@
-FROM python:3.10-alpine
+FROM python:3.11-alpine
 RUN apk --no-cache add curl tzdata libpq
 WORKDIR /app
 

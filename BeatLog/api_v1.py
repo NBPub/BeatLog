@@ -86,3 +86,16 @@ def api_v1_bandwidth(api_spec): # FIELD=VALUE or DATE=UNIX-UNIX,FIELD=VALUE
     if type(data) == str:
         abort(422, data)
     return data
+    
+@bp.route("/v1/python/", methods = ['GET'])
+def api_v1_pkgs():
+    from pkgutil import iter_modules
+    from importlib.metadata import version
+    data = {}
+    for val in iter_modules():
+        if val.ispkg:
+            try:
+                data[val.name] = version(val.name)
+            except:
+                data[val.name] = None
+    return data

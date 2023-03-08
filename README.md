@@ -246,14 +246,14 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 [Details](/docs/Installation/Changelog.md#pre-alpha-018-details), [Previous Versions](#pre-release-changelog)
 
 - Features
-  - API v1 fixes/improvements
-    - handle geography data better / provide calls to retrieve geography data
-	- other ideas [listed](/docs/Features/API.md#more) on page?
-  - Failed Regex
-    - finalize features? add ability to [test Regex methods](/main/docs#adding-regex-to-logs) on failed lines
+  - ability to delete from all logs at once on [database clean](/docs/Features/Database.md#database-cleanup)
+  - API [call](/docs/Features/API.md#python-packages) for listing all Python packages
 - Bug Fixes / Minor Improvements
-  - make sure deleted logs are handled properly in database, date modified should account for former file and also parsed lines
-  
+  - *checking* make sure deleted logs are handled properly in database, date modified should account for former file and also parsed lines
+    - update info with deletion of failed regex lines?
+  - Home Page design updates
+- Other
+  - testing Python 3.11, will update [requirements.txt](/requirements.txt) with next release
 
 ### Possible Improvements
 
@@ -268,7 +268,11 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 - Features
   - visitor maps, pan to location from table entry
   - fail2ban filter testing
-  - add to newer features: Failed Regex, JSON API
+  - **Failed Regex**
+    - add ability to [test Regex methods](/main/docs#adding-regex-to-logs)
+  - **JSON API**
+    - handle geography data better / provide calls to retrieve geography data
+	- other ideas [listed](/docs/Features/API.md#more) on page?	
   - allow for SSL in deployment, *likely just changes to Gunicorn start command*
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
@@ -290,7 +294,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 | alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. Bugfixes, aesthetic, and navigation improvements. |
-| alpha-0.1.7 | *Nothing yet!* |
+| alpha-0.1.7 | *testing BeatLog with Python 3.11* |
 
 
 ### Other Pages
