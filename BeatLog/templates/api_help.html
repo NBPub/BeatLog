@@ -5,7 +5,7 @@
     <div class="row my-5 ms-5">
 	  <div class="col fs-5">
         <p class="me-5">BeatLog contains a simple JSON API. This page describes the available query parameters. More options may be in development.
-		See the <a href="https://github.com/NBPub/BeatLog/blob/main/docs/API.md#simple-json-api">documentation</a> for more details.</p>
+		See the <a href="http://holipi:5001/api/help/">documentation</a> for more details.</p>
 	  </div>
 	  <div class="col fs-5 fw-bold"><ul>Page Contents
 	    <li><a href="#summary">Data Summary</a></li>
@@ -74,7 +74,7 @@
 		• <b>Field / Value syntax:</b> <span class="bg-success-subtle px-1 fw-bold">&lt;FIELD&gt;=&lt;VALUE&gt;</span>, 
 		where &lt;FIELD&gt; is a valid column in the Access Log database table. &lt;VALUE&gt; can be anything to match to the field.
 		For certain text fields, pattern matching can be utilized with a <span class="bg-success-subtle px-1 fw-bold">%</span>
-		as shown in the example call. See the <a href="https://github.com/NBPub/BeatLog/blob/main/docs/API.md#simple-json-api">API Documentation</a>  
+		as shown in the example call. See the <a href="http://holipi:5001/api/help/">API Documentation</a>  
 		for help using <a href="https://www.postgresql.org/docs/current/functions-matching.html">PostgreSQL</a> pattern matching and more guidance.
 	  </p>
     </div>  
@@ -108,13 +108,16 @@
 	  and version info, if available, from <a href="https://docs.python.org/3/library/importlib.metadata.html#overview">importlib.metadata</a>. 
 	  Otherwise version will be <em>null</em>. This information may be more accurate than the 
 	  <a href="https://github.com/NBPub/BeatLog/blob/main/requirements.txt">requirements.txt</a> list in the repository. 
-	  The <b>BeatLog, Python,</b> and <b>PostgreSQL</b> release information is displayed on the home <a href="{{ url_for('home.home') }}">page</a> 
-	  and in more detail on the data cleaning <a href="{{ url_for('home.data_clean') }}">page</a>.
     </div>  
+	<span class="ms-5 my-2">...<a class="fs-5 fw-bold" href="{{url_for('api_v1.api_v1_pkgs')}}">{{url_for('api_v1.api_v1_pkgs')}}</a></span>
 	<div class="bg-dark text-warning p-3"><pre><code>
 	  <span class="text-info" style="float:left;">{{ url_for('api_v1.api_v1_pkgs', _external=True) }}</span>
 	  <br>{<br>&nbsp;&nbsp; . . .<br>&nbsp;&nbsp;"package-name":"version-number"<br>&nbsp;&nbsp;"other-package":null<br>&nbsp;&nbsp; . . .<br>}
 	</code></pre></div>
+	<div class="fs-5 my-4 mx-2">
+	  Note that the <b>BeatLog, Python,</b> and <b>PostgreSQL</b> release information is displayed on the home 
+	  <a href="{{ url_for('home.home') }}">page</a>, and in more detail on the data cleaning <a href="{{ url_for('home.data_clean') }}">page</a>, footers.	  
+	</div>
 
 <hr class="mt-5 border-3">
 <!-- Other Ideas -->  

@@ -75,7 +75,7 @@
 			{% block navbarAdds %}
 			{% endblock %}			
 		  </ul>
-		  <form method="POST" class="d-flex needs-validation" action="{{ url_for('home.Beat') }}">
+		  <form method="POST" class="d-flex needs-validation" action="{{ url_for('home.Beat', beatIP = 'POST') }}">
 			<input class="form-control me-2"  type="text" name="BeatLog" placeholder="Enter IP address" value="" id="validationBeatLog" required>
 			<button class="btn btn-outline-success" type="submit" formtarget="_blank">Beat</button>
 		  </form>

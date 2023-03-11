@@ -75,7 +75,7 @@ UNION ALL SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp")'''
     if cleanIDs != []:
         cleaning = len(cleanIDs)
         with conn.transaction():   
-            cur.execute('DELETE FROM geoinfo WHERE id=ANY(%s)', (cleanIDs,))
+            cur.execute('DELETE FROM geoinfo WHERE id=ANY(%s)', [cleanIDs])
         return (f'{cleaning} locations removed', 'success')
     else:
         return ('All locations have associated IPs, none removed', 'warning')

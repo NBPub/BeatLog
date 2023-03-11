@@ -243,23 +243,21 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 
 ### In Progress, alpha-0.1.7
 
-[Details](/docs/Installation/Changelog.md#pre-alpha-018-details), [Previous Versions](#pre-release-changelog)
+[Details](/docs/Installation/Changelog.md#alpha-017-details), [Previous Versions](#pre-release-changelog)
 
+- Python upgrade 3.10 &rarr; 3.11
 - Features
-  - ability to delete from all logs at once on [database clean](/docs/Features/Database.md#database-cleanup)
-  - API [call](/docs/Features/API.md#python-packages) for listing all Python packages
-- Bug Fixes / Minor Improvements
-  - *checking* make sure deleted logs are handled properly in database, date modified should account for former file and also parsed lines
-    - update info with deletion of failed regex lines?
-  - Home Page design updates
-- Other
-  - testing Python 3.11, will update [requirements.txt](/requirements.txt) with next release
+  - added to [Data Clean](/docs/Features/Database.md#database-cleanup), [Beat! button](/docs/Features/Report.md#beat-button) , [JSON API](/docs/Features/API.md#python-packages), and [Report](/docs/Features/Report.md#overview)
+  - improved SQL for geography cache cleaning and some report sections  
+- Documentation proofreading and improvements
+- aesthetic / navigation improvements / bugfixes
+
 
 ### Possible Improvements
 
 <details><summary>show/hide</summary>
 
-- Development
+- Design
   - utilize row factories with psycopg to make cleaner database selections
   - use template file for SQL commands to clean up code
   - add tests for code
@@ -277,6 +275,8 @@ Get the most information from BeatLog following these steps (detailed in Setup G
     - Copy to clipboard button won't work in most browsers without connecting **BeatLog** as `localhost` or adding a certificate for LAN connections.
 	- Enable via environmental variable, if enabled Gunicorn should look for cerificates / keyfiles. This way a key can be added and "activated" after initial setup.
 	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
+- Deployment
+  - will using [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks) instead of pre-load for scheduled tasks and management of database connection pool improve anything?
 </details>
 
 
@@ -294,7 +294,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 | alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. Bugfixes, aesthetic, and navigation improvements. |
-| alpha-0.1.7 | *testing BeatLog with Python 3.11* |
+| alpha-0.1.7 | *testing BeatLog with Python 3.11*, minor feature additions and improvements: **API**, **Report**, **Data Clean** |
 
 
 ### Other Pages

@@ -9,35 +9,45 @@
 ## Contents
 
 - [Pre-Release](pre-release)
-  - *[alpha-0.1.7](#pre-alpha-018-details)*
-  - **[alpha-0.1.6](#pre-alpha-017-details)**
+  - *[alpha-0.1.7](#alpha-017-details)*
+  - **[alpha-0.1.6](#alpha-016-details)**
     - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.6) +
-  - [alpha-0.1.5](#pre-alpha-016-details)
+  - [alpha-0.1.5](#alpha-015-details)
     - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5) +
-  - [alpha-0.1.4](#pre-alpha-015-details)
+  - [alpha-0.1.4](#alpha-014-details)
     - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.4) +
-  - [alpha-0.1.3](#pre-alpha-014-details)
+  - [alpha-0.1.3](#alpha-013-details)
     - [Tagged Release, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3) +
-  - [alpha-0.1.2](#pre-alpha-013-details)
+  - [alpha-0.1.2](#alpha-012-details)
     - [Tagged Release, database migrations](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2) +
-  - [alpha-0.1.1](#pre-alpha-012-details)
-  - [alpha-0.1.0](#pre-alpha-011-details) | *Initial Commit*
+  - [alpha-0.1.1](#alpha-011-details)
+  - [alpha-0.1.0](#alpha-010-details) | *Initial Commit*
 
 
 ## Pre-Release
 
 BeatLog is still in development. Every version thus far is a "pre-release".
 
-### pre alpha-0.1.8 details
+### alpha-0.1.7 details
 
-- testing Python upgrade 3.10 --> 3.11
-- aesthetic / navigation improvements
-- bugfixes
+- Python upgrade 3.10 &rarr; 3.11
+- aesthetic / navigation improvements / bugfixes
+  - Home Page redesign
 - Features
   - ability to delete from all logs at once on [database clean](/docs/Features/Database.md#database-cleanup)
   - API [call](/docs/Features/API.md#python-packages) for listing all Python packages
+  - [Beat!](/docs/Features/Report.md#beat-button) button now allows GET requests, allows for a real link. Links provided in filtrate table on report
+  - clean geography [cache](/docs/Features/Geography.md#data-assessment) faster with adjusted SQL
+  - [Report](/docs/Features/Report.md#overview) improvements
+    - Filtrate IP list/table
+	- Action Count table now only unique IPs for **Finds**, **Bans**, **Visitors**
+	- SQL queries improved
+- Documentation
+  - fixed links, changed headings on this page, proofread releases
 
-### pre alpha-0.1.7 details
+### alpha-0.1.6 details
+
+<details><summary>═════════</summary>
 
 - JSON API
   - no longer rounding *bandwidth* calls to nearest day
@@ -52,9 +62,15 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 - Bug Fixes / Minor Improvements
   - various aesthetic / navigation improvements
   - removed unused template(s)
+  
+</details>
 
+- Documentation expansion and reorganization
+- Added to [Failed Regex](/docs/Features/Database.md#failed-regex)
 
-### pre alpha-0.1.6 details
+### alpha-0.1.5 details
+
+<details><summary>═════════</summary>
 
 - JSON API
   - new feature: **[bandwidth](/docs/Features/API.md#bandwidth)** - returns total bandwidth from access log.
@@ -69,11 +85,17 @@ BeatLog is still in development. Every version thus far is a "pre-release".
   - will continue building "stable" images with each release
 - Bugfixes to make a more "stable" release. Various aesthetic / navigation improvements 
   - API bugfixes
-  - Updated [Bootstrap](https://getbootstrap.com/docs/) from to 5.3 from 5.2
+  - Updated [Bootstrap](https://getbootstrap.com/docs/) to 5.3 from 5.2
   - minor fixes
 
+</details>
 
-### pre alpha-0.1.5 details
+- Added to API features
+- No longer building **latest** image for `armhf` AKA `arm32v7` architectures, will continue building **stable** images
+-[Bootstrap](https://getbootstrap.com/docs/) 5.2 &rarr; 5.3
+
+
+### alpha-0.1.4 details
 
 <details><summary>═════════</summary>
 
@@ -93,16 +115,20 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
+- Added [JSON API](/docs/Features/API.md#simple-json-api)
+- All docker images built via [workflows](https://github.com/NBPub/BeatLog/actions)
+  - **stable** / **latest** images now indicate tagged release / latest commit, respectively
+- Removed support for **unauthorized.log**  
+- *Database changes - removed Unauthorized table*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)
 
-
-### pre alpha-0.1.4 details
+### alpha-0.1.3 details
 
 <details><summary>═════════</summary>
 
 - Database Schema
-  - changed datatypes for Settings > **KnownDevices** and Jail > **IgnoreIPs**
+  - changed datatypes for Settings &rarr; **KnownDevices** and Jail &rarr; **IgnoreIPs**
   - Added time interval columns, **Findtime** and **Bantime** to Jail.
-  - detailed in [alpha-0.1.2 tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2).**), manual migrations required prior to update
+  - detailed in [alpha-0.1.2 tag](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2), manual migrations required prior to update
 - DB Features
   - [page](/docs/Features/Database.md#query) to query database (access, error, fail2ban logs) and [page](/docs/Features/Database.md#results) to view time-ordered results as table
   - various filter options and pre-assembled queries
@@ -120,27 +146,29 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
+- New [Database features](/docs/Features/Database.md#database-features-documentation), query table data directly via BeatLog
+- SQL query creation improved
+- *Database changes - Settings table datatypes*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
 
-### pre alpha-0.1.3 details
+### alpha-0.1.2 details
 
 <details><summary>═════════</summary>
 
-- Installation, Docker Compose
+- Installation, Docker Compose *Instructions*
   - mount directories instead of files to update logs within **BeatLog** container
-  - PostgreSQL upgrade instructions
+  - PostgreSQL upgrade
 - Docker Image
-  - Building **latest** and **arm32v7-latest** tags via Github [workflow](/actions/workflows/main.yml)
-  - NullConnectionPool versions uploaded manually for now, may stop later
+  - Build **latest** and **arm32v7-latest** tags via Github [workflow](https://github.com/NBPub/BeatLog/actions)
+  - NullConnectionPool versions uploaded manually, may stop later
 - Documentation
   - [demonstration page](https://nbpub.github.io/BeatLog/) for Map and Report, added links to docs
 - General
   - SQL query creation improved, as per [psycopg3 docs](https://www.psycopg.org/psycopg3/docs/basic/params.html)
     - *need to continue work on *`Known Devices`* and *`Home Ignorable`* [usage](/docs/Features/Report.md#known-devices)*
-  - increased gunicorn worker timeout to 60s, from 30s, to allow for long operations
+  - increased gunicorn worker timeout to 60s, from 30s, to allow for longer operations
 	- Can revert by 
 	  - Timechecks in `Parse All`, individual parsing operations
 	  - Analyze report generation with profiler for potential improvements
-	  - geography [location lookup](/docs/Features/Geography.md#location-lookup) capped to 20 per attempt
   - Bug Fixes / Minor Improvements
     - various errors fixed
     - added data to report tables
@@ -148,36 +176,37 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
-Last NullConnectionPool releases! [Notes](/docs/NullConnectionPool.md)
+- Docker images built via [workflows](https://github.com/NBPub/BeatLog/actions) with each commit
+  - named releases built manually
+- First [tagged](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2) release
+- Last NullConnectionPool release! [Notes](/docs/Installation/NullConnectionPool.md)
 
-### pre alpha-0.1.2 details
+### alpha-0.1.1 details
 
 <details><summary>═════════</summary>
 
 - Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?
   - general issue of `ConnectionPool` with Gunicorn's forked workers. error may be solved: pool opened and checked after fork, before first request.
   - Scheduled tasks created with `gunicorn --preload`, to run with a single Gunicorn worker.
-  - need to figure out how to best use (Flask)-**APScheduler**, **Gunicorn**, and **psycopg3 ConnectionPool** together. 
-    - reading up on [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks)
-- If modified location city/country is set to `None`, should save as `NULL` in database.
-  - adding note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
-- Scheduled `parse_all` may cause duplicate prepared statements error
-  - monitor, think this is fixed. probably result of spamming home page
+- Modified location city/country set to `None` saved as `NULL` in database.
+  - added note to docs about inability to set "None" as a city or country name, due to above. [Sorry!](https://geotargit.com/called.php?qcity=None)
+- Fixed possible scheduled `parse_all` duplicate prepared statements error
 - Potential Gunicorn worker timeout for parsing or location fill operations
-  - limited geofill to maximum of 20 locations at a time (20-25 second operation), could increase `gunicorn --timeout` from default 30 seconds.
+  - limited geofill to maximum of 20 locations at a time (20-25 second operation)
+  - could increase `gunicorn --timeout` from default 30 seconds
   - what is upper limit for parsing time?
 - change fail2ban lastparsed from last saved line to last read line
-  - should be less confusing when checking last parsed
-- expand documentation*
-  - continuous drafting, documenting changes in detail until beta release
+- expanded documentation
+  - continuous drafting
 - add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now
-  - do workers+ConnectionPool take too many database connections?
-  - reading up on Gunicorn server hooks to understand best way to integrate scheduled tasks
   
 </details>
 
-### pre alpha-0.1.1 details
+- production WSGI: **Gunicorn**
+ - related fixes
 
-- Initialize repository, documentation
-- Upload **BeatLog** images to [Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags) with alpha-0.1.0 tag
+### alpha-0.1.0 details
+
+- Initialized repository, documentation
+- Uploaded **BeatLog** images to [Docker Hub](https://hub.docker.com/r/nbpub/beatlog/tags) with alpha-0.1.0 tag
   

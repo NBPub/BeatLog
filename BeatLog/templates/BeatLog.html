@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block title %}BeatLog!{% endblock %}
 {% block content %}
-  <h1>BeatLog IP Assessment</h1>
+  <h1>BeatLog IP Assessment
+    {% if get_link %}<a class="fs-5 me-2 bg-info-subtle p-2 rounded" style="float:right" href="{{get_link}}">Permalink</a>{% endif %}
+  </h1>
     {% if beatIP[0] %}
-	  <span class="fs-3 ms-3 text-info bg-dark fw-bold">{{ beatIP[1] }}</span>
+	  <span class="fs-3 ms-3 text-info bg-dark fw-bold px-2">{{ beatIP[1] }}</span>
 	  <em class="ms-5 fw-bold text-muted">Most recent activity, up to 10 rows, from Access • fail2ban • Error logs.</em>
 	  <br><hr>
 	  <div class="row mb-5">

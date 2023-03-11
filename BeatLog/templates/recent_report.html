@@ -51,6 +51,7 @@
 	  <div class="text-center mt-2">
 	  {% if ErrorFiltrate or AccessFiltrate %}
 	    <a class="fw-bold" href="#scrollspyFiltrate">Filtrate Table(s)</a>
+		<b class="mx-2">{% if FiltrateIPs %} {{FiltrateIPs[1] }} {% endif %}</b>
 	  {% else %}
 	    <span class="text-center text-success fw-bold">No Filtrate!</span>
 	  {% endif %}
@@ -293,6 +294,17 @@
 			</table>	
 		  </div>
 {% endif %}	  
+{% if FiltrateIPs %}
+		<h4 class="ms-5">Unique IP List - {{FiltrateIPs[1] }}
+		  <button class="btn btn-dark btn-sm ms-3 my-3" type="button" data-bs-toggle="collapse" data-bs-target="#IPfiltrate">Show Table</button>	
+		</h4>
+		  <div class="collapse" id="IPfiltrate">
+			<table class="table table-sm table-responsive table-hover table-bordered table-striped-columns table-dark me-5 mt-3 caption-top">
+			  <caption>IP List, <a target="_blank" href="{{ url_for('db_view.db_view') }}">Query Database</a></caption>
+			  {{ FiltrateIPs[0]|safe }}
+			</table>
+		  </div>
+{% endif %}	 
   </div><br /><br /><br />
 {% endblock %}
 

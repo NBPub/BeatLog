@@ -80,11 +80,10 @@ def data_clean():
     alert = estimate = existing = None
     disable = False
     if request.method == 'POST' and 'vacuum' in request.form:
-        alert = vacuum_tables(['access','error','fail2ban'])    
+        alert = [vacuum_tables(['access','error','fail2ban'])]   
     with pool.connection() as conn:
         cur = conn.cursor()
-        logs, table, prefill = log_data_cleaning(cur) # logs with > 0 rows, table of data
-        prefill = (prefill.strftime('%Y-%m-%dT%H:%M'), (prefill+timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')) if prefill else prefill
+        logs, table, prefill = log_data_cleaning(cur) # logs with > 0 rows, table of data        
         noIPgeo = geo_noIP_check(cur)
         versions = [cur.execute('SELECT version();').fetchone()[0]]
         versions.append(f'Python - {version}')
@@ -116,7 +115,9 @@ def data_clean():
                 alert, indicator = log_clean_confirmed(conn,cur, existing)
                 if indicator: # data changed
                     logs, table, prefill = log_data_cleaning(cur) 
-                    existing = None                   
+                    disable = False
+                    existing = None 
+    prefill = (prefill.strftime('%Y-%m-%dT%H:%M'), (prefill+timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')) if prefill else prefill
     return render_template('data_clean.html', logs=logs, table=table, alert=alert, disable=disable,
                            estimate=estimate, existing=existing, noIPgeo=noIPgeo, versions=versions,
                            prefill=prefill)
@@ -205,13 +206,16 @@ def settings():
     k = range(kds+1,k+1)
     return render_template('settings.html', old=old, alert=alert, mm_check=mm_check, k=k, kds=kds)   
     
-@bp.route("/Beat/", methods = ['POST'])
-def Beat():
+@bp.route("/Beat/<beatIP>", methods = ['GET', 'POST'])
+def Beat(beatIP):
+    get_link = None
+    if request.method == 'POST':
+        beatIP = request.form['BeatLog']
+        get_link = url_for('home.Beat',beatIP = beatIP)
     with pool.connection() as conn:
         cur = conn.cursor()    
-        beatIP = request.form['BeatLog']
         beatIP = beat_analyze(cur, beatIP)
-    return render_template('BeatLog.html', beatIP=beatIP)
+    return render_template('BeatLog.html', beatIP=beatIP, get_link=get_link)
 
 @bp.route("/report/", methods = ['GET', 'POST'])
 def recent_report():
@@ -242,7 +246,7 @@ def recent_report():
         homeStatus, homeMethod, actionCounts, outStatus, outMethod, \
         freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
         ErrorFiltrate, outHitsIP, outDaily, f2bFilters,\
-        f2b_unused, f2brecent = report_build(cur, start, end, report_days)   
+        f2b_unused, f2brecent, FiltrateIPs = report_build(cur, start, end, report_days)   
 
     return render_template('recent_report.html',duration=duration, start=start, end=end,
                             home_summary=home_summary, out_summary=out_summary, homeIP=homeIP, 
@@ -252,7 +256,7 @@ def recent_report():
                             actionCounts=actionCounts, top10s=top10s,freqIPs_access=freqIPs_access,
                             freqIPs_error=freqIPs_error,freqIPs_known=freqIPs_known,
                             AccessFiltrate=AccessFiltrate, ErrorFiltrate=ErrorFiltrate,
-                            outHitsIP=outHitsIP, outDaily=outDaily,
+                            outHitsIP=outHitsIP, outDaily=outDaily, FiltrateIPs=FiltrateIPs,
                             f2bFilters=f2bFilters, f2b_unused=f2b_unused, f2brecent=f2brecent)                       
 
 @bp.route("/jail/", methods = ['GET','POST'])

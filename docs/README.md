@@ -8,13 +8,21 @@
     - [Docker Compose](/README.md#docker-compose)
     - [Parameter Details](/README.md#parameters)
   - [Extras](/docs/Installation/Installation_Extras.md#beatlog-installation-options) 
+    - [Healthchecks](/docs/Installation/Installation_Extras.md#healthchecks)
+	- [Adminer](/docs/Installation/Installation_Extras.md#adminer)
+    - [Upgrading PostgreSQL](/docs/Installation/Installation_Extras.md#postgresql-updates)
+    - [Container Interaction](/docs/Installation/Installation_Extras.md#inside-beatlog)
   - [Local Installation](/docs/Installation/Local_Installation.md#beatlog-local-installation)
 - **Setup Guide**
   - *[this page](#setup-guide-contents)*
 - **Features**
   - [Report](/docs/Features/Report.md#contents)
+    - [Beat! Button](/docs/Features/Report.md#beat-button)
   - [Geography](/docs/Features/Geography.md#contents)
   - [Database](/docs/Features/Database.md#database-features-documentation)
+    - [Explorer](/docs/Features/Database.md#database-explorer)
+	- [Clean](/docs/Features/Database.md#database-cleanup)
+	- [Failed Regex](/docs/Features/Database.md#failed-regex)
   - [JSON API](/docs/Features/API.md#simple-json-api)
 - **BeatLog History**
   - [Detailed Changelog](/docs/Installation/Changelog.md#beatlog-changelog)

@@ -1,4 +1,5 @@
 from psycopg import sql
+from flask import url_for
 
 def table_build(data, columns, timerows):
     if data == [] or len(data[0])!=len(columns):
@@ -282,25 +283,24 @@ WHERE access.home=True AND fail2ban.home=True AND fail2ban.action='Ignore'
         homef2b = (homef2b[0], table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(),
               ['Date', 'Filter','http','Method','Status', 'bytes','Ref+URL','Tech'], True))
     # action count bar graph
-    # outside Unique IP
-    SQL = '''SELECT day, COUNT(*) FROM (SELECT DISTINCT ip, date_trunc('day', date) "day" 
-FROM {} WHERE home=False AND date BETWEEN %(start)s AND %(end)s) "tmp" GROUP BY day'''       
+    # outside Unique IP, access and error logs
+    SQL = '''SELECT day, COUNT(*) FROM (
+SELECT DISTINCT ip, date_trunc('day', date) "day" FROM "access" WHERE home=False AND date BETWEEN %(start)s AND %(end)s
+UNION
+SELECT DISTINCT ip, date_trunc('day', date) "day" FROM "error" WHERE home=False AND date BETWEEN %(start)s AND %(end)s
+) "tmp" GROUP BY day'''       
     if KD_options[0]: # exclude Known Devices from count        
         raw_visitors = {val[0]:val[1] for val in cur.execute(\
-                        sql.SQL(SQL.replace('WHERE','WHERE tech!= ALL({}) AND'))\
-                       .format(sql.Identifier('access'), [KD_spec]),{'start':start,'end':end}).fetchall()}
+                        sql.SQL(SQL.replace('WHERE','WHERE tech!= ALL({}) AND',1))\
+                       .format([KD_spec]),{'start':start,'end':end}).fetchall()}
     else:      
         raw_visitors = {val[0]:val[1] for val in cur.execute(\
-                        sql.SQL(SQL).format(sql.Identifier('access')),{'start':start,'end':end}).fetchall()}     
-    # add in unique IPs from error. could use JOIN within SQL
-    cur.execute(sql.SQL(SQL).format(sql.Identifier('error')),{'start':start,'end':end})
-    for val in cur.fetchall():
-        if val[0] in raw_visitors:
-            raw_visitors[val[0]] += val[1]
+                        sql.SQL(SQL),{'start':start,'end':end}).fetchall()}
     visitors = {f'new Date({key.year},{key.month-1},{key.day})':val for key,val in raw_visitors.items()}               
     # fail2ban Found / Ban / Ignore
-    SQL = '''SELECT date_trunc('day', date) "day", action,  COUNT(*) FROM "fail2ban" WHERE 
-action IN ('Found','Ban', 'Ignore') AND date BETWEEN %(start)s AND %(end)s GROUP BY day, action'''       
+    SQL = '''SELECT day, action, COUNT(*) FROM (
+SELECT  DISTINCT ip, action, date_trunc('day', date) "day" FROM "fail2ban" 
+WHERE date BETWEEN %(start)s AND %(end)s) "tmp" GROUP BY day, action'''       
     finds = {}
     bans = {}
     ignores = {}
@@ -468,6 +468,20 @@ FROM "error" INNER JOIN "geoinfo" ON error.geo=geoinfo.id WHERE home=False AND d
 AND ip NOT IN (SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s) ORDER BY date'''  
         ErrorFiltrate = table_build(cur.execute(SQL,{'start':start,'end':end}).fetchall(), 
                         ['Date','IP','Location','Level','Message'], True)       
+    # filtrate, simple IP list
+    SQL = '''SELECT DISTINCT ip FROM "access" <KD_Option> home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN 
+(SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s) 
+UNION SELECT DISTINCT ip FROM "error" WHERE home=False AND date BETWEEN %(start)s AND %(end)s AND ip NOT IN 
+(SELECT DISTINCT(ip) FROM "fail2ban" WHERE action='Ban' AND date BETWEEN %(start)s AND %(end)s) ORDER BY ip'''
+    if KD_spec:
+        SQL = sql.SQL(SQL.replace('<KD_Option>', 'WHERE tech!= ALL({}) AND')).format([KD_spec])
+    else:
+        SQL = SQL.replace('<KD_Option>', 'WHERE')
+    FiltrateIPs = cur.execute(SQL,{'start':start,'end':end}).fetchall()
+    FiltrateIPs = [(val[0], f'''<a target="_blank" href="{url_for('home.Beat', beatIP=str(val[0]))}">Beat!</a>''') for val in FiltrateIPs]
+    FiltrateIPs = table_build(FiltrateIPs, 
+                     ['IP', 'Beat Link'], False)    
+    
     
     # Fail2Ban Charts, Filter: Finds(Total/Unique), Bans(Total/Unique)
     SQL = '''SELECT action, filter, COUNT(*) FROM "fail2ban" WHERE action IN ('Found','Ban') AND home=False 
@@ -550,7 +564,7 @@ AND date BETWEEN %(start)s AND %(end)s ORDER BY date desc LIMIT 20'''
     return home_summary, out_summary, homeIP, homeDevices, home_table,\
            homef2b, homeStatus, homeMethod, actionCounts, outStatus, outMethod,\
            freqIPs_access, freqIPs_error, freqIPs_known, top10s, AccessFiltrate,\
-           ErrorFiltrate, outHitsIP, outDaily, f2bFilters, f2b_unused, f2brecent
+           ErrorFiltrate, outHitsIP, outDaily, f2bFilters, f2b_unused, f2brecent, FiltrateIPs
 
 def beat_analyze(cur,IP):
     try:

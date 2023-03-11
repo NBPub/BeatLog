@@ -35,7 +35,7 @@ The **Daily Action Counts** chart summarizes key connections.
 - fail2ban **Ignores** (total) `... [filter] Ignore <IP> ...`
 - home **Ignorable** (total) - *see bottom row of [home summary table](#home-demo)*
 
-![contents_0](/docs/pics/Report_scrollSpy_0.png "Normal navigation bar") ![contents_1](/docs/pics/Report_scrollSpy_1.png "Navigation bar on Report page") 
+![contents_0](/docs/pics/Report_scrollSpy_0.png "Normal navigation bar") &rarr; ![contents_1](/docs/pics/Report_scrollSpy_1.png "Navigation bar on Report page") 
 
 On the Report page, the a **Contents** button is added to the navigation bar. It provides convenient scrolling to the report's sections.
 
