@@ -477,10 +477,16 @@ UNION SELECT DISTINCT ip FROM "error" WHERE home=False AND date BETWEEN %(start)
         SQL = sql.SQL(SQL.replace('<KD_Option>', 'WHERE tech!= ALL({}) AND')).format([KD_spec])
     else:
         SQL = SQL.replace('<KD_Option>', 'WHERE')
-    FiltrateIPs = cur.execute(SQL,{'start':start,'end':end}).fetchall()
-    FiltrateIPs = [(val[0], f'''<a target="_blank" href="{url_for('home.Beat', beatIP=str(val[0]))}">Beat!</a>''') for val in FiltrateIPs]
+    FiltrateIPs = []   
+    # Add in Hits, Data
+    for val in cur.execute(SQL,{'start':start,'end':end}).fetchall():
+        access = cur.execute('SELECT COUNT(*) FROM "access" WHERE ip=%s AND date BETWEEN %s AND %s',(val[0],start,end)).fetchone()[0]
+        error = cur.execute('SELECT COUNT(*) FROM "error" WHERE ip=%s AND date BETWEEN %s AND %s',(val[0],start,end)).fetchone()[0]
+        data = cur.execute('SELECT pg_size_pretty(sum(bytes)/COUNT(*)) FROM "access" WHERE ip=%s AND date BETWEEN %s AND %s',(val[0],start,end)).fetchone()[0]
+        FiltrateIPs.append((val[0], data, access, error, f'''<a target="_blank" href="{url_for('home.Beat', beatIP=str(val[0]))}">Beat!</a>'''))
+    
     FiltrateIPs = table_build(FiltrateIPs, 
-                     ['IP', 'Beat Link'], False)    
+                     ['IP', 'Data per hit', 'Access Hits','Error Hits', 'Beat Link'], False)    
     
     
     # Fail2Ban Charts, Filter: Finds(Total/Unique), Bans(Total/Unique)

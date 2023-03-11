@@ -36,8 +36,8 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 - Features
   - ability to delete from all logs at once on [database clean](/docs/Features/Database.md#database-cleanup)
   - API [call](/docs/Features/API.md#python-packages) for listing all Python packages
-  - [Beat!](/docs/Features/Report.md#beat-button) button now allows GET requests, allows for a real link. Links provided in filtrate table on report
-  - clean geography [cache](/docs/Features/Geography.md#data-assessment) faster with adjusted SQL
+  - [Beat!](/docs/Features/Report.md#beat-button) button now allows GET requests, not just POST. Real links can be used now. Links provided in filtrate table on report
+  - clean geography [cache](/docs/Features/Geography.md#data-assessment) faster with adjusted SQL, 100 row size limit for clears in case of timeout
   - [Report](/docs/Features/Report.md#overview) improvements
     - Filtrate IP list/table
 	- Action Count table now only unique IPs for **Finds**, **Bans**, **Visitors**
@@ -46,6 +46,9 @@ BeatLog is still in development. Every version thus far is a "pre-release".
   - fixed links, changed headings on this page, proofread releases
 
 ### alpha-0.1.6 details
+
+- Documentation expansion and reorganization
+- Added to [Failed Regex](/docs/Features/Database.md#failed-regex)
 
 <details><summary>═════════</summary>
 
@@ -65,10 +68,11 @@ BeatLog is still in development. Every version thus far is a "pre-release".
   
 </details>
 
-- Documentation expansion and reorganization
-- Added to [Failed Regex](/docs/Features/Database.md#failed-regex)
-
 ### alpha-0.1.5 details
+
+- Added to API features
+- No longer building **latest** image for `armhf` AKA `arm32v7` architectures, will continue building **stable** images
+-[Bootstrap](https://getbootstrap.com/docs/) 5.2 &rarr; 5.3
 
 <details><summary>═════════</summary>
 
@@ -90,12 +94,13 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
-- Added to API features
-- No longer building **latest** image for `armhf` AKA `arm32v7` architectures, will continue building **stable** images
--[Bootstrap](https://getbootstrap.com/docs/) 5.2 &rarr; 5.3
-
-
 ### alpha-0.1.4 details
+
+- Added [JSON API](/docs/Features/API.md#simple-json-api)
+- All docker images built via [workflows](https://github.com/NBPub/BeatLog/actions)
+  - **stable** / **latest** images now indicate tagged release / latest commit, respectively
+- Removed support for **unauthorized.log**  
+- *Database changes - removed Unauthorized table*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)
 
 <details><summary>═════════</summary>
 
@@ -115,13 +120,11 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
-- Added [JSON API](/docs/Features/API.md#simple-json-api)
-- All docker images built via [workflows](https://github.com/NBPub/BeatLog/actions)
-  - **stable** / **latest** images now indicate tagged release / latest commit, respectively
-- Removed support for **unauthorized.log**  
-- *Database changes - removed Unauthorized table*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3)
-
 ### alpha-0.1.3 details
+
+- New [Database features](/docs/Features/Database.md#database-features-documentation), query table data directly via BeatLog
+- SQL query creation improved
+- *Database changes - Settings table datatypes*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
 
 <details><summary>═════════</summary>
 
@@ -146,11 +149,12 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
-- New [Database features](/docs/Features/Database.md#database-features-documentation), query table data directly via BeatLog
-- SQL query creation improved
-- *Database changes - Settings table datatypes*: [migration instructions](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2)
-
 ### alpha-0.1.2 details
+
+- Docker images built via [workflows](https://github.com/NBPub/BeatLog/actions) with each commit
+  - named releases built manually
+- First [tagged](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2) release
+- Last NullConnectionPool release! [Notes](/docs/Installation/NullConnectionPool.md)
 
 <details><summary>═════════</summary>
 
@@ -176,13 +180,11 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 </details>
 
-- Docker images built via [workflows](https://github.com/NBPub/BeatLog/actions) with each commit
-  - named releases built manually
-- First [tagged](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.2) release
-- Last NullConnectionPool release! [Notes](/docs/Installation/NullConnectionPool.md)
-
 ### alpha-0.1.1 details
 
+- production WSGI: **Gunicorn**
+ - related fixes
+ 
 <details><summary>═════════</summary>
 
 - Issue with psycopg3 connection pool not restoring discarded connections. Related to Gunicorn or app design?
@@ -201,9 +203,6 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 - add production WSGI server **[Gunicorn](https://gunicorn.org/)**, using 3 workers for now
   
 </details>
-
-- production WSGI: **Gunicorn**
- - related fixes
 
 ### alpha-0.1.0 details
 

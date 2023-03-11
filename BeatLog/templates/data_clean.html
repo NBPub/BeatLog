@@ -2,23 +2,23 @@
 {% block title %}Database Cleanup{% endblock %}
 {% block content %}
   <h1>Database Cleanup
-    <a href="{{ url_for('db_view.db_view') }}" class="btn btn-sm btn-info me-3 mt-2 fw-bold" style="float:right;">Query Data</a>
+    <a href="{{ url_for('db_view.db_view') }}" class="btn btn-sm bg-info-subtle border-primary me-3 mt-2 fw-bold" style="float:right;">Query Data</a>
   </h1>
-    
 	{% if not logs %}
 	  <h3 class="text-danger m-3">No records in the database! This page is intended to delete parsed log data</h3>
 	{% else %}
 	  <h3 class="ms-5 mt-4">Parsed Log data
-	    <a style="float:right" href="{{ url_for('geography.geography_assess') }}" class="btn btn-sm btn-warning my-2 mx-5">
+	    <a style="float:right" href="{{ url_for('geography.geography_assess') }}" class="btn btn-sm bg-warning-subtle border-warning my-2 mx-5">
 		{% if noIPgeo %}Check Geography Cache: {{ noIPgeo }}{% else %}Geography Data{% endif %}</a>
 	  </h3>
 		<table class="table table-sm table-hover table-bordered border-primary table-striped-columns table-dark m-2">
 		    {{ table|safe }}
 	    </table>
-		<form method="POST" action="{{ url_for('home.data_clean') }}">
-		  <button type="submit" name="vacuum" class="btn btn-sm btn-info mt-3 mx-5">Vacuum Tables</button>
+		<form method="POST" action="{{ url_for('home.data_clean') }}" class="mt-3">
+		  <button type="submit" name="vacuum" class="btn btn-sm bg-primary-subtle border-primary ms-5">Vacuum Tables</button>
+		  <span class="text-muted ms-2">perform PostgreSQL <a href="https://www.postgresql.org/docs/current/sql-vacuum.html">vacuum</a> to update table data</span>
 		</form>
-		<p class="ms-2 text-muted">perform PostgreSQL <a href="https://www.postgresql.org/docs/current/sql-vacuum.html">vacuum</a> to update table data</p>
+		
 <br><hr>	
 	  <h3 class="ms-5 mt-2">Delete Database Entries</h3>
 	  <form method="POST" action="{{ url_for('home.data_clean') }}">

@@ -336,16 +336,16 @@ LIMIT 10
 If version info is available from [importlib.metadata](https://docs.python.org/3/library/importlib.metadata.html#overview), it will be listed as the value, otherwise version will be `null`.
 If a key or value is not `null`, it will be provided as a string.
 
-This information will be specific to your installation and may be more accurate than [requirements.txt](/requirements.txt). 
-To list all packages directly via Python, see how to [explore](/docs/Installation/Installation_Extras.md#inside-beatlog) within the **BeatLog** container, 
-via docker [exec](https://docs.docker.com/engine/reference/commandline/exec/).
-
 ```JSON
 {
   "package-name": "version.number"
   "other-package": null
 }
 ```
+
+This information will be specific to your installation and may be more accurate than [requirements.txt](/requirements.txt). 
+To list all packages directly via Python, see how to [explore](/docs/Installation/Installation_Extras.md#inside-beatlog) within the **BeatLog** container, 
+via docker [exec](https://docs.docker.com/engine/reference/commandline/exec/).
 
 ## More?
 

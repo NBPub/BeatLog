@@ -74,9 +74,11 @@ UNION ALL SELECT DISTINCT geo FROM access WHERE geo IS NOT NULL) "tmp")'''
     cleanIDs = [val[0] for val in cur.execute(SQL).fetchall()]
     if cleanIDs != []:
         cleaning = len(cleanIDs)
+        cleanIDs = cleanIDs[:100] if cleaning > 100 else cleanIDs # limit in case of timeout
+        start = time()
         with conn.transaction():   
             cur.execute('DELETE FROM geoinfo WHERE id=ANY(%s)', [cleanIDs])
-        return (f'{cleaning} locations removed', 'success')
+        return (f'{cleaning} locations removed in {round(time()-start)} seconds', 'success')
     else:
         return ('All locations have associated IPs, none removed', 'warning')
 
