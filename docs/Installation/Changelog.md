@@ -1,16 +1,18 @@
 # BeatLog Changelog
 
-*Latest Version: alpha-0.1.7*
+*Latest Version: alpha-0.1.8*
 
-**Stable Version: alpha-0.1.6**
+**Stable Version: alpha-0.1.7**
 
 [Releases](https://github.com/NBPub/BeatLog/releases)
 
 ## Contents
 
 - [Pre-Release](pre-release)
-  - *[alpha-0.1.7](#alpha-017-details)*
-  - **[alpha-0.1.6](#alpha-016-details)**
+  - *[alpha-0.1.8](#alpha-018-details)*
+  - **[alpha-0.1.7](#alpha-017-details)**
+    - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.7) +
+  - [alpha-0.1.6](#alpha-016-details)
     - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.6) +
   - [alpha-0.1.5](#alpha-015-details)
     - [Tagged Release](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.5) +
@@ -28,7 +30,20 @@
 
 BeatLog is still in development. Every version thus far is a "pre-release".
 
+### alpha-0.1.8 details
+
+***Nothing yet!***
+
 ### alpha-0.1.7 details
+
+- Python upgrade to 3.11
+- Added to 
+  - [Database Clean](/docs/Features/Database.md#database-cleanup)
+  - [JSON API](/docs/Features/API.md#python-packages)
+  - [Report](/docs/Features/Report.md#overview)
+  - [Beat! Button](/docs/Features/Report.md#beat-button)
+
+<details><summary>═════════</summary>
 
 - Python upgrade 3.10 &rarr; 3.11
 - aesthetic / navigation improvements / bugfixes
@@ -44,6 +59,8 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 	- SQL queries improved
 - Documentation
   - fixed links, changed headings on this page, proofread releases
+  
+</details>
 
 ### alpha-0.1.6 details
 

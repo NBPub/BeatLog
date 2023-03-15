@@ -77,7 +77,7 @@ def create_app(test_config=None):
         # check status of pool
         from .db_pool import pool
         pool.check()
-        sleep(3)
+        sleep(1)
         check = pool.get_stats()               
         if check['pool_available'] == 0:
             message=['Database connection lost, restart container to access web interface. Scheduled tasks should continue (check logs)', 'danger']

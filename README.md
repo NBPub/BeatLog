@@ -103,12 +103,12 @@ BeatLog [docker images](https://hub.docker.com/r/nbpub/beatlog/tags) are created
 "*Stable*" images are built and pushed with each release, and "*Latest*" images are built and pushed with each commit. 
 Therefore, the `stable` or `arm32v7-stable` tags are recommended, unless there are pending [updates](#development) that are desired.
 
-Current release: **[alpha-0.1.6](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.6)**, In development: **[alpha-0.1.7](#development)**<br>
+Current release: **[alpha-0.1.7](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.7)**, In development: **[alpha-0.1.8](#development)**<br>
 | Architecture | Latest Tags | Stable Tags |
 | :----: | --- | --- |
-| x86-64 | *latest* | *stable*, *alpha-0.1.6* |
-| arm64 | *latest*  | *stable*, *alpha-0.1.6* |
-| armhf | (built on request) | *arm32v7-stable*, *arm32v7-alpha-0.1.6* |
+| x86-64 | *latest* | *stable*, *alpha-0.1.7* |
+| arm64 | *latest*  | *stable*, *alpha-0.1.7* |
+| armhf | (built on request) | *arm32v7-stable*, *arm32v7-alpha-0.1.7* |
 
 A PostgreSQL database is required, and can be included in the same docker deployment, as shown below.
 Or, connect to an existing database, by providing connection settings under `environment:`. 
@@ -241,16 +241,11 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 
 ### [Submit](https://github.com/NBPub/BeatLog/issues/new) bugs or feedback.
 
-### In Progress, alpha-0.1.7
+### In Progress, alpha-0.1.8
 
-[Details](/docs/Installation/Changelog.md#alpha-017-details), [Previous Versions](#pre-release-changelog)
+[Details](/docs/Installation/Changelog.md#alpha-018-details), [Previous Versions](#pre-release-changelog)
 
-- Python upgrade 3.10 &rarr; 3.11
-- Features
-  - added to [Data Clean](/docs/Features/Database.md#database-cleanup), [Beat! button](/docs/Features/Report.md#beat-button) , [JSON API](/docs/Features/API.md#python-packages), and [Report](/docs/Features/Report.md#overview)
-  - improved SQL for geography cache cleaning and some report sections  
-- Documentation proofreading and improvements
-- aesthetic / navigation improvements / bugfixes
+- *Nothing yet*
 
 
 ### Possible Improvements
@@ -277,6 +272,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 	- ***Even with a certificate, BeatLog should only be hosted on trusted network and accessed locally***
 - Deployment
   - will using [server hooks](https://docs.gunicorn.org/en/stable/settings.html#server-hooks) instead of pre-load for scheduled tasks and management of database connection pool improve anything?
+  - add NGINX? utilize LSIO base images?
 </details>
 
 
@@ -294,7 +290,8 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.4 | Removed support for unauthorized log, [link for migration](https://github.com/NBPub/BeatLog/releases/tag/alpha-0.1.3). Added simple [API](/docs/Features/API.md#simple-json-api).<br><br>No more NullConnectionPool tag. All docker images built and pushed via github actions now. |
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 | alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. Bugfixes, aesthetic, and navigation improvements. |
-| alpha-0.1.7 | *testing BeatLog with Python 3.11*, minor feature additions and improvements: **API**, **Report**, **Data Clean** |
+| alpha-0.1.7 | *Upgrade to Python 3.11*, minor feature additions and improvements: **API**, **Report**, **Data Clean** |
+| alpha-0.1.8 |  |
 
 
 ### Other Pages
