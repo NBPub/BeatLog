@@ -38,10 +38,7 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 - Python upgrade to 3.11
 - Added to 
-  - [Database Clean](/docs/Features/Database.md#database-cleanup)
-  - [JSON API](/docs/Features/API.md#python-packages)
-  - [Report](/docs/Features/Report.md#overview)
-  - [Beat! Button](/docs/Features/Report.md#beat-button)
+  - [Database Clean](/docs/Features/Database.md#database-cleanup), [JSON API](/docs/Features/API.md#python-packages), [Report](/docs/Features/Report.md#overview), [Beat! Button](/docs/Features/Report.md#beat-button)
 
 <details><summary>═════════</summary>
 
