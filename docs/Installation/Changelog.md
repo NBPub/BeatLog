@@ -32,7 +32,7 @@ BeatLog is still in development. Every version thus far is a "pre-release".
 
 ### alpha-0.1.8 details
 
-***Nothing yet!***
+- fixed links to documentation on various **BeatLog** pages
 
 ### alpha-0.1.7 details
 

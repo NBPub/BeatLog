@@ -245,7 +245,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 
 [Details](/docs/Installation/Changelog.md#alpha-018-details), [Previous Versions](#pre-release-changelog)
 
-- *Nothing yet*
+- fixed links on some **BeatLog** pages
 
 
 ### Possible Improvements
@@ -291,7 +291,7 @@ Get the most information from BeatLog following these steps (detailed in Setup G
 | alpha-0.1.5 | Additional API features, and API code organization. Bugfixes / aesthetic improvements. Expanding API documentation and help page. |
 | alpha-0.1.6 | **BIG** documentation reorganization.<br>Modified [bandwidth API](/docs/Features/API.md#bandwidth), no longer rounding to nearest day. Added [Failed Regex](/docs/Features/Database.md#failed-regex) features. Bugfixes, aesthetic, and navigation improvements. |
 | alpha-0.1.7 | *Upgrade to Python 3.11*, minor feature additions and improvements: **API**, **Report**, **Data Clean** |
-| alpha-0.1.8 |  |
+| alpha-0.1.8 | minor fixes |
 
 
 ### Other Pages
