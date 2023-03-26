@@ -28,11 +28,3 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: nbpub/beatlog:latest
-      # -
-        # name: Build and push arm32
-        # uses: docker/build-push-action@v3
-        # with:
-          # push: true
-          # file: ./Dockerfile_arm32
-          # platforms: linux/arm/v7
-          # tags: nbpub/beatlog:arm32v7-latest
