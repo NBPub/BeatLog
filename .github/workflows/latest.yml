@@ -26,5 +26,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
+          file: ./Dockerfile_multistage
           platforms: linux/amd64,linux/arm64
-          tags: nbpub/beatlog:latest
+          tags: nbpub/beatlog:testing

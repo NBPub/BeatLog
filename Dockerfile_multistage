@@ -1,0 +1,24 @@
+# build stage
+
+FROM python:3.11-alpine as builder
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+RUN apk --no-cache add curl tzdata libpq
+	
+COPY requirements.txt .
+RUN pip install --upgrade pip setuptools wheel && pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# final
+
+FROM python:3.11-alpine
+WORKDIR /app
+
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+COPY /BeatLog/ ./beatlog
+
+ENTRYPOINT gunicorn -w 3 -t 60 -b 0.0.0.0:8000 --preload 'beatlog:create_app()'
