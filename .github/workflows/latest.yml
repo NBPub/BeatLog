@@ -27,5 +27,5 @@ jobs:
         with:
           push: true
           file: ./Dockerfile_multistage
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm/v7
           tags: nbpub/beatlog:testing

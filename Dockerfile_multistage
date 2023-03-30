@@ -5,7 +5,7 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-RUN apk --no-cache add curl tzdata libpq
+RUN apk --no-cache add curl tzdata libpq build-base
 	
 COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel && pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
